@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <!-- Indigo-painted wooden board: blue sits opposite the golden pizza, so the pizza and
+       the gaps between cut slices read clearly. A hand-painted marigold border ties it
+       to the rest of the kitchen. -->
+  <defs>
+    <linearGradient id="paint" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5A76C2"/><stop offset=".5" stop-color="#4562AE"/><stop offset="1" stop-color="#34508F"/>
+    </linearGradient>
+    <linearGradient id="side" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2C437F"/><stop offset="1" stop-color="#1B2B5C"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx=".3" cy=".22" r=".75">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".22"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="top"><rect x="18" y="14" width="564" height="564" rx="54"/></clipPath>
+  </defs>
+
+  <!-- board thickness -->
+  <rect x="18" y="24" width="564" height="566" rx="56" fill="url(#side)"/>
+  <!-- painted top -->
+  <rect x="18" y="14" width="564" height="564" rx="54" fill="url(#paint)"/>
+  <g clip-path="url(#top)" fill="none" stroke-linecap="round">
+    <!-- plank seams -->
+    <g stroke="#22356F" stroke-opacity=".45" stroke-width="3">
+      <path d="M159 14v564M300 14v564M441 14v564"/>
+    </g>
+    <g stroke="#7A93D6" stroke-opacity=".35" stroke-width="2">
+      <path d="M162 14v564M303 14v564M444 14v564"/>
+    </g>
+    <!-- wood grain showing through the paint -->
+    <g stroke="#89A0DD" stroke-opacity=".28" stroke-width="2">
+      <path d="M50 60c20 90-15 170 6 260s-12 180 10 250"/>
+      <path d="M100 30c-14 100 22 180 0 270s18 170-4 270"/>
+      <path d="M200 40c18 80-20 160 4 250s-14 190 8 270"/>
+      <path d="M245 20c-10 110 16 200-4 290s12 170-2 260"/>
+      <path d="M350 30c16 100-18 190 4 270s-10 180 6 260"/>
+      <path d="M392 50c-12 90 20 160-2 250s16 190-4 260"/>
+      <path d="M490 20c18 110-16 190 4 280s-14 170 6 260"/>
+      <path d="M540 60c-10 90 16 180-4 260s12 170-2 250"/>
+    </g>
+    <g fill="#22356F" fill-opacity=".22">
+      <ellipse cx="222" cy="410" rx="11" ry="6" transform="rotate(-10 222 410)"/>
+      <ellipse cx="470" cy="150" rx="9" ry="5" transform="rotate(8 470 150)"/>
+    </g>
+    <rect x="18" y="14" width="564" height="564" fill="url(#sheen)"/>
+  </g>
+  <!-- hand-painted marigold border with little dots at the corners -->
+  <rect x="40" y="36" width="520" height="520" rx="36" fill="none" stroke="#F2A62C" stroke-width="5" stroke-dasharray="1 0"/>
+  <rect x="50" y="46" width="500" height="500" rx="28" fill="none" stroke="#FBD584" stroke-opacity=".55" stroke-width="2" stroke-dasharray="3 9" stroke-linecap="round"/>
+  <g fill="#F2A62C">
+    <circle cx="40" cy="300" r="7"/><circle cx="560" cy="300" r="7"/><circle cx="300" cy="36" r="7"/><circle cx="300" cy="556" r="7"/>
+  </g>
+  <!-- bevelled edge -->
+  <rect x="24" y="20" width="552" height="552" rx="50" fill="none" stroke="#FFFFFF" stroke-opacity=".28" stroke-width="4"/>
+  <rect x="18" y="14" width="564" height="564" rx="54" fill="none" stroke="#141E45" stroke-opacity=".6" stroke-width="3"/>
+</svg>

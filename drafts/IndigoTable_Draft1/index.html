@@ -1,0 +1,1052 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<title>Billu's Pizza Level 1 Draft 2</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Kalam:wght@400;700&family=Nunito:wght@600;700;800&display=swap">
+
+<style>
+/* Draft 2 — an Indian kitchen table. A hand block-printed indigo tablecloth fills
+   the screen; the pizza sits on a wooden board, toppings wait in steel katoris on
+   a thali, and every word lives on one floating card at the bottom.
+   One committed light look: indigo, marigold, cream, tomato. */
+:root{
+  --indigo:#23356F; --indigo-2:#3A55A0; --indigo-ink:#141E45;
+  --cream:#FFF8EA; --paper:#FFFDF6;
+  --marigold:#F2A62C; --marigold-deep:#B97410;
+  --tomato:#C8402E; --leaf:#3F8A3C;
+  --ink:#2B2016; --ink-soft:#76604C;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,sans-serif;
+  --hand:"Kalam","Comic Sans MS","Segoe Print",cursive;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;overflow:hidden;color:var(--ink);font-family:var(--body);-webkit-user-select:none;user-select:none;
+  background-color:#F3E9D6;
+  background-image:
+    radial-gradient(ellipse at 50% 46%, rgba(255,250,240,0) 38%, rgba(30,24,40,.26) 100%),
+    linear-gradient(rgba(247,239,221,.42),rgba(247,239,221,.42)),
+    url("assets/draft2/cloth.svg");
+  background-size:100% 100%, 100% 100%, 150px 150px}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px solid var(--marigold);outline-offset:3px}
+
+#app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:8px;max-width:1360px;margin:0 auto;
+  padding-block:10px 12px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---------- header chips ---------- */
+.top{display:flex;align-items:center;gap:10px}
+.chip{background:rgba(255,253,246,.94);border:2px solid rgba(35,53,111,.16);border-radius:999px;
+  box-shadow:0 4px 14px rgba(20,30,70,.16);color:var(--indigo)}
+.home{width:44px;height:44px;display:grid;place-items:center;flex:0 0 auto}
+.home svg{width:22px;height:22px}
+.jump{position:relative;flex:0 1 auto;min-width:0}
+.jump select{appearance:none;-webkit-appearance:none;width:100%;max-width:min(48vw,370px);height:44px;
+  font-family:var(--display);font-weight:800;font-size:clamp(14px,1.5vw,17px);color:var(--indigo);
+  background:rgba(255,253,246,.94);border:2px solid rgba(35,53,111,.16);border-radius:999px;
+  box-shadow:0 4px 14px rgba(20,30,70,.16);padding:0 42px 0 18px;cursor:pointer;text-overflow:ellipsis}
+.jump::after{content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;pointer-events:none;
+  border-right:3px solid var(--indigo);border-bottom:3px solid var(--indigo);transform:translateY(-70%) rotate(45deg)}
+.jump option,.jump optgroup{color:var(--ink);background:#fff;font-family:var(--body)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.trail{flex:0 1 auto;margin-inline:auto;display:flex;justify-content:center;gap:6px;min-width:0;
+  background:rgba(255,253,246,.94);border:2px solid rgba(35,53,111,.16);border-radius:999px;padding:5px 12px;
+  box-shadow:0 4px 14px rgba(20,30,70,.16)}
+.tok{width:30px;height:30px;transition:transform .3s}
+.tok.now{transform:scale(1.22)}
+.stars{height:44px;display:flex;align-items:center;gap:6px;padding:0 16px;font-family:var(--display);font-weight:800;
+  font-size:18px;font-variant-numeric:tabular-nums;flex:0 0 auto}
+
+/* ---------- stage ---------- */
+.stage{position:relative;min-height:0;display:grid;grid-template-columns:minmax(190px,.82fr) auto minmax(230px,1fr);
+  grid-template-areas:"cust board tray";align-items:center;column-gap:clamp(12px,2.2vw,36px)}
+.stage>*{min-width:0}
+
+/* customer + order slip */
+.cust{grid-area:cust;align-self:start;display:grid;justify-items:center;gap:4px;padding-top:4px;position:relative;z-index:3}
+.slip{position:relative;width:min(100%,258px);background:var(--paper);rotate:-2.5deg;padding:0 0 16px;
+  filter:drop-shadow(0 10px 10px rgba(20,30,70,.22));
+  background-image:repeating-linear-gradient(180deg,transparent 0 27px,rgba(58,85,160,.13) 27px 28px);
+  background-position:0 52px}
+.slip::after{content:"";position:absolute;left:0;right:0;top:100%;height:10px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23FFFDF6'/%3E%3C/svg%3E") 0 0/16px 10px repeat-x}
+.slip.enter{animation:slipIn .7s cubic-bezier(.2,1.25,.4,1) both}
+.slip.shake{animation:shake .5s}
+@keyframes slipIn{from{transform:translateY(-60px) rotate(-10deg);opacity:0}}
+.pin{position:absolute;left:50%;top:-9px;translate:-50% 0;width:18px;height:18px;border-radius:50%;z-index:2;
+  background:radial-gradient(circle at 35% 35%,#FFD27A,#F2A62C 55%,#9C6008);box-shadow:0 2px 3px rgba(0,0,0,.3)}
+.slip-head{display:flex;align-items:baseline;justify-content:space-between;background:var(--indigo);color:#fff;
+  padding:9px 14px 6px;font-family:var(--display);font-weight:800;letter-spacing:.14em;font-size:12px}
+.slip-head b{font-size:18px;letter-spacing:.04em}
+.slip-name{font-family:var(--display);font-weight:800;font-size:clamp(17px,1.6vw,21px);padding:6px 14px 0;line-height:1.1}
+.slip-want{display:flex;align-items:center;gap:10px;padding:2px 14px}
+.slip-want .fr{font-size:clamp(30px,3vw,42px);color:var(--tomato);margin:0}
+.slip-want .of{font-family:var(--hand);font-weight:700;font-size:clamp(16px,1.5vw,20px);line-height:1.1}
+.slip dl{margin:2px 0 0;padding:0 14px;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center}
+.slip dt{font-family:var(--display);font-weight:800;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft)}
+.slip dd{margin:0;font-family:var(--hand);font-weight:700;font-size:clamp(16px,1.5vw,19px);line-height:1.45;display:flex;align-items:center;gap:6px}
+.slip dd svg{width:24px;height:24px;flex:0 0 auto}
+.slip-note{margin:6px 14px 0;padding-top:6px;border-top:2px dashed rgba(58,85,160,.28);font-family:var(--hand);
+  font-size:clamp(15px,1.4vw,18px);line-height:1.3;color:#40366A;text-wrap:balance}
+.slip-note .fr{font-size:1.05em;color:var(--tomato)}
+.stamp{position:absolute;right:10px;top:48px;rotate:-14deg;font-family:var(--display);font-weight:800;font-size:22px;
+  letter-spacing:.14em;color:var(--leaf);border:3px solid currentColor;border-radius:8px;padding:0 10px;
+  background:rgba(255,253,246,.55);mix-blend-mode:multiply;animation:stamp .42s cubic-bezier(.3,1.6,.5,1)}
+@keyframes stamp{from{transform:scale(2.6);opacity:0}}
+.who{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:2px;padding-bottom:6px}
+.who::after{content:"";position:absolute;left:12%;right:12%;bottom:0;height:16px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(20,20,50,.28),transparent);z-index:-1}
+.who img{height:clamp(96px,22vh,205px);width:auto;display:block}
+.who.duo img{height:clamp(84px,19vh,178px)}
+.who.enter{animation:walkIn 1s cubic-bezier(.3,.9,.4,1) both}
+.who.happy img{animation:hop .55s ease 3}
+.who.sad img{animation:shake .5s}
+@keyframes walkIn{0%{transform:translateX(-120px);opacity:0}30%{opacity:1}
+  45%{transform:translateX(-50px) translateY(-8px)}60%{transform:translateX(-25px) translateY(0)}
+  75%{transform:translateX(-8px) translateY(-6px)}100%{transform:none}}
+@keyframes hop{50%{transform:translateY(-18px)}}
+@keyframes shake{20%{transform:translateX(-8px) rotate(-3deg)}40%{transform:translateX(8px) rotate(3deg)}
+  60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+
+/* board + pizza */
+.boardzone{grid-area:board;display:grid;place-items:center;position:relative;z-index:2}
+.boardwrap{--bsz:min(calc(100vh - 212px),42vw);position:relative;width:var(--bsz);aspect-ratio:1;max-width:100%}
+.boardwrap.in{animation:boardIn .7s cubic-bezier(.25,1.2,.4,1) both}
+.boardwrap.thud{animation:thud .32s ease}
+.boardwrap.wiggle{animation:shake .55s}
+@keyframes boardIn{from{transform:translateY(-70px) rotate(-4deg);opacity:0}}
+@keyframes thud{40%{transform:translateY(5px) scale(.995)}}
+.boardwrap>img{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 20px 22px rgba(25,20,60,.34))}
+#pz{position:absolute;inset:6%;width:88%;height:88%;overflow:visible;touch-action:none}
+#pz.bad{filter:drop-shadow(0 0 16px rgba(225,40,30,.9))}
+.part{transition:transform .7s cubic-bezier(.3,1.35,.5,1)}
+.part.lifted{filter:drop-shadow(0 12px 10px rgba(30,20,10,.35))}
+.hit{fill:rgba(255,255,255,0);cursor:pointer;transition:fill .15s}
+.hit.hov{fill:rgba(255,226,120,.45)}
+.hit.bad{fill:rgba(225,50,40,.42)}
+.cut{stroke:#5A2A0E;stroke-opacity:.85;stroke-width:5;stroke-linecap:round;fill:none}
+#cuts{transition:opacity .6s}
+.pc{transform-box:fill-box;transform-origin:center}
+.spin{transform-box:fill-box;transform-origin:center}
+#cutter.rolling .spin{animation:spin .45s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.crumb{animation:crumb .7s ease-out forwards}
+@keyframes crumb{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.badge .bi{transform-box:fill-box;transform-origin:center;animation:pop .38s cubic-bezier(.3,1.7,.5,1) both}
+.badge circle{fill:var(--indigo);stroke:var(--marigold);stroke-width:6}
+.badge text{fill:#fff;font-family:var(--display);font-weight:800;font-size:36px;text-anchor:middle}
+.badge.out{opacity:0;transition:opacity .35s}
+@keyframes pop{from{transform:scale(0)}}
+
+/* thali of toppings / moulds */
+.trayzone{grid-area:tray;display:grid;place-items:center;position:relative;z-index:2}
+.tray{--tsz:min(28vw,calc(100vh - 250px),390px);position:relative;width:var(--tsz);aspect-ratio:1;max-width:100%}
+.tray>img.thali{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 16px 16px rgba(25,20,60,.30))}
+.slot{position:absolute;width:33%;translate:-50% -50%;display:grid;justify-items:center;gap:2px;touch-action:none}
+.slot.mould{width:34%}
+.slot img,.slot svg{width:100%;height:auto;display:block;pointer-events:none;filter:drop-shadow(0 6px 5px rgba(30,30,50,.28))}
+.slot span{font-family:var(--display);font-weight:800;font-size:clamp(11px,1vw,13px);color:var(--indigo);
+  background:rgba(255,253,246,.95);border-radius:999px;padding:0 9px;white-space:nowrap;margin-top:-6px}
+.katori{cursor:grab;transition:transform .18s}
+.katori:hover{transform:translateY(-4px)}
+.katori.sel{transform:translateY(-6px) scale(1.04)}
+.katori.sel img{filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 14px var(--marigold))}
+.katori.ask img{animation:hop .5s ease 2}
+.mould{cursor:pointer;transition:transform .22s cubic-bezier(.3,1.5,.5,1),filter .22s}
+.mould svg{filter:drop-shadow(0 5px 4px rgba(20,30,60,.28))}
+.mould:hover{transform:translateY(-7px) scale(1.04)}
+.mould:hover svg{filter:drop-shadow(0 14px 10px rgba(20,30,60,.3))}
+.mould.using{opacity:.18;transform:scale(.9)}
+.mould.wrong{animation:shake .45s}
+.mould.wrong svg{filter:drop-shadow(0 0 10px rgba(200,64,46,.9))}
+.flyer{position:fixed;z-index:65;pointer-events:none;transform-origin:0 0}
+.flyer svg{width:100%;height:100%;display:block;overflow:visible}
+.slot.in{animation:pop .45s cubic-bezier(.3,1.6,.5,1) both}
+.plates{position:absolute;inset:8%;display:flex;align-items:center;justify-content:center;gap:4%}
+.plates figure{margin:0;display:grid;justify-items:center;gap:6px;width:48%}
+.plates svg{width:100%;height:auto;filter:drop-shadow(0 8px 6px rgba(30,20,10,.25))}
+.plates figcaption{font-family:var(--display);font-weight:800;font-size:clamp(13px,1.3vw,17px);color:var(--indigo);
+  background:#fff;border-radius:999px;padding:2px 12px;white-space:nowrap}
+.plates figure{animation:pop .5s cubic-bezier(.3,1.6,.5,1) both}
+.plates figure+figure{animation-delay:.15s}
+
+/* ---------- instruction card ---------- */
+.card{justify-self:center;width:min(100%,940px);display:flex;align-items:center;gap:14px;background:var(--paper);
+  border-radius:26px;padding:10px 12px 10px 10px;border:2px solid rgba(35,53,111,.14);
+  box-shadow:0 12px 28px rgba(20,30,70,.24)}
+.guide{position:relative;width:66px;height:66px;flex:0 0 auto;border-radius:50%;background:var(--indigo);
+  display:grid;place-items:end center;overflow:visible}
+.guide img{height:84px;width:auto;margin-bottom:-2px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25))}
+.guide .spk{position:absolute;right:-6px;bottom:-4px;width:28px;height:28px;border-radius:50%;background:var(--marigold);
+  display:grid;place-items:center;color:var(--indigo-ink);box-shadow:0 2px 0 var(--marigold-deep)}
+.guide .spk svg{width:16px;height:16px}
+.guide.cheer img{animation:hop .5s ease 2}
+.guide.hmm img{animation:shake .5s}
+.say{flex:1 1 auto;min-width:0;margin:0;font-size:clamp(17px,1.9vw,23px);font-weight:800;line-height:1.3;color:var(--indigo-ink)}
+.say .fr{color:var(--tomato)}
+.say.bad{color:var(--tomato)}
+.say.good{color:var(--leaf)}
+.count{font-family:var(--display);font-weight:800;font-size:clamp(20px,2.1vw,26px);color:var(--indigo);background:var(--cream);
+  border:2px solid rgba(35,53,111,.18);border-radius:16px;padding:0 16px;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.done{flex:0 0 auto;display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;
+  font-size:clamp(17px,1.8vw,21px);letter-spacing:.06em;background:var(--marigold);color:var(--indigo-ink);
+  border-radius:18px;padding:12px 26px;box-shadow:0 5px 0 var(--marigold-deep);transition:transform .12s,opacity .2s}
+.done svg{width:20px;height:20px}
+.done:active{transform:translateY(4px);box-shadow:none}
+.done[disabled]{opacity:.4;cursor:not-allowed}
+.done.ready{animation:ready 1.2s ease-in-out infinite}
+@keyframes ready{50%{transform:translateY(-4px);box-shadow:0 9px 0 var(--marigold-deep),0 0 0 6px rgba(242,166,44,.25)}}
+
+.fr{display:inline-grid;vertical-align:middle;text-align:center;line-height:1;font-family:var(--display);font-weight:800;margin:0 .14em}
+.fr b{display:block;padding:0 .14em;font-weight:800}
+.fr b:first-child{border-bottom:.1em solid currentColor;padding-bottom:.04em}
+.fr b:last-child{padding-top:.06em}
+
+.ghost{position:fixed;left:0;top:0;width:90px;height:90px;pointer-events:none;z-index:70}
+.ghost img{position:absolute;width:46px;height:46px}
+.hand{position:absolute;left:0;top:0;width:60px;height:60px;pointer-events:none;z-index:30}
+.fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.fx i{position:absolute;top:-24px;width:16px;height:14px;animation:fall 1.8s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+
+/* ---------- start + end ---------- */
+.overlay{position:fixed;inset:0;z-index:90;display:grid;place-items:center;
+  background-color:#F3E9D6;background-image:radial-gradient(ellipse at 50% 46%,rgba(255,250,240,0) 38%,rgba(30,24,40,.32) 100%),url("assets/draft2/cloth.svg");
+  background-size:100% 100%,150px 150px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+.start-wrap{display:grid;justify-items:center;gap:18px;width:100%}
+.world{position:relative;width:min(100%,calc((100vh - 160px) * 1376 / 768));aspect-ratio:1376/768;border-radius:26px;
+  overflow:hidden;container-type:inline-size;box-shadow:0 18px 40px rgba(20,24,60,.38);border:5px solid var(--paper)}
+.world>img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+.w-sign{position:absolute;left:33.4%;width:34.7%;top:21.9%;height:11.6%;display:flex;align-items:center;justify-content:center;gap:.25em;
+  font-family:var(--display);font-weight:800;color:#5C3414;font-size:2.55cqw;white-space:nowrap;text-shadow:0 1px 0 rgba(255,232,196,.7)}
+.w-sign img{height:1.4em;width:auto}
+.w-billu{position:absolute;left:46%;width:30%;top:34.6%;height:24.2%;clip-path:inset(-120% -60% 0 -60%)}
+.w-billu img{position:absolute;top:0;left:50%;height:182%;width:auto;translate:-50% 0;filter:drop-shadow(0 4px 6px rgba(60,30,10,.35))}
+.w-noori{position:absolute;left:47.5%;bottom:39.3%;height:17%;translate:-50% 0;transform-origin:50% 100%;animation:sway 3.4s ease-in-out infinite}
+.w-noori img{height:100%;width:auto;display:block}
+@keyframes sway{0%,100%{rotate:-1.5deg}50%{rotate:1.5deg}}
+.w-prop{position:absolute;left:var(--x);bottom:var(--b);width:var(--w);translate:-50% 0}
+.w-prop img{width:100%;height:auto;display:block;filter:drop-shadow(0 3px 3px rgba(60,30,10,.3))}
+.levels{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.lvbtn{display:flex;align-items:center;gap:12px;background:var(--paper);border-radius:22px;padding:10px 24px 10px 12px;
+  box-shadow:0 6px 0 rgba(35,53,111,.35),0 12px 24px rgba(20,30,70,.2);font-family:var(--display);font-weight:800;
+  font-size:clamp(17px,1.9vw,22px);color:var(--indigo);text-align:left;line-height:1.1;transition:transform .15s}
+.lvbtn:hover{transform:translateY(-3px)}
+.lvbtn:active{transform:translateY(4px)}
+.lvbtn svg{width:60px;height:60px;flex:0 0 auto}
+.lvbtn small{display:block;font-family:var(--body);font-weight:700;font-size:.64em;color:var(--ink-soft)}
+.endcard{background:var(--paper);border-radius:30px;padding:24px clamp(16px,3vw,44px) 28px;display:grid;justify-items:center;
+  gap:14px;width:min(100%,920px);box-shadow:0 18px 40px rgba(20,24,60,.35);position:relative}
+.endcard::before{content:"";position:absolute;inset:10px;border:2px dashed rgba(58,85,160,.25);border-radius:22px;pointer-events:none}
+.endcard h2{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(28px,3.8vw,44px);color:var(--indigo);text-align:center;text-wrap:balance}
+.endcard p{margin:0;font-weight:800;font-size:clamp(16px,1.8vw,20px);color:var(--ink-soft);text-align:center}
+.crowd{display:flex;align-items:flex-end;justify-content:center;flex-wrap:wrap;gap:4px 8px}
+.crowd img{height:clamp(64px,11vh,110px);width:auto;animation:hop .7s ease infinite}
+.hosts{display:flex;align-items:flex-end;gap:10px}
+.hosts img{height:clamp(90px,17vh,170px);width:auto}
+.bigstars{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.6vw,30px);color:var(--indigo);
+  background:var(--cream);border-radius:999px;padding:2px 24px}
+.endbtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.endbtns .alt{background:var(--cream);box-shadow:0 5px 0 rgba(35,53,111,.25)}
+
+/* ---------- portrait ---------- */
+@media (max-aspect-ratio: 5/6){
+  .stage{grid-template-columns:1fr;grid-template-areas:"cust" "board" "tray";align-content:space-evenly;row-gap:1vh}
+  .cust{grid-template-columns:auto minmax(0,1fr);align-items:center;justify-items:start;width:100%;column-gap:12px}
+  .cust .slip{grid-column:2;grid-row:1;width:min(100%,300px)}
+  .cust .who{grid-column:1;grid-row:1}
+  .who img{height:clamp(80px,12vh,120px)}
+  .boardwrap{--bsz:min(88vw,40vh)}
+  .tray{--tsz:min(70vw,26vh)}
+  .card{flex-wrap:wrap}
+  .say{flex-basis:calc(100% - 90px)}
+  .count{margin-left:auto}
+}
+@media (max-width:640px){ .trail{gap:2px} .tok{width:22px;height:22px} }
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+</style>
+
+<div id="app">
+  <header class="top">
+    <button class="chip home" id="home" aria-label="Back to levels">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <label class="jump"><span class="sr">Jump to a level or order</span><select id="jump"></select></label>
+    <div class="trail" id="trail" aria-hidden="true"></div>
+    <div class="chip stars" id="stars" aria-label="Stars">⭐ 0</div>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="cust" id="cust" aria-live="polite"></section>
+    <section class="boardzone">
+      <div class="boardwrap" id="boardwrap">
+        <img src="assets/draft2/board.svg" alt="">
+        <svg id="pz" viewBox="0 0 600 600" role="img" aria-label="Pizza"></svg>
+      </div>
+    </section>
+    <section class="trayzone">
+      <div class="tray" id="tray"><img class="thali" src="assets/draft2/thali.svg" alt=""><div id="slots"></div></div>
+    </section>
+    <svg class="hand" id="hand" viewBox="0 0 64 64" hidden aria-hidden="true">
+      <path d="M26 6c3 0 5 2 5 5v16l3-1c3-1 5 1 5 3v1l3-1c3-1 5 1 5 3v1l2-.5c3-.5 5 1.5 5 4V48c0 7-6 12-13 12h-6c-5 0-9-2-12-6L11 40c-2-3 1-6 4-5l6 3V11c0-3 2-5 5-5z" fill="#FFE1C4" stroke="#3B2A1A" stroke-width="3" stroke-linejoin="round"/>
+    </svg>
+  </main>
+
+  <footer class="card">
+    <button class="guide" id="guide" aria-label="Read the instruction aloud">
+      <img src="assets/web/noori.webp" alt="">
+      <span class="spk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10H4z" fill="currentColor"/><path d="M17 8.5a5 5 0 0 1 0 7"/></svg></span>
+    </button>
+    <p class="say" id="say"></p>
+    <span class="count" id="count" hidden></span>
+    <button class="done" id="done" disabled>DONE</button>
+  </footer>
+</div>
+<div class="fx" id="fx"></div>
+
+<div class="overlay" id="start">
+  <div class="start-wrap">
+    <div class="world" aria-label="Billu's Pizza Shop">
+      <img class="bg" src="assets/web/backdrop.webp" alt="">
+      <div class="w-sign"><span>Billu's Pizza Shop</span><img src="assets/web/pizza_slice.webp" alt=""></div>
+      <div class="w-noori"><img src="assets/web/noori.webp" alt="Noori"></div>
+      <div class="w-billu"><img src="assets/web/billu_idle.webp" alt="Chef Billu"></div>
+      <div class="w-prop" style="--x:34.5%;--b:36.8%;--w:10.5%"><img src="assets/web/topping_box.webp" alt=""></div>
+      <div class="w-prop" style="--x:55.2%;--b:36.4%;--w:8.6%"><img src="assets/web/pizza_board_1.webp" alt=""></div>
+      <div class="w-prop" style="--x:65.4%;--b:36.4%;--w:8%"><img src="assets/web/pizza_board_2.webp" alt=""></div>
+      <div class="w-prop" style="--x:71.3%;--b:37%;--w:4%"><img src="assets/web/plates_stack.webp" alt=""></div>
+    </div>
+    <div class="levels">
+      <button class="lvbtn" data-lv="1.1"><svg viewBox="0 0 600 600" aria-hidden="true" id="ic11"></svg>
+        <span>Level 1.1<small>Top and serve</small></span></button>
+      <button class="lvbtn" data-lv="1.2"><svg viewBox="0 0 600 600" aria-hidden="true" id="ic12"></svg>
+        <span>Level 1.2<small>Cut, top and serve</small></span></button>
+    </div>
+  </div>
+</div>
+<div class="overlay" id="end" hidden><div class="endcard" id="endcard"></div></div>
+
+<script>
+"use strict";
+/* ============================================================
+   ORDERS — Level 1_Final sheet
+   ============================================================ */
+const A = "assets/web/", HD = "assets/web/hd/";
+const NAMES = {tez:"Tez",monty:"Monty",ant:"Ant",squirrel:"Squirrel",bijli:"Bijli",badal:"Badal",madhu:"Madhu",
+  peacock:"Peacock",jhumru:"Jhumru",frog:"Frog",gorilla:"Gorilla",mouse:"Mouse",croc:"Crocodile",rabbit:"Rabbit",
+  bear:"Bear",sloth:"Sloth",hippo:"Hippo"};
+const LEVELS = {
+  "1.1": { title:"Top and serve", cut:false, end:["8 orders served!","You're a topping star!"], orders:[
+    {cust:"tez",      n:2,  d:7,  shape:"round",  line:"Take your time… 2/7 of a pizza, please.",       ok:"2 of 7 slices. Slow and tasty!"},
+    {cust:"monty",    n:3,  d:4,  shape:"square", line:"3/4 of a pizza, please!",                       ok:"3/4 with {t}! My favourite!"},
+    {cust:"ant",      n:1,  d:8,  shape:"round",  line:"Hello up there! 1/8 of a pizza, please!",       ok:"1/8, exactly what I ordered!"},
+    {cust:"squirrel", n:2,  d:5,  shape:"rect",   line:"Quick, quick! 2/5 of a pizza, please!",         ok:"2/5! The {t} smells so good!"},
+    {cust:"bijli", duo:"badal", name:"Bijli and Badal", who:"the twins", n:5, d:9, shape:"round",
+                                        line:"Hisss-ello! We're sharing. 5/9 of a pizza, please!",          ok:"5/9 with {t}! Thank you, Chef!"},
+    {cust:"madhu",    n:1,  d:12, shape:"square", line:"Buzz buzz! 1/12 of a pizza, please!",           ok:"1/12. Buzz-tastic!"},
+    {cust:"peacock",  n:5,  d:6,  shape:"square", line:"Make way, make way! 5/6 of a pizza, please!",   ok:"5/6! Simply magnificent!"},
+    {cust:"jhumru",   n:9,  d:10, shape:"rect",   line:"Last but not least! 9/10 of a pizza, please!",  ok:"9 of 10 pieces, and {t} too! Delicious!"} ]},
+  "1.2": { title:"Cut, top and serve", cut:true, end:["8 more orders, all perfect!","You're a master chef!"], orders:[
+    {cust:"frog",    n:1,  d:4,  shape:"square", moulds:[2,4,6],  line:"Ribbit! 1/4 of a pizza, please!",                ok:"1/4 with {t}! Ribbit-licious!"},
+    {cust:"gorilla", n:4,  d:5,  shape:"rect",   moulds:[4,5,6],  line:"Hungry gorilla here! 4/5 of a pizza, please!",   ok:"4 of 5 strips. Thank you, Chef!"},
+    {cust:"mouse",   n:1,  d:6,  shape:"round",  moulds:[4,6,8],  line:"Squeak! 1/6 of a pizza, please!",                ok:"1/6, exactly what I ordered!"},
+    {cust:"croc",    n:6,  d:7,  shape:"round",  moulds:[6,7,8],  line:"Snap snap! 6/7 of a pizza, please!",             ok:"6/7 with {t}! Snap-tastic!"},
+    {cust:"rabbit",  n:3,  d:8,  shape:"round",  moulds:[3,6,8],  line:"Hop hop! 3/8 of a pizza, please!",               ok:"3 of 8 slices. Yummy!"},
+    {cust:"bear",    n:7,  d:9,  shape:"square", moulds:[6,9,12], line:"Grrr-eat! 7/9 of a pizza, please!",              ok:"7/9 with {t}! My favourite!"},
+    {cust:"sloth",   n:3,  d:10, shape:"rect",   moulds:[3,5,10], line:"Three… tenths… please…",                         ok:"Three… of… ten… Perfect…"},
+    {cust:"hippo",   n:11, d:12, shape:"square", moulds:[6,9,12], line:"Last order of the day! 11/12 of a pizza, please!", ok:"11 of 12 pieces, and {t} too! Delicious!"} ]}
+};
+const TOPPINGS = [{k:"tomato",name:"Tomato"},{k:"mushroom",name:"Mushroom"},{k:"corn",name:"Sweet corn"},{k:"onion",name:"Onion"}];
+/* slots sit inside the thali's well (centre 50%,49.7%, well radius 42%) */
+const KATORI_POS = [[32,32],[68,32],[32,67.5],[68,67.5]];
+const MOULD_POS  = [[50,27.5],[30.5,61.3],[69.5,61.3]];    // even triangle around the centre
+
+/* ============================================================
+   GEOMETRY (viewBox 600) — exact equal parts over the painted pizza
+   ============================================================ */
+const C = 300, R = 282;
+const BOX = {square:[32,32,536,536], rect:[12,152,576,296]};
+const GRID = {1:[1,1],2:[1,2],3:[1,3],4:[2,2],5:[1,5],6:[2,3],7:[1,7],8:[2,4],9:[3,3],10:[2,5],12:[3,4]};
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+/* The real outline of each painted pizza, traced from the artwork (180 points each,
+   already in viewBox units). edgePath pushes it out (or in) by `off` units so the
+   mould rim can hug the crust and clips can follow the true edge. */
+const EDGES = {"round":[[300.0,18.4],[309.8,18.8],[319.6,19.4],[329.4,20.5],[339.1,21.9],[348.8,23.4],[358.4,25.3],[367.9,27.5],[377.5,29.8],[386.9,32.4],[396.3,35.3],[405.6,38.6],[414.8,42.1],[423.9,45.9],[432.9,50.1],[441.7,54.6],[450.3,59.5],[458.7,64.7],[466.9,70.3],[474.8,76.2],[482.6,82.4],[490.1,88.9],[497.3,95.6],[504.4,102.6],[511.2,109.8],[517.8,117.3],[524.0,125.0],[529.9,132.9],[535.4,141.2],[540.7,149.6],[545.5,158.3],[550.0,167.1],[554.1,176.1],[557.9,185.2],[561.3,194.4],[564.5,203.7],[567.3,213.2],[569.9,222.6],[572.2,232.1],[574.4,241.7],[576.3,251.3],[578.0,260.9],[579.4,270.6],[580.5,280.4],[581.3,290.2],[581.6,300.0],[581.5,309.8],[581.0,319.7],[580.1,329.4],[578.8,339.2],[577.1,348.9],[575.1,358.5],[572.8,368.0],[570.1,377.5],[567.2,386.8],[564.0,396.1],[560.6,405.3],[556.9,414.4],[552.9,423.3],[548.6,432.2],[544.0,440.9],[539.2,449.5],[534.0,457.9],[528.6,466.1],[522.9,474.1],[516.8,481.9],[510.5,489.5],[503.8,496.8],[496.8,503.8],[489.5,510.5],[481.9,516.8],[474.1,522.8],[466.0,528.4],[457.7,533.8],[449.2,538.8],[440.6,543.6],[431.9,548.1],[423.1,552.3],[414.1,556.3],[405.0,559.9],[395.9,563.4],[386.6,566.5],[377.2,569.4],[367.8,571.9],[358.3,574.3],[348.7,576.3],[339.1,578.1],[329.4,579.5],[319.6,580.4],[309.8,581.1],[300.0,581.4],[290.2,581.2],[280.4,580.6],[270.6,579.6],[260.9,578.2],[251.2,576.5],[241.7,574.4],[232.2,572.0],[222.8,569.2],[213.5,566.1],[204.4,562.8],[195.3,559.1],[186.4,555.2],[177.6,551.0],[168.8,546.7],[160.2,542.2],[151.7,537.3],[143.3,532.3],[135.1,526.9],[127.1,521.3],[119.3,515.4],[111.8,509.0],[104.6,502.3],[97.7,495.3],[91.2,488.0],[85.0,480.4],[79.1,472.6],[73.6,464.5],[68.3,456.3],[63.3,447.9],[58.4,439.5],[53.9,430.9],[49.6,422.1],[45.5,413.3],[41.5,404.5],[37.7,395.5],[34.3,386.3],[31.1,377.1],[28.2,367.8],[25.6,358.3],[23.3,348.8],[21.6,339.1],[20.2,329.4],[19.2,319.6],[18.6,309.8],[18.4,300.0],[18.8,290.2],[19.5,280.4],[20.6,270.6],[22.2,261.0],[24.1,251.3],[26.4,241.8],[29.0,232.4],[31.8,223.1],[34.9,213.9],[38.3,204.7],[41.7,195.7],[45.5,186.7],[49.3,177.7],[53.4,168.9],[57.8,160.1],[62.4,151.6],[67.3,143.1],[72.5,134.7],[78.1,126.6],[84.0,118.8],[90.2,111.1],[96.8,103.8],[103.6,96.6],[110.7,89.8],[118.3,83.4],[125.9,77.2],[133.9,71.4],[142.1,65.9],[150.5,60.7],[159.1,56.0],[167.8,51.4],[176.7,47.3],[185.7,43.3],[194.8,39.7],[204.1,36.4],[213.3,33.3],[222.7,30.4],[232.1,27.8],[241.6,25.4],[251.2,23.4],[260.9,21.6],[270.6,20.2],[280.4,19.2],[290.2,18.6]],"square":[[300.0,31.7],[309.4,31.8],[318.8,32.1],[328.2,32.4],[337.6,32.8],[347.1,33.3],[356.7,33.7],[366.4,34.2],[376.3,34.6],[386.2,35.2],[396.4,35.8],[406.7,36.5],[417.3,37.1],[428.1,38.0],[439.2,38.9],[450.5,39.9],[462.0,41.3],[473.6,43.2],[485.0,45.9],[496.2,49.4],[507.0,53.9],[517.0,59.6],[526.1,66.4],[534.2,74.4],[541.2,83.3],[547.0,93.2],[551.6,103.9],[555.2,115.0],[557.8,126.5],[559.8,138.0],[561.1,149.6],[562.1,160.9],[563.0,172.0],[563.7,182.9],[564.4,193.4],[565.0,203.7],[565.6,213.9],[566.1,223.9],[566.6,233.7],[567.0,243.4],[567.4,253.0],[567.7,262.5],[567.9,271.9],[568.1,281.3],[568.3,290.7],[568.4,300.0],[568.4,309.4],[568.3,318.7],[568.1,328.1],[567.9,337.6],[567.7,347.1],[567.3,356.7],[566.9,366.4],[566.5,376.3],[566.0,386.2],[565.4,396.4],[564.8,406.7],[564.1,417.3],[563.2,428.1],[562.4,439.2],[561.4,450.6],[560.3,462.3],[558.7,474.1],[556.4,485.9],[553.3,497.5],[549.2,508.6],[543.8,519.0],[537.0,528.4],[529.0,536.6],[519.7,543.5],[509.5,549.1],[498.4,553.4],[486.8,556.5],[475.0,558.8],[463.1,560.5],[451.4,561.6],[439.8,562.4],[428.6,563.1],[417.7,563.8],[407.1,564.5],[396.7,565.0],[386.4,565.4],[376.4,565.9],[366.5,566.3],[356.8,566.6],[347.2,566.9],[337.6,567.2],[328.2,567.4],[318.8,567.6],[309.4,567.7],[300.0,567.7],[290.6,567.7],[281.3,567.5],[271.8,567.3],[262.4,567.1],[252.8,566.9],[243.2,566.6],[233.5,566.3],[223.6,565.8],[213.6,565.4],[203.3,565.0],[192.9,564.4],[182.3,563.8],[171.4,563.0],[160.2,562.3],[148.7,561.4],[137.0,560.3],[125.2,558.6],[113.4,556.2],[101.8,553.1],[90.8,548.8],[80.5,543.2],[71.2,536.4],[63.1,528.2],[56.4,518.9],[51.0,508.5],[46.8,497.4],[43.7,485.8],[41.5,474.0],[39.9,462.2],[38.7,450.5],[37.8,439.1],[36.9,428.0],[36.1,417.2],[35.4,406.7],[34.7,396.3],[34.1,386.2],[33.6,376.2],[33.2,366.4],[32.9,356.6],[32.7,347.0],[32.3,337.5],[32.1,328.1],[31.9,318.7],[31.8,309.3],[31.8,300.0],[31.9,290.7],[32.0,281.3],[32.3,271.9],[32.5,262.5],[32.8,253.0],[33.2,243.4],[33.6,233.7],[34.0,223.9],[34.5,213.9],[35.1,203.8],[35.8,193.5],[36.5,182.9],[37.2,172.1],[38.1,161.0],[39.1,149.7],[40.5,138.2],[42.4,126.6],[45.0,115.1],[48.5,103.9],[53.1,93.3],[58.9,83.4],[65.8,74.4],[73.9,66.4],[83.0,59.5],[93.0,53.9],[103.8,49.4],[115.0,45.9],[126.4,43.3],[138.0,41.3],[149.5,39.9],[160.8,38.8],[171.8,37.8],[182.6,36.9],[193.1,36.1],[203.5,35.4],[213.6,34.7],[223.6,34.2],[233.4,33.7],[243.2,33.3],[252.8,32.9],[262.3,32.5],[271.8,32.2],[281.2,31.9],[290.6,31.8]],"rect":[[300.0,154.4],[305.5,154.7],[311.0,155.0],[316.5,155.2],[322.0,155.5],[327.5,155.8],[333.1,156.0],[338.8,156.2],[344.7,156.2],[350.6,156.2],[356.7,156.2],[363.0,156.0],[369.5,155.8],[376.3,155.6],[383.4,155.2],[390.7,154.9],[398.4,154.6],[406.4,154.4],[414.8,154.2],[423.6,154.0],[432.9,153.8],[442.6,153.8],[452.8,153.9],[463.6,154.1],[474.9,154.6],[486.9,155.3],[499.2,156.3],[511.9,157.9],[524.4,160.3],[536.2,163.7],[547.0,168.4],[556.5,174.1],[564.4,180.9],[570.6,188.8],[575.2,197.4],[578.4,206.5],[580.7,215.8],[582.5,225.2],[583.7,234.7],[584.6,244.1],[585.4,253.5],[586.0,262.9],[586.7,272.2],[587.2,281.5],[587.5,290.7],[587.8,300.0],[587.8,309.3],[587.6,318.6],[587.2,327.9],[586.6,337.2],[585.9,346.5],[585.1,356.0],[584.2,365.4],[582.9,374.9],[581.3,384.4],[579.0,393.8],[575.8,402.9],[571.4,411.5],[565.4,419.5],[557.6,426.5],[548.4,432.4],[537.7,437.1],[525.9,440.7],[513.5,443.2],[500.9,444.9],[488.4,445.9],[476.5,446.7],[465.0,447.1],[454.2,447.4],[443.9,447.5],[434.2,447.6],[424.9,447.6],[416.1,447.5],[407.7,447.4],[399.8,447.4],[392.1,447.3],[384.8,447.3],[377.8,447.3],[371.1,447.4],[364.5,447.5],[358.2,447.6],[352.0,447.7],[345.9,447.8],[340.0,448.0],[334.1,448.1],[328.3,448.2],[322.6,448.2],[316.8,448.0],[311.2,447.9],[305.6,447.7],[300.0,447.4],[294.4,447.0],[288.9,446.6],[283.3,446.3],[277.8,446.1],[272.1,445.9],[266.4,445.7],[260.7,445.7],[254.7,445.8],[248.7,445.9],[242.4,446.0],[236.0,446.2],[229.4,446.4],[222.5,446.7],[215.4,446.9],[208.0,447.1],[200.3,447.3],[192.3,447.4],[183.9,447.5],[175.1,447.6],[165.8,447.6],[156.1,447.5],[145.8,447.4],[135.0,447.1],[123.5,446.7],[111.6,445.9],[99.2,444.8],[86.6,443.2],[74.2,440.6],[62.4,437.0],[51.8,432.3],[42.6,426.3],[34.9,419.4],[28.9,411.4],[24.4,402.8],[21.2,393.7],[18.9,384.3],[17.2,374.9],[15.9,365.4],[14.9,356.0],[14.1,346.5],[13.4,337.2],[12.9,327.9],[12.5,318.6],[12.2,309.3],[12.2,300.0],[12.5,290.7],[12.8,281.5],[13.4,272.2],[14.0,262.9],[14.6,253.5],[15.4,244.1],[16.3,234.7],[17.5,225.2],[19.3,215.8],[21.6,206.5],[24.8,197.4],[29.4,188.8],[35.6,181.0],[43.5,174.1],[53.1,168.4],[63.8,163.8],[75.7,160.3],[88.3,158.0],[101.0,156.5],[113.5,155.5],[125.5,155.0],[136.8,154.5],[147.6,154.3],[157.8,154.2],[167.3,154.0],[176.3,153.9],[184.8,153.6],[192.9,153.3],[200.6,153.1],[208.0,152.8],[215.0,152.5],[221.9,152.2],[228.6,152.0],[235.2,152.0],[241.7,152.0],[247.9,152.1],[254.1,152.2],[260.2,152.5],[266.1,152.8],[271.9,153.1],[277.7,153.4],[283.3,153.6],[288.9,153.8],[294.5,154.1]]};
+function edgePath(shape, off){
+  const [bx,by,bw,bh] = shape==="round" ? [C-R,C-R,2*R,2*R] : BOX[shape];
+  const cx=bx+bw/2, cy=by+bh/2, sx=1+2*off/bw, sy=1+2*off/bh;
+  return "M"+EDGES[shape].map(([x,y])=>`${(cx+(x-cx)*sx).toFixed(1)} ${(cy+(y-cy)*sy).toFixed(1)}`).join("L")+"Z";
+}
+/* The inside edge of the crust (where the red sauce starts), traced the same way.
+   Toppings only go where a whole piece fits inside this line. */
+const INNER = {"round":[[300.0,65.9],[308.2,66.1],[316.3,66.4],[324.5,66.8],[332.7,67.3],[340.9,67.9],[349.1,68.8],[357.4,69.9],[365.5,71.5],[373.6,73.5],[381.5,76.1],[389.2,79.2],[396.7,82.7],[404.0,86.7],[411.1,91.1],[418.0,95.7],[424.7,100.4],[431.4,105.2],[438.0,110.0],[444.6,114.9],[451.3,119.7],[457.8,124.8],[464.2,130.0],[470.4,135.5],[476.3,141.3],[481.9,147.4],[487.1,153.8],[492.0,160.5],[496.5,167.4],[500.8,174.5],[505.0,181.7],[509.0,188.9],[513.0,196.1],[516.9,203.4],[520.5,210.9],[523.9,218.5],[527.0,226.3],[529.6,234.2],[531.8,242.2],[533.4,250.4],[534.6,258.6],[535.3,266.9],[535.8,275.2],[536.1,283.5],[536.3,291.7],[536.3,300.0],[536.2,308.2],[536.0,316.5],[535.6,324.8],[535.0,333.0],[533.9,341.3],[532.5,349.4],[530.7,357.5],[528.3,365.5],[525.5,373.3],[522.3,380.9],[518.8,388.4],[515.1,395.8],[511.3,403.1],[507.5,410.3],[503.5,417.5],[499.3,424.6],[495.1,431.6],[490.7,438.5],[486.0,445.3],[481.0,451.9],[475.6,458.1],[469.7,463.9],[463.6,469.4],[457.2,474.6],[450.5,479.4],[443.7,483.9],[436.8,488.2],[429.8,492.4],[422.8,496.5],[415.8,500.5],[408.8,504.6],[401.7,508.6],[394.6,512.5],[387.3,516.2],[379.9,519.6],[372.4,522.9],[364.7,525.6],[356.9,528.1],[348.9,530.0],[340.8,531.3],[332.6,532.2],[324.4,532.6],[316.3,532.7],[308.1,532.7],[300.0,532.4],[291.9,531.9],[283.8,531.3],[275.8,530.5],[267.7,529.8],[259.6,528.9],[251.6,527.7],[243.6,526.2],[235.7,524.2],[227.9,521.8],[220.3,519.1],[212.8,515.9],[205.4,512.4],[198.3,508.5],[191.4,504.3],[184.6,500.0],[177.8,495.6],[171.1,491.2],[164.4,486.6],[157.8,482.0],[151.3,477.2],[144.8,472.4],[138.4,467.3],[132.3,462.0],[126.4,456.3],[120.7,450.4],[115.4,444.2],[110.4,437.7],[105.6,431.1],[101.0,424.4],[96.6,417.5],[92.3,410.4],[88.2,403.3],[84.3,396.0],[80.9,388.5],[77.7,380.9],[75.1,373.1],[72.9,365.1],[71.0,357.1],[69.6,349.0],[68.6,340.8],[67.9,332.6],[67.4,324.4],[66.9,316.3],[66.6,308.2],[66.3,300.0],[66.0,291.8],[66.1,283.6],[66.3,275.4],[66.8,267.2],[67.8,259.1],[69.2,250.9],[71.0,242.9],[73.4,235.0],[76.1,227.3],[79.3,219.7],[82.8,212.2],[86.5,204.9],[90.4,197.8],[94.4,190.7],[98.4,183.6],[102.5,176.6],[106.7,169.6],[111.0,162.7],[115.4,155.7],[119.9,148.9],[124.8,142.2],[129.9,135.7],[135.4,129.5],[141.3,123.7],[147.4,118.1],[153.9,113.1],[160.7,108.3],[167.8,104.0],[175.0,100.0],[182.3,96.2],[189.8,92.7],[197.2,89.2],[204.7,85.9],[212.2,82.8],[219.8,79.7],[227.5,76.8],[235.3,74.2],[243.1,71.9],[251.1,69.9],[259.1,68.3],[267.3,67.1],[275.4,66.3],[283.6,66.0],[291.8,65.8]],"square":[[300.0,75.6],[307.9,75.0],[315.8,74.3],[323.9,73.5],[332.0,72.8],[340.2,72.3],[348.6,72.0],[357.0,71.9],[365.4,72.4],[373.9,73.0],[382.4,74.0],[391.0,75.2],[399.7,76.5],[408.6,77.8],[417.7,79.2],[426.9,80.7],[436.2,82.5],[445.7,84.5],[455.2,86.9],[464.6,89.8],[473.7,93.4],[482.3,98.0],[490.1,103.6],[496.9,110.3],[502.8,117.8],[507.9,125.9],[512.3,134.5],[515.8,143.6],[518.7,152.8],[521.1,162.1],[523.1,171.5],[524.8,180.7],[526.4,189.8],[527.8,198.8],[529.1,207.7],[530.1,216.4],[530.8,225.2],[531.2,233.9],[531.3,242.5],[531.3,251.0],[531.0,259.4],[530.7,267.6],[530.3,275.8],[529.9,284.0],[529.5,292.0],[529.1,300.0],[528.9,308.0],[528.7,316.0],[528.7,324.0],[528.8,332.1],[529.0,340.3],[529.2,348.6],[529.4,357.1],[529.4,365.6],[529.2,374.3],[528.7,383.1],[527.9,391.9],[526.8,400.7],[525.4,409.7],[523.9,418.8],[522.2,428.0],[520.5,437.4],[518.3,446.9],[515.7,456.4],[512.5,465.6],[508.5,474.5],[503.6,482.9],[497.8,490.6],[490.9,497.2],[483.0,502.8],[474.2,507.1],[464.7,510.4],[454.9,512.8],[445.0,514.5],[435.1,515.7],[425.4,516.7],[415.9,517.5],[406.7,518.4],[397.9,519.3],[389.3,520.5],[380.8,521.6],[372.6,522.8],[364.4,524.0],[356.2,525.0],[348.1,525.9],[340.0,526.5],[331.9,526.8],[323.9,526.7],[315.9,526.4],[307.9,525.9],[300.0,525.2],[292.1,524.4],[284.3,523.6],[276.5,522.9],[268.7,522.5],[260.7,522.2],[252.7,522.1],[244.5,522.1],[236.1,522.3],[227.6,522.4],[218.9,522.3],[210.1,522.0],[201.2,521.4],[190.0,525.0],[180.7,523.9],[171.1,522.8],[161.3,521.5],[151.4,519.8],[141.5,517.6],[131.8,514.7],[122.5,511.1],[113.6,506.6],[109.0,497.3],[102.0,490.7],[96.3,483.0],[91.6,474.4],[88.0,465.2],[85.2,455.7],[83.0,446.0],[81.2,436.4],[79.6,426.9],[78.2,417.7],[76.7,408.7],[75.3,399.8],[73.9,391.1],[72.7,382.5],[71.8,374.0],[71.1,365.5],[70.8,357.0],[70.8,348.6],[71.0,340.3],[71.4,332.1],[72.0,323.9],[72.7,315.9],[73.3,307.9],[73.8,300.0],[74.2,292.1],[74.3,284.3],[74.3,276.3],[74.2,268.3],[73.9,260.2],[73.5,252.0],[73.2,243.6],[73.3,235.1],[73.3,226.5],[73.7,217.8],[74.5,209.1],[75.5,200.3],[76.8,191.4],[77.9,182.2],[79.1,172.8],[80.4,163.1],[82.2,153.4],[84.3,143.6],[87.3,134.2],[91.1,125.1],[95.6,116.3],[101.4,108.6],[108.4,102.0],[116.3,96.4],[124.7,91.6],[133.7,87.6],[143.2,84.7],[152.7,82.1],[162.2,80.0],[171.8,78.4],[181.0,76.8],[190.2,75.4],[199.4,74.6],[208.6,74.3],[217.6,74.1],[226.4,74.1],[235.2,74.4],[243.7,74.8],[252.1,75.2],[260.4,75.7],[268.5,76.1],[276.4,76.3],[284.3,76.3],[292.2,76.0]],"rect":[[300.0,181.9],[304.5,181.5],[309.0,181.2],[313.6,180.9],[318.2,180.6],[322.8,180.5],[327.5,180.3],[332.3,180.3],[337.2,180.3],[342.1,180.5],[347.0,180.7],[352.1,181.0],[357.2,181.3],[362.5,181.7],[367.9,182.2],[373.4,182.6],[379.2,183.1],[385.2,183.4],[391.5,183.7],[398.3,183.8],[405.7,183.8],[413.6,183.5],[422.1,183.3],[431.3,183.0],[440.9,182.9],[451.0,183.0],[461.6,183.5],[472.8,184.1],[484.2,185.3],[495.3,187.3],[505.7,190.3],[515.1,194.4],[523.3,199.4],[530.7,205.2],[537.2,211.5],[542.7,218.4],[546.6,226.0],[549.1,234.1],[550.7,242.3],[551.7,250.6],[552.4,258.9],[553.0,267.2],[553.1,275.4],[553.0,283.7],[552.7,291.9],[552.5,300.0],[552.4,308.1],[552.6,316.3],[552.7,324.5],[552.6,332.8],[552.3,341.1],[551.7,349.4],[550.8,357.7],[549.4,366.0],[547.1,374.1],[543.4,381.8],[537.9,388.7],[530.8,394.9],[522.9,400.4],[514.3,405.2],[504.9,409.2],[494.5,412.2],[483.3,414.2],[471.8,415.2],[460.3,415.6],[449.6,415.9],[439.5,416.0],[429.8,415.7],[420.5,415.2],[411.6,414.4],[403.4,413.8],[395.9,413.3],[389.0,413.1],[382.6,413.1],[376.6,413.2],[371.0,413.6],[365.7,414.0],[360.6,414.6],[355.6,415.3],[350.7,415.9],[345.9,416.4],[341.1,416.9],[336.4,417.2],[331.7,417.4],[327.1,417.5],[322.4,417.5],[317.9,417.4],[313.3,417.1],[308.9,416.8],[304.4,416.4],[300.0,415.9],[295.6,415.5],[291.3,415.0],[287.0,414.6],[282.6,414.2],[278.2,414.0],[273.8,413.8],[269.3,413.5],[264.8,413.4],[260.1,413.2],[255.4,413.2],[250.5,413.1],[245.5,412.9],[240.4,412.8],[235.1,412.7],[229.6,412.6],[223.7,412.7],[217.6,412.8],[211.0,413.1],[204.0,413.5],[196.3,414.1],[188.0,414.9],[179.1,415.6],[169.9,416.0],[160.3,416.1],[150.3,416.0],[139.7,415.6],[128.3,415.2],[116.8,414.1],[105.6,412.1],[95.3,409.1],[85.9,405.1],[77.2,400.3],[69.3,394.8],[62.3,388.7],[56.8,381.7],[53.2,374.0],[50.9,365.9],[49.5,357.7],[48.6,349.3],[48.0,341.0],[47.6,332.7],[47.6,324.5],[47.6,316.3],[47.6,308.1],[47.5,300.0],[47.2,291.9],[46.9,283.7],[46.8,275.4],[46.9,267.2],[47.4,258.9],[48.1,250.6],[49.2,242.3],[50.8,234.0],[53.3,226.0],[57.2,218.4],[62.8,211.5],[69.7,205.3],[77.4,199.8],[86.0,194.9],[95.4,190.9],[105.6,187.9],[116.4,185.7],[127.4,184.2],[138.2,183.3],[148.3,182.5],[157.9,181.9],[167.3,181.7],[176.3,181.7],[184.9,182.0],[193.2,182.5],[201.1,183.1],[208.5,183.7],[215.5,184.4],[222.1,184.8],[228.2,185.2],[234.1,185.6],[239.6,185.7],[245.0,185.9],[250.1,185.9],[255.0,185.8],[259.8,185.7],[264.4,185.4],[269.0,185.1],[273.5,184.7],[277.9,184.3],[282.3,183.8],[286.7,183.4],[291.1,182.9],[295.6,182.4]]};
+function inPoly(poly,x,y){
+  let inside=false;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const [xi,yi]=poly[i], [xj,yj]=poly[j];
+    if(((yi>y)!==(yj>y)) && x < (xj-xi)*(y-yi)/(yj-yi)+xi) inside=!inside;
+  }
+  return inside;
+}
+function distToPoly(poly,x,y){
+  let best=Infinity;
+  for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+    const [x1,y1]=poly[j], [x2,y2]=poly[i], dx=x2-x1, dy=y2-y1;
+    const t=Math.max(0,Math.min(1,((x-x1)*dx+(y-y1)*dy)/(dx*dx+dy*dy||1)));
+    best=Math.min(best,Math.hypot(x-(x1+t*dx),y-(y1+t*dy)));
+  }
+  return best;
+}
+const onSauce=(shape,x,y,r)=>inPoly(INNER[shape],x,y) && distToPoly(INNER[shape],x,y)>=r;
+
+function edgeArc(shape, off, from, to){            // a stretch of the edge, for highlights
+  const [bx,by,bw,bh] = shape==="round" ? [C-R,C-R,2*R,2*R] : BOX[shape];
+  const cx=bx+bw/2, cy=by+bh/2, sx=1+2*off/bw, sy=1+2*off/bh;
+  return "M"+EDGES[shape].slice(from,to).map(([x,y])=>`${(cx+(x-cx)*sx).toFixed(1)} ${(cy+(y-cy)*sy).toFixed(1)}`).join("L");
+}
+const ease = t => t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+
+function gridOf(shape,n){
+  if(shape==="rect" && n<=5) return [1,n];
+  if(shape==="rect" && n===12) return [2,6];
+  if(shape==="rect" && n===6) return [1,6];
+  return GRID[n] || [1,n];
+}
+function geom(shape,n){
+  if(shape==="round"){
+    const parts=[], cuts=[];
+    for(let i=0;i<n;i++){
+      const a0=-Math.PI/2+i*2*Math.PI/n, a1=a0+2*Math.PI/n;
+      const x0=C+R*Math.cos(a0), y0=C+R*Math.sin(a0), x1=C+R*Math.cos(a1), y1=C+R*Math.sin(a1);
+      const d = n===1 ? `M${C} ${C-R}A${R} ${R} 0 1 1 ${C-.01} ${C-R}Z`
+        : `M${C} ${C}L${x0.toFixed(1)} ${y0.toFixed(1)}A${R} ${R} 0 ${a1-a0>Math.PI?1:0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}Z`;
+      const mid=(a0+a1)/2;
+      parts.push({d,kind:"sector",a0,a1,mid,cx:C+R*.55*Math.cos(mid),cy:C+R*.55*Math.sin(mid)});
+      if(n>1) cuts.push([C,C,x0,y0]);
+    }
+    return {shape:"round",parts,cuts,img:"pizza_round",box:[C-R,C-R,2*R,2*R],outline:`<path d="${edgePath("round",-2)}"/>`};
+  }
+  const [bx,by,bw,bh]=BOX[shape], [rows,cols]=gridOf(shape,n), w=bw/cols, h=bh/rows, parts=[], cuts=[];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const x=bx+c*w, y=by+r*h;
+    parts.push({d:`M${x} ${y}h${w}v${h}h${-w}Z`,kind:"cell",x,y,w,h,r,c,rows,cols,cx:x+w/2,cy:y+h/2,
+                edge:{l:c===0,r:c===cols-1,t:r===0,b:r===rows-1}});
+  }
+  for(let c=1;c<cols;c++) cuts.push([bx+c*w,by,bx+c*w,by+bh]);
+  for(let r=1;r<rows;r++) cuts.push([bx,by+r*h,bx+bw,by+r*h]);
+  return {shape,parts,cuts,img:shape==="rect"?"pizza_rect":"pizza_square",box:[bx,by,bw,bh],
+          outline:`<path d="${edgePath(shape,-2)}"/>`};
+}
+/* how far each part slides out once cut: radial for round, even gaps for grids */
+function offsetsOf(g){
+  if(g.parts.length===1) return [{x:0,y:0}];
+  return g.parts.map(p=>{
+    if(p.kind==="sector") return {x:11*Math.cos(p.mid), y:11*Math.sin(p.mid)};
+    const gap=13; return {x:(p.c-(p.cols-1)/2)*gap, y:(p.r-(p.rows-1)/2)*gap};
+  });
+}
+function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed);
+  t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function piecesFor(g,i,n){
+  const p=g.parts[i], rnd=rng(i*977+n*131+7), out=[], keep=q=>onSauce(g.shape,q.x,q.y,q.s*.46);
+  if(p.kind==="sector"){
+    const s=clamp(Math.sqrt(Math.PI*R*R/n)/5.3,24,40);
+    let ring=0;
+    for(let r=R*.13;r<=R*.92;r+=s*.8, ring++){
+      const pad=(s*.56)/r, span=(p.a1-p.a0)-2*pad; if(span<=0) continue;
+      const cnt=Math.max(1,Math.floor(r*span/(s*.88)));
+      const stagger=(ring%2)*.5;                                    // offset alternate rings so they don't line up
+      for(let k=0;k<cnt;k++){
+        const a=p.a0+pad+span*(((k+.5+stagger)%cnt)/cnt)+(rnd()-.5)*.5*span/cnt, rr=r+(rnd()-.5)*s*.4;
+        const q={x:C+rr*Math.cos(a),y:C+rr*Math.sin(a),s:s*(.9+rnd()*.2),rot:rnd()*360};
+        if(keep(q)) out.push(q);
+      }
+    }
+  } else {
+    const s=clamp(Math.sqrt(p.w*p.h)/4.4,24,44), m=s*.56;
+    const x0=p.x+m, x1=p.x+p.w-m, y0=p.y+m, y1=p.y+p.h-m;
+    const cols=Math.max(1,Math.round((x1-x0)/(s*.95))+1), rows=Math.max(1,Math.round((y1-y0)/(s*.95))+1);
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      const x=cols===1?(x0+x1)/2:x0+(x1-x0)*c/(cols-1), y=rows===1?(y0+y1)/2:y0+(y1-y0)*r/(rows-1);
+      const q={x:x+(rnd()-.5)*s*.28,y:y+(rnd()-.5)*s*.28,s:s*(.9+rnd()*.2),rot:rnd()*360};
+      if(keep(q)) out.push(q);
+    }
+  }
+  return out;
+}
+function piecesSVG(g,i,n,kind,staticRot){
+  return piecesFor(g,i,n).map(q=>`<g transform="translate(${q.x.toFixed(1)} ${q.y.toFixed(1)})${staticRot?` rotate(${q.rot.toFixed(0)})`:""}">
+    <image class="pc" href="${A}piece_${kind}.webp" x="${(-q.s/2).toFixed(1)}" y="${(-q.s/2).toFixed(1)}" width="${q.s.toFixed(1)}" height="${q.s.toFixed(1)}"/></g>`).join("");
+}
+function pizzaImage(g){ const [x,y,w,h]=g.box; return `<image href="${HD}${g.img}.webp" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none"/>`; }
+function cutLines(g,drawn){
+  return g.cuts.map(([x1,y1,x2,y2])=>{ const len=Math.hypot(x2-x1,y2-y1).toFixed(1);
+    return `<line class="cut" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-dasharray="${len}" stroke-dashoffset="${drawn?0:len}"/>`; }).join("");
+}
+let _uid=0;
+function miniPizza(shape,n,show,tops){
+  const g=geom(shape,n), id="m"+(++_uid);
+  const keep = show ? show.map(i=>`<path d="${g.parts[i].d}"/>`).join("") : g.outline;
+  const t = tops ? tops.map(([i,k])=>piecesSVG(g,i,n,k,true)).join("") : "";
+  return `<defs><clipPath id="${id}k">${keep}</clipPath><clipPath id="${id}o">${g.outline}</clipPath></defs>
+    <g clip-path="url(#${id}k)">${pizzaImage(g)}${n>1?cutLines(g,true):""}</g><g clip-path="url(#${id}o)">${t}</g>`;
+}
+/* A press-cutter mould in the pizza's own shape and coordinates (viewBox 600):
+   brushed-steel rim, thick shaded blades on the exact cut lines, and an indigo
+   handle in the middle that shows how many parts it makes. */
+function mouldInner(shape,k,pfx,tray){
+  const g=geom(shape,k), id=pfx+(++_uid), RIM=15;          // rim centre-line sits 15 units outside the crust
+  const ring=(off,st)=>`<path d="${edgePath(shape,off)}" fill="none" stroke-linejoin="round" ${st}/>`;
+  const blades = g.cuts.map(([x1,y1,x2,y2])=>`
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#4E5663" stroke-width="20" stroke-linecap="round"/>
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="url(#${id}b)" stroke-width="13" stroke-linecap="round"/>
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="3" stroke-linecap="round"/>`).join("");
+  const kr = tray ? (k>9 ? 92 : 104) : (k>9 ? 50 : 56);
+  const knob = `<g transform="translate(${C} ${C})">
+      <circle r="${kr+6}" fill="#141E45" fill-opacity=".25" transform="translate(3 6)"/>
+      <circle r="${kr}" fill="url(#${id}k)" stroke="#F2A62C" stroke-width="8"/>
+      <ellipse cx="-${kr*.32}" cy="-${kr*.42}" rx="${kr*.42}" ry="${kr*.2}" fill="#FFFFFF" fill-opacity=".28" transform="rotate(-24)"/>
+      <text y="${kr*.18}" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="${kr*.95}" fill="#FFFFFF">${k}</text>
+      <text y="${kr*.6}" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="${kr*.3}" fill="#FBD584" letter-spacing="2">PARTS</text>
+    </g>`;
+  return `<defs>
+      <clipPath id="${id}c"><path d="${edgePath(shape,RIM)}"/></clipPath>
+      <linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#FAFBFD"/><stop offset=".3" stop-color="#BFC6D0"/><stop offset=".52" stop-color="#F1F4F7"/>
+        <stop offset=".75" stop-color="#A3ABB7"/><stop offset="1" stop-color="#E6EAEF"/></linearGradient>
+      <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#9AA3AF"/><stop offset=".5" stop-color="#DDE2E8"/><stop offset="1" stop-color="#8E97A3"/></linearGradient>
+      <radialGradient id="${id}k" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#4E6BBE"/><stop offset="1" stop-color="#1B2858"/></radialGradient>
+    </defs>
+    ${tray ? `<path d="${edgePath(shape,0)}" fill="#FFFFFF" fill-opacity=".38"/>` : ""}
+    <g clip-path="url(#${id}c)">${blades}</g>
+    ${ring(RIM,'stroke="#141E45" stroke-opacity=".22" stroke-width="30" transform="translate(3 7)"')}
+    ${ring(RIM,`stroke="url(#${id}s)" stroke-width="24"`)}
+    ${ring(RIM-12,'stroke="#6E7682" stroke-opacity=".65" stroke-width="2.5"')}
+    ${ring(RIM+12,'stroke="#5C6470" stroke-opacity=".75" stroke-width="2.5"')}
+    <path d="${edgeArc(shape,RIM-3,136,168)}" fill="none" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    ${k>1 ? knob : ""}`;
+}
+
+/* ============================================================
+   SOUND + VOICE
+   ============================================================ */
+const Sound=(()=>{ let ctx=null;
+  const ac=()=>{ if(!ctx){ try{ ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return ctx; };
+  function tone(f,t,dur,type,vol){ const c=ac(); if(!c) return; const o=c.createOscillator(), g=c.createGain();
+    o.type=type||"triangle"; o.frequency.setValueAtTime(f,c.currentTime+t); g.gain.setValueAtTime(0,c.currentTime+t);
+    g.gain.linearRampToValueAtTime(vol||.14,c.currentTime+t+.02); g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+t+dur);
+    o.connect(g); g.connect(c.destination); o.start(c.currentTime+t); o.stop(c.currentTime+t+dur+.05); }
+  return { pick(){tone(760,0,.08,"triangle",.1)}, plop(){tone(440+Math.random()*120,0,.06,"sine",.09)},
+    pop(){tone(300,0,.06,"sine",.12)}, tick(i){tone(620+i*40,0,.07,"triangle",.1)},
+    cut(){ const c=ac(); if(!c) return; tone(1500,0,.04,"square",.025); tone(1300,.09,.04,"square",.02); },
+    thunk(){tone(140,0,.2,"sine",.24);tone(90,.05,.22,"sine",.18)},
+    good(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.085,.26,"triangle",.14))},
+    bad(){tone(260,0,.18,"sawtooth",.08);tone(190,.13,.26,"sawtooth",.08)},
+    win(){[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,i*.1,.45,"triangle",.14))} };
+})();
+function speak(text){ if(!window.speechSynthesis) return;
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; speechSynthesis.speak(u); }catch(e){} }
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const S = {lv:"1.1",i:0,stars:0,tries:0,phase:"idle",k:1,covered:new Map(),topping:null,busy:false,
+           hinted:false,sayPlain:"",done:[],gen:0,skip:false,off:[]};
+const live = gen => gen===S.gen;
+const cur = () => LEVELS[S.lv].orders[S.i];
+const fracify = s => s.replace(/(\d+)\/(\d+)/g,'<span class="fr"><b>$1</b><b>$2</b></span>');
+const custName = o => o.name || NAMES[o.cust];
+const custWho  = o => o.who  || NAMES[o.cust];
+const SHAPE_NAME = {round:"Round",square:"Square",rect:"Rectangle"};
+function pieceName(o,k){ const n=k||o.d;
+  if(o.shape==="round") return "Slices";
+  const [rows,cols]=gridOf(o.shape,n);
+  if(o.shape==="rect"&&rows===1) return "Strips";
+  return o.shape==="square"&&rows===cols ? "Squares" : "Pieces"; }
+function greeting(o){ const g=o.line.split(/\d+\/\d+/)[0].trim(); return g || (o.line.match(/\d+\/\d+/)?"":o.line); }
+let G=null; const PZ=$("pz");
+
+function say(text,tone){ S.sayPlain=text; const el=$("say"); el.innerHTML=fracify(text); el.className="say"+(tone?" "+tone:""); }
+function guideMood(cls){ const g=$("guide"); g.classList.remove("cheer","hmm"); void g.offsetWidth; g.classList.add(cls); }
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
+function setDone(kind,enabled,ready){ const b=$("done");
+  b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `DONE ${CHECK}`;
+  b.disabled=!enabled; b.classList.toggle("ready",!!ready); }
+function setCount(){ const o=cur(), c=$("count");
+  if(S.phase==="top"){ c.hidden=false; c.textContent=`${S.covered.size}/${o.d}`; } else c.hidden=true; }
+function renderTop(){
+  const L=LEVELS[S.lv];
+  $("trail").innerHTML = L.orders.map((_,i)=>`<svg class="tok ${i===S.i?'now':''}" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="13" fill="${S.done[i]?'#F6C34A':'#FFFDF6'}" stroke="${i===S.i?'#F2A62C':'#23356F'}" stroke-width="${i===S.i?3.4:2.2}" opacity="${S.done[i]||i===S.i?1:.6}"/>
+      ${S.done[i]?'<circle cx="16" cy="16" r="9" fill="#FBD584"/><circle cx="12" cy="13" r="2.4" fill="#C8402E"/><circle cx="19" cy="15" r="2.2" fill="#C8402E"/><circle cx="14" cy="20" r="2.2" fill="#C8402E"/>':''}
+    </svg>`).join("");
+  $("stars").textContent="⭐ "+S.stars;
+  $("jump").value=`${S.lv}:${S.i}`;
+}
+
+/* ============================================================
+   PIZZA RENDERING
+   whole: one painted pizza + knife lines (cutting time)
+   parts: every slice its own group, so it can slide, fill and fly
+   ============================================================ */
+let _rid=0;
+function renderWhole(drawn){
+  const id="w"+(++_rid);
+  PZ.innerHTML=`<defs><clipPath id="${id}">${G.outline}</clipPath></defs>
+    <g id="pizza"><g clip-path="url(#${id})">${pizzaImage(G)}</g></g>
+    <g id="cuts" clip-path="url(#${id})">${cutLines(G,drawn)}</g><g id="over"></g>`;
+}
+function renderParts(sep){
+  const id="p"+(++_rid);
+  S.off = offsetsOf(G);
+  PZ.innerHTML=`<defs><clipPath id="${id}o">${G.outline}</clipPath>${G.parts.map((p,i)=>`<clipPath id="${id}c${i}"><path d="${p.d}"/></clipPath>`).join("")}</defs>
+    <g id="pizza">${G.parts.map((p,i)=>`<g class="part" data-i="${i}" style="transform:${sep?`translate(${S.off[i].x}px,${S.off[i].y}px)`:"none"}">
+        <g clip-path="url(#${id}c${i})"><g clip-path="url(#${id}o)">${pizzaImage(G)}</g></g>
+        <g class="tops"></g><path class="hit" data-i="${i}" d="${p.d}"/></g>`).join("")}</g>
+    <g id="cuts" clip-path="url(#${id}o)" style="opacity:${sep?0:1}">${cutLines(G,true)}</g><g id="over"></g>`;
+}
+const partEl = i => PZ.querySelector(`.part[data-i="${i}"]`);
+async function split(gen){
+  renderParts(false);
+  PZ.getBoundingClientRect();          // commit the joined state so the slide-apart transition runs
+  await wait(40);
+  if(!live(gen)) return;
+  PZ.querySelectorAll(".part").forEach((el,i)=>{ el.style.transform=`translate(${S.off[i].x}px,${S.off[i].y}px)`; });
+  $("cuts").style.opacity=0;
+  await wait(760);
+}
+async function countParts(gen){
+  const over=$("over"), n=G.parts.length;
+  over.innerHTML=G.parts.map((p,i)=>`<g class="badge" transform="translate(${(p.cx+S.off[i].x).toFixed(1)} ${(p.cy+S.off[i].y).toFixed(1)})">
+      <g class="bi" style="animation-delay:${i*170}ms"><circle r="${G.parts.length>9?28:33}"/><text y="12">${i+1}</text></g></g>`).join("");
+  for(let i=0;i<n;i++) setTimeout(()=>{ if(live(gen)) Sound.tick(i); }, i*170);
+  await wait(n*170+900); if(!live(gen)) return;
+  over.querySelectorAll(".badge").forEach(b=>b.classList.add("out"));
+  await wait(380); if(live(gen)) over.innerHTML="";
+}
+
+/* a tween on requestAnimationFrame; a tap on the pizza skips the cutting show */
+function tween(ms,fn){
+  return new Promise(res=>{ const t0=performance.now(), gen=S.gen;
+    (function f(now){ if(!live(gen)){ res(); return; }
+      const t = S.skip ? 1 : Math.min(1,(now-t0)/ms); fn(t);
+      if(t<1) requestAnimationFrame(f); else res(); })(t0);
+  });
+}
+const CUTTER = `<g id="cutter"><image href="${HD}pizza_cutter.webp" x="-44" y="-40" width="170" height="83"/>
+  <circle class="spin" r="26" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-dasharray="5 9"/></g>`;
+async function rollCutter(gen){
+  const lines=[...$("cuts").querySelectorAll("line")]; if(!lines.length) return;
+  $("over").innerHTML=CUTTER; const cut=$("cutter");
+  const per=clamp(8200/lines.length,900,1350);
+  let pos={x:690,y:120}, ang=200;
+  const place=(x,y,a,s)=>cut.setAttribute("transform",`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(${s})`);
+  place(pos.x,pos.y,ang,1.1);
+  let lastCrumb=0;
+  for(const L of lines){
+    if(!live(gen)) return;
+    const x1=+L.getAttribute("x1"), y1=+L.getAttribute("y1"), x2=+L.getAttribute("x2"), y2=+L.getAttribute("y2");
+    const a=Math.atan2(y2-y1,x2-x1)*180/Math.PI+180, len=Math.hypot(x2-x1,y2-y1);
+    const from={...pos}, a0=ang;
+    // lift and glide to the start of the next cut
+    await tween(520,t=>{ const e=ease(t); place(from.x+(x1-from.x)*e, from.y+(y1-from.y)*e, a0+((a-a0+540)%360-180)*e, 1.1-.1*e); });
+    if(!live(gen)) return;
+    cut.classList.add("rolling"); Sound.cut();
+    // press and roll slowly along the line
+    await tween(per,t=>{ const e=ease(t), x=x1+(x2-x1)*e, y=y1+(y2-y1)*e;
+      place(x,y,a,1); L.setAttribute("stroke-dashoffset",(len*(1-e)).toFixed(1));
+      const now=performance.now(); if(!S.skip && now-lastCrumb>70 && t>.05 && t<.98){ lastCrumb=now; crumb(x,y); } });
+    cut.classList.remove("rolling");
+    pos={x:x2,y:y2}; ang=a;
+    if(!S.skip) await wait(180);
+  }
+  if(!live(gen)) return;
+  const from={...pos};
+  await tween(500,t=>{ const e=ease(t); place(from.x+(700-from.x)*e, from.y+(-80-from.y)*e, ang, 1+.1*e); });
+  lines.forEach(L=>L.setAttribute("stroke-dashoffset",0));
+  $("over").innerHTML="";
+}
+function crumb(x,y){
+  const over=$("over"); if(!over) return;
+  const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
+  c.setAttribute("cx",x.toFixed(1)); c.setAttribute("cy",y.toFixed(1)); c.setAttribute("r",(2+Math.random()*3).toFixed(1));
+  c.setAttribute("fill",Math.random()<.5?"#FBD584":"#E9A33A"); c.setAttribute("class","crumb");
+  c.style.setProperty("--dx",((Math.random()-.5)*36).toFixed(0)+"px"); c.style.setProperty("--dy",((Math.random()-.5)*36).toFixed(0)+"px");
+  over.insertBefore(c, over.firstChild); setTimeout(()=>c.remove(),720);
+}
+
+/* ============================================================
+   TRAY: katoris of toppings, or moulds
+   ============================================================ */
+/* a steel katori heaped with the painted topping pieces */
+function katoriSVG(k){
+  const rnd=rng(k.length*31+k.charCodeAt(0));
+  const ring=(n,r,s,ph)=>Array.from({length:n},(_,i)=>{ const a=i*2*Math.PI/n+ph; return [Math.cos(a)*r,Math.sin(a)*r,s]; });
+  const spots=[...ring(10,57,30,.15),...ring(6,33,35,.4),[0,0,41]];      // outer ring first, heap on top
+  const pile=spots.map(([x,y,sz])=>{ const jx=x+(rnd()-.5)*7, jy=y+(rnd()-.5)*7, r=(rnd()*360).toFixed(0);
+    return `<g transform="translate(${(100+jx).toFixed(1)} ${(100+jy).toFixed(1)}) rotate(${r})"><image href="${A}piece_${k}.webp" x="${-sz/2}" y="${-sz/2}" width="${sz}" height="${sz}"/></g>`; }).join("");
+  return `<svg viewBox="0 0 200 200" aria-hidden="true">
+    <defs><radialGradient id="kr${k}" cx=".38" cy=".32" r=".85"><stop offset="0" stop-color="#FAFBFC"/><stop offset=".6" stop-color="#C9CFD7"/><stop offset="1" stop-color="#9EA6B1"/></radialGradient>
+      <radialGradient id="ki${k}" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#E9ECF0"/><stop offset="1" stop-color="#A6AEB8"/></radialGradient>
+      <clipPath id="kc${k}"><circle cx="100" cy="100" r="77"/></clipPath></defs>
+    <circle cx="100" cy="105" r="94" fill="#7F8792" fill-opacity=".9"/>
+    <circle cx="100" cy="100" r="94" fill="url(#kr${k})"/>
+    <circle cx="100" cy="100" r="79" fill="url(#ki${k})"/>
+    <g clip-path="url(#kc${k})">${pile}</g>
+    <circle cx="100" cy="100" r="79" fill="none" stroke="#6F7783" stroke-opacity=".35" stroke-width="3"/>
+    <path d="M33 68A86 86 0 0 1 66 22" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="6" stroke-linecap="round"/>
+  </svg>`;
+}
+function showKatoris(){
+  $("slots").innerHTML = TOPPINGS.map((t,i)=>`<div class="slot katori in${S.topping===t.k?' sel':''}" data-top="${t.k}" role="button" tabindex="0"
+      aria-label="${t.name}" style="left:${KATORI_POS[i][0]}%;top:${KATORI_POS[i][1]}%;animation-delay:${i*90}ms">
+      ${katoriSVG(t.k)}<span>${t.name}</span></div>`).join("");
+  $("slots").querySelectorAll(".katori").forEach(b=>{
+    b.addEventListener("pointerdown",e=>startDrag(e,b.dataset.top));
+    b.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickTopping(b.dataset.top); } });
+  });
+}
+function showMoulds(){
+  const o=cur();
+  $("slots").innerHTML = o.moulds.map((k,i)=>`<button class="slot mould in" data-m="${k}" aria-label="Mould that cuts ${k} parts"
+      style="left:${MOULD_POS[i][0]}%;top:${MOULD_POS[i][1]}%;animation-delay:${i*110}ms">
+      <svg viewBox="-30 -30 660 660" aria-hidden="true">${mouldInner(o.shape,k,"b",true)}</svg></button>`).join("");
+  $("slots").querySelectorAll(".mould").forEach(b=>b.addEventListener("click",()=>useMould(+b.dataset.m,b)));
+}
+function showPlates(){
+  const o=cur(), served=[...S.covered.keys()], left=G.parts.map((_,i)=>i).filter(i=>!S.covered.has(i));
+  const plate=inner=>`<svg viewBox="-40 -40 680 680" aria-hidden="true">
+      <circle cx="300" cy="300" r="335" fill="#FFFDF8" stroke="#D9DEE6" stroke-width="12"/>
+      <circle cx="300" cy="300" r="290" fill="none" stroke="#EEF1F5" stroke-width="6"/>
+      <g transform="translate(300 300) scale(.84) translate(-300 -300)">${inner}</g></svg>`;
+  $("slots").innerHTML=`<div class="plates">
+      <figure>${plate(miniPizza(o.shape,o.d,served,served.map(i=>[i,S.covered.get(i)])))}<figcaption>Served: ${fracify(o.n+"/"+o.d)}</figcaption></figure>
+      <figure>${plate(miniPizza(o.shape,o.d,left))}<figcaption>Left: ${fracify((o.d-o.n)+"/"+o.d)}</figcaption></figure></div>`;
+}
+
+/* ============================================================
+   CUSTOMER + SLIP
+   ============================================================ */
+function showCustomer(){
+  const o=cur(), keys=[o.cust].concat(o.duo?[o.duo]:[]), note=greeting(o);
+  $("cust").innerHTML=`
+    <article class="slip enter" id="slip" aria-label="Order slip">
+      <span class="pin" aria-hidden="true"></span>
+      <div class="slip-head"><span>ORDER</span><b>#${String(S.i+1).padStart(2,"0")}</b></div>
+      <div class="slip-name">${custName(o)}</div>
+      <div class="slip-want">${fracify(o.n+"/"+o.d)}<span class="of">of a<br>pizza</span></div>
+      <dl><dt>Pizza</dt><dd><svg viewBox="0 0 600 600" aria-hidden="true">${miniPizza(o.shape,1)}</svg>${SHAPE_NAME[o.shape]}</dd>
+          <dt>Slices</dt><dd>${pieceName(o)}</dd><dt>Topping</dt><dd>Any you like</dd></dl>
+      ${note?`<p class="slip-note" id="note">“${fracify(note)}”</p>`:`<p class="slip-note" id="note" hidden></p>`}
+    </article>
+    <div class="who ${o.duo?'duo':''} enter" id="who">${keys.map(k=>`<img src="${A}${k}.webp" alt="${NAMES[k]}">`).join("")}</div>`;
+}
+function custMood(cls){
+  const w=$("who"); if(w){ w.classList.remove("enter","happy","sad"); void w.offsetWidth; w.classList.add(cls); }
+  const sl=$("slip"); if(sl&&cls==="sad"){ sl.classList.remove("enter","shake"); void sl.offsetWidth; sl.classList.add("shake"); }
+}
+function boardFx(cls){ const b=$("boardwrap"); b.classList.remove("in","thud","wiggle"); void b.offsetWidth; b.classList.add(cls); }
+
+/* ============================================================
+   FLOW
+   ============================================================ */
+function startLevel(lv){ S.lv=lv; S.i=0; S.stars=0; S.done=[]; S.hinted=false; $("start").hidden=true; $("end").hidden=true; loadOrder(); }
+function jumpTo(lv,i){ if(lv!==S.lv){ S.lv=lv; S.stars=0; S.done=[]; } S.i=i; $("start").hidden=true; $("end").hidden=true; loadOrder(); }
+
+async function loadOrder(){
+  const o=cur(), gen=++S.gen;
+  document.querySelectorAll(".flyer").forEach(f=>f.remove());
+  hideHint(); S.tries=0; S.covered=new Map(); S.topping=null; S.busy=true; S.skip=false;
+  renderTop(); showCustomer(); boardFx("in");
+  if(!LEVELS[S.lv].cut){
+    S.k=o.d; S.phase="cutting"; G=geom(o.shape,S.k); renderWhole(false); showKatoris();
+    say(`Cutting the pizza into ${o.d} equal ${pieceName(o).toLowerCase()}…`); setDone("done",false); setCount();
+    await wait(1100); if(!live(gen)) return;
+    await rollCutter(gen); if(!live(gen)) return;
+    await split(gen); if(!live(gen)) return;
+    say(`${o.d} equal ${pieceName(o).toLowerCase()}!`, "good");
+    await countParts(gen); if(!live(gen)) return;
+    beginTopping();
+  } else {
+    S.k=1; S.phase="mould"; G=geom(o.shape,1); renderWhole(true); showMoulds();
+    say("Pick the mould that cuts this pizza for the order."); setDone("done",false); setCount();
+    S.busy=false;
+  }
+}
+function beginTopping(){
+  const o=cur(); S.phase="top"; S.busy=false;
+  say(`Cover ${o.n}/${o.d} of the pizza with the topping.`); setDone("done",false); setCount();
+  if(S.i===0 && !S.hinted) setTimeout(showHint,400);
+}
+
+/* ---------- moulds (1.2): lift off the thali, arc over, press, cut, fly home ---------- */
+async function useMould(k,btn){
+  if(S.phase!=="mould"||S.busy) return;
+  S.busy=true; const o=cur(), gen=S.gen;
+  say(`Using the ${k}-part mould…`);
+  const art=btn.querySelector("svg").getBoundingClientRect(), to=PZ.getBoundingClientRect();
+  // the button's svg has a 30-unit margin round the 600 box; find where the 600 box sits on screen
+  const u=art.width/660, from={left:art.left+30*u, top:art.top+30*u, width:600*u, height:600*u};
+  const W=to.width, H=to.height;
+  const T=(cx,cy,sx,sy)=>{ sy=sy??sx; return `translate(${(cx+(1-sx)*W/2).toFixed(1)}px,${(cy+(1-sy)*H/2).toFixed(1)}px) scale(${sx.toFixed(4)},${sy.toFixed(4)})`; };
+  const home=[(from.left+from.width/2)-(to.left+W/2), (from.top+from.height/2)-(to.top+H/2), from.width/W];
+  const fly=document.createElement("div"); fly.className="flyer";
+  Object.assign(fly.style,{left:to.left+"px",top:to.top+"px",width:W+"px",height:H+"px"});
+  fly.innerHTML=`<svg viewBox="0 0 600 600" aria-hidden="true">${mouldInner(o.shape,k,"fl",false)}</svg>`;
+  document.body.appendChild(fly); btn.classList.add("using");
+  const sh=(y,b,a)=>`drop-shadow(0 ${y}px ${b}px rgba(20,30,60,${a}))`;
+  const go=(kf,ms,ez)=>fly.animate(kf,{duration:ms,easing:ez,fill:"forwards"}).finished;
+
+  // 1. lift off the thali and arc over to the pizza
+  await go([
+    {transform:T(home[0],home[1],home[2]), filter:sh(5,4,.3)},
+    {transform:T(home[0],home[1]-26,home[2]*1.12), filter:sh(20,14,.28), offset:.2},
+    {transform:T(home[0]*.42,Math.min(home[1],0)-110,(home[2]+1)/2*1.1), filter:sh(44,26,.22), offset:.62},
+    {transform:T(0,-52,1.07), filter:sh(52,30,.22)}], 1250, "cubic-bezier(.45,0,.3,1)");
+  if(!live(gen)) return fly.remove();
+  await wait(220); if(!live(gen)) return fly.remove();
+  // 2. come down and press
+  await go([{transform:T(0,-52,1.07), filter:sh(52,30,.22)},{transform:T(0,0,1), filter:sh(6,5,.38)}], 460, "cubic-bezier(.55,0,.8,.2)");
+  if(!live(gen)) return fly.remove();
+  Sound.thunk(); boardFx("thud");
+  const squash=go([{transform:T(0,0,1)},{transform:T(0,5,1.012,.972)},{transform:T(0,0,1)}], 420, "ease-in-out");
+  S.k=k; G=geom(o.shape,k); renderWhole(false);
+  Sound.cut();
+  const lines=[...$("cuts").querySelectorAll("line")];
+  lines.forEach(L=>{ const x1=+L.getAttribute("x1"), y1=+L.getAttribute("y1"), x2=+L.getAttribute("x2"), y2=+L.getAttribute("y2");
+    for(let q=1;q<=7;q++){ const t=q/8; setTimeout(()=>{ if(live(gen)) crumb(x1+(x2-x1)*t, y1+(y2-y1)*t); }, q*60); } });
+  await Promise.all([squash, ...lines.map(L=>{ const len=+L.getAttribute("stroke-dasharray");
+    return L.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:850,easing:"ease-in-out",fill:"forwards"}).finished; })]);
+  lines.forEach(L=>L.setAttribute("stroke-dashoffset",0));
+  if(!live(gen)) return fly.remove();
+  await wait(300); if(!live(gen)) return fly.remove();
+  // 3. lift and fly back to its place on the thali
+  await go([{transform:T(0,0,1), filter:sh(6,5,.38)},{transform:T(0,-56,1.07), filter:sh(52,30,.22), offset:.3},
+            {transform:T(home[0],home[1],home[2]), filter:sh(5,4,.3)}], 1100, "cubic-bezier(.45,0,.3,1)");
+  fly.remove(); btn.classList.remove("using");
+  if(!live(gen)) return;
+  await split(gen); if(!live(gen)) return;
+  if(k===o.d){
+    say(`${o.d} equal ${pieceName(o,k).toLowerCase()}!`,"good"); Sound.good(); guideMood("cheer");
+    await countParts(gen); if(!live(gen)) return;
+    showKatoris(); beginTopping();
+  } else {
+    S.tries++; Sound.bad(); btn.classList.add("wrong"); custMood("sad"); guideMood("hmm");
+    PZ.classList.add("bad"); boardFx("wiggle");
+    say("Hmm, is that how many parts the order needs? Try again.","bad");
+    await wait(1600); if(!live(gen)) return;
+    btn.classList.remove("wrong"); PZ.classList.remove("bad");
+    PZ.querySelectorAll(".part").forEach(p=>p.style.transform="none");      // the pieces close up again
+    await wait(700); if(!live(gen)) return;
+    S.k=1; G=geom(o.shape,1); renderWhole(true); boardFx("in");               // a fresh whole pizza
+    say("Pick the mould that cuts this pizza for the order."); S.busy=false;
+  }
+}
+
+/* ---------- toppings: drag a katori onto a slice, or pick one and tap slices ---------- */
+let drag=null;
+function pickTopping(k){ S.topping=k; Sound.pick();
+  document.querySelectorAll(".katori").forEach(b=>b.classList.toggle("sel",b.dataset.top===k)); }
+function startDrag(e,kind){
+  if(S.phase!=="top"||S.busy) return;
+  e.preventDefault(); hideHint();
+  drag={kind,x:e.clientX,y:e.clientY,moved:false,ghost:null,over:null};
+  window.addEventListener("pointermove",moveDrag);
+  window.addEventListener("pointerup",endDrag,{once:true});
+  window.addEventListener("pointercancel",endDrag,{once:true});
+}
+function hitAt(x,y){ const el=document.elementFromPoint(x,y); return el&&el.classList&&el.classList.contains("hit")?el:null; }
+function moveDrag(e){
+  if(!drag) return;
+  if(!drag.moved && Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>8){
+    drag.moved=true;
+    const gh=document.createElement("div"); gh.className="ghost";
+    gh.innerHTML=[[22,18,0],[44,32,40],[24,44,110],[6,30,200]].map(([x,y,r])=>`<img src="${A}piece_${drag.kind}.webp" alt="" style="left:${x}px;top:${y}px;rotate:${r}deg">`).join("");
+    document.body.appendChild(gh); drag.ghost=gh; pickTopping(drag.kind);
+  }
+  if(drag.moved){
+    drag.ghost.style.transform=`translate(${e.clientX-45}px,${e.clientY-62}px)`;
+    const h=hitAt(e.clientX,e.clientY);
+    if(h!==drag.over){ if(drag.over) drag.over.classList.remove("hov"); if(h) h.classList.add("hov"); drag.over=h; }
+  }
+}
+function endDrag(e){
+  window.removeEventListener("pointermove",moveDrag);
+  if(!drag) return; const d=drag; drag=null;
+  if(d.ghost) d.ghost.remove(); if(d.over) d.over.classList.remove("hov");
+  if(!d.moved){ pickTopping(d.kind); say(`Now tap the ${pieceName(cur()).toLowerCase()} to add ${TOPPINGS.find(t=>t.k===d.kind).name.toLowerCase()}.`); return; }
+  const h=d.over||hitAt(e.clientX,e.clientY);
+  if(h) cover(+h.dataset.i,d.kind,toSvg(e.clientX,e.clientY));
+}
+function toSvg(x,y){ const m=PZ.getScreenCTM(); return m ? new DOMPoint(x,y).matrixTransform(m.inverse()) : null; }
+
+/* toppings spread out from where they were dropped, one piece after another */
+function cover(i,kind,drop){
+  if(S.phase!=="top"||S.busy) return;
+  const p=G.parts[i], off=S.off[i]||{x:0,y:0};
+  const from = drop ? {x:drop.x-off.x, y:drop.y-off.y} : {x:p.cx, y:p.cy};
+  S.covered.set(i,kind);
+  const g=partEl(i).querySelector(".tops");
+  g.innerHTML=piecesSVG(G,i,S.k,kind,false);
+  const pts=piecesFor(G,i,S.k), imgs=[...g.querySelectorAll(".pc")];
+  const order=pts.map((q,j)=>[j,Math.hypot(q.x-from.x,q.y-from.y)]).sort((a,b)=>a[1]-b[1]);
+  order.forEach(([j],rank)=>{
+    const q=pts[j], dx=from.x-q.x, dy=from.y-q.y, rot=q.rot.toFixed(0);
+    imgs[j].animate([
+      {transform:`translate(${dx}px,${dy}px) rotate(0deg) scale(.15)`,opacity:0},
+      {opacity:1,offset:.2},
+      {transform:`translate(0px,0px) rotate(${rot*1.1}deg) scale(1.18)`,offset:.72},
+      {transform:`translate(0px,0px) rotate(${rot}deg) scale(1)`,opacity:1}],
+      {duration:780,delay:rank*55,easing:"cubic-bezier(.25,.8,.35,1)",fill:"both"});
+    if(rank%3===0) setTimeout(()=>Sound.plop(), rank*55+300);
+  });
+  hideHint(); afterChange();
+}
+function uncover(i){
+  const g=partEl(i).querySelector(".tops");
+  const anims=[...g.querySelectorAll(".pc")].map((im,j)=>im.animate([{opacity:1},{transform:"scale(0)",opacity:0}],{duration:260,delay:j*8,fill:"forwards"}).finished);
+  S.covered.delete(i); Sound.pop(); afterChange();
+  Promise.all(anims).then(()=>{ if(!S.covered.has(i)) g.innerHTML=""; });
+}
+function afterChange(){
+  const o=cur(); setCount(); setDone("done",S.covered.size>0,S.covered.size===o.n);
+  if(/^(Is that|Pick a topping|Now tap)/.test(S.sayPlain)) say(`Cover ${o.n}/${o.d} of the pizza with the topping.`);
+}
+PZ.addEventListener("click",e=>{
+  const h=e.target.closest&&e.target.closest(".hit");
+  if(!h||S.phase!=="top"||S.busy) return;
+  const i=+h.dataset.i;
+  if(S.covered.has(i)){ uncover(i); return; }
+  if(!S.topping){ say("Pick a topping first: drag a bowl onto a slice.");
+    document.querySelectorAll(".katori").forEach(b=>{ b.classList.remove("ask"); void b.offsetWidth; b.classList.add("ask"); }); return; }
+  cover(i,S.topping,toSvg(e.clientX,e.clientY));
+});
+PZ.addEventListener("pointerdown",()=>{ if(S.phase==="cutting") S.skip=true; });
+
+/* ---------- serve or try again ---------- */
+$("done").addEventListener("click",()=>{
+  if(S.phase==="served"){ if(!S.busy) next(); return; }
+  if(S.phase!=="top"||S.busy||!S.covered.size) return;
+  S.covered.size===cur().n ? serve() : miss();
+});
+async function miss(){
+  const o=cur(), gen=S.gen;
+  S.tries++; S.busy=true; Sound.bad(); guideMood("hmm"); custMood("sad");
+  say(`Is that how much ${custWho(o)} ${o.who?"want":"wants"}? Try again.`,"bad");
+  S.covered.forEach((_,i)=>partEl(i).querySelector(".hit").classList.add("bad"));
+  boardFx("wiggle"); setDone("done",false);
+  await wait(1000); if(!live(gen)) return;
+  const anims=[];
+  S.covered.forEach((_,i)=>partEl(i).querySelectorAll(".pc").forEach((im,j)=>anims.push(im.animate(
+    [{opacity:1},{transform:`translate(${((Math.random()-.5)*40).toFixed(0)}px,70px) rotate(160deg) scale(.4)`,opacity:0}],
+    {duration:520,delay:j*14,easing:"ease-in",fill:"forwards"}).finished)));
+  await Promise.all(anims); if(!live(gen)) return;
+  S.covered.forEach((_,i)=>{ const p=partEl(i); p.querySelector(".tops").innerHTML=""; p.querySelector(".hit").classList.remove("bad"); });
+  S.covered.clear(); S.busy=false; setCount();
+}
+async function serve(){
+  const o=cur(), gen=S.gen, first=S.tries===0;
+  S.phase="served"; S.busy=true; S.done[S.i]=true; if(first) S.stars++;
+  const t=TOPPINGS.find(x=>x.k===[...S.covered.values()][0]).name.toLowerCase();
+  Sound.good(); guideMood("cheer"); setDone("next",false); $("count").hidden=true;
+  say(first?"Served! ⭐ First try!":"Served!","good");
+  await flyToCustomer(gen); if(!live(gen)) return;
+  const note=$("note"); note.hidden=false; note.innerHTML=`“${fracify(o.ok.replace("{t}",t))}”`;
+  $("slip").insertAdjacentHTML("beforeend",`<span class="stamp" aria-label="Served">SERVED</span>`);
+  custMood("happy"); confetti(); renderTop();
+  if(LEVELS[S.lv].cut) showPlates();
+  S.busy=false; setDone("next",true,true);
+}
+/* the topped slices lift, arc through the air and land with the customer */
+async function flyToCustomer(gen){
+  const served=[...S.covered.keys()], m=PZ.getScreenCTM(), who=$("who").getBoundingClientRect();
+  const target = m ? new DOMPoint(who.left+who.width/2, who.top+who.height*.55).matrixTransform(m.inverse()) : {x:-420,y:300};
+  await Promise.all(served.map((i,k)=>{
+    const el=partEl(i), p=G.parts[i], off=S.off[i];
+    el.classList.add("lifted"); el.style.transformOrigin=`${p.cx}px ${p.cy}px`; el.style.transition="none";
+    el.parentNode.appendChild(el);
+    const tx=target.x-p.cx, ty=target.y-p.cy, mx=(off.x+tx)/2, my=Math.min(off.y,ty)-170;
+    return el.animate([
+      {transform:`translate(${off.x}px,${off.y}px) scale(1)`},
+      {transform:`translate(${off.x}px,${off.y-22}px) scale(1.08)`,offset:.2},
+      {transform:`translate(${mx}px,${my}px) scale(.6)`,offset:.62},
+      {transform:`translate(${tx}px,${ty}px) scale(.18)`,opacity:0}],
+      {duration:1500,delay:k*110,easing:"cubic-bezier(.45,0,.35,1)",fill:"forwards"}).finished;
+  }));
+}
+function next(){ S.i++; if(S.i>=LEVELS[S.lv].orders.length){ showEnd(); return; } loadOrder(); }
+
+/* ---------- hint, confetti, end ---------- */
+let hintAnim=null;
+function showHint(){
+  if(S.phase!=="top"||S.covered.size||S.hinted) return;
+  const hand=$("hand"), st=$("stage").getBoundingClientRect(), k=$("slots").querySelector(".katori"); if(!k) return;
+  const b=k.getBoundingClientRect(), m=PZ.getScreenCTM(); if(!m) return;
+  const p=G.parts[0], off=S.off[0]||{x:0,y:0}, pt=new DOMPoint(p.cx+off.x,p.cy+off.y).matrixTransform(m);
+  const f=[b.left+b.width/2-st.left-14,b.top+b.height/2-st.top-6], t=[pt.x-st.left-14,pt.y-st.top-6];
+  hand.hidden=false;
+  hintAnim=hand.animate([{transform:`translate(${f[0]}px,${f[1]}px)`,opacity:0},{transform:`translate(${f[0]}px,${f[1]}px) scale(.88)`,opacity:1,offset:.15},
+    {transform:`translate(${t[0]}px,${t[1]}px) scale(.88)`,opacity:1,offset:.7},{transform:`translate(${t[0]}px,${t[1]}px)`,opacity:0}],
+    {duration:2100,iterations:Infinity,easing:"ease-in-out"});
+}
+function hideHint(){ if(S.phase==="top") S.hinted=true; if(hintAnim){ hintAnim.cancel(); hintAnim=null; } $("hand").hidden=true; }
+function confetti(){
+  const fx=$("fx"), cols=["#F2A62C","#FBD584","#C8402E","#3A55A0","#3F8A3C","#FFF2C8"];
+  for(let i=0;i<60;i++){ const s=document.createElement("i");
+    s.style.left=Math.random()*100+"%"; s.style.background=cols[i%cols.length];
+    s.style.clipPath=i%3?"polygon(50% 0,100% 100%,0 100%)":"circle(50%)";
+    s.style.animationDelay=(Math.random()*.35)+"s"; s.style.animationDuration=(1.3+Math.random()*.9)+"s";
+    fx.appendChild(s); setTimeout(()=>s.remove(),2600); }
+}
+function showEnd(){
+  const L=LEVELS[S.lv], crowd=L.orders.flatMap(o=>[o.cust].concat(o.duo?[o.duo]:[]));
+  $("endcard").innerHTML=`<h2>${L.end[0]}</h2>
+    <div class="crowd">${crowd.map((k,i)=>`<img src="${A}${k}.webp" alt="${NAMES[k]}" style="animation-delay:${i*90}ms">`).join("")}</div>
+    <div class="hosts"><img src="${A}billu_happy.webp" alt="Chef Billu cheering"><img src="${A}noori_point.webp" alt="Noori"></div>
+    <p>${L.end[1]}</p><div class="bigstars">⭐ ${S.stars} / ${L.orders.length}</div>
+    <div class="endbtns">${S.lv==="1.1"?`<button class="done" id="goNext">LEVEL 1.2 ${ARROW}</button>`:""}
+      <button class="done alt" id="again">PLAY AGAIN</button>${S.lv==="1.2"?`<button class="done" id="goOther">LEVEL 1.1</button>`:""}</div>`;
+  $("end").hidden=false; S.gen++; Sound.win(); speak(L.end.join(" "));
+  const n=$("goNext"), g=$("goOther"); if(n) n.onclick=()=>startLevel("1.2"); if(g) g.onclick=()=>startLevel("1.1");
+  $("again").onclick=()=>startLevel(S.lv);
+}
+
+/* ---------- wiring ---------- */
+$("guide").addEventListener("click",()=>speak(S.sayPlain));
+$("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });
+document.querySelectorAll(".lvbtn").forEach(b=>b.addEventListener("click",()=>startLevel(b.dataset.lv)));
+$("jump").innerHTML=Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
+  `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("");
+$("jump").addEventListener("change",e=>{ const [lv,i]=e.target.value.split(":"); jumpTo(lv,+i); e.target.blur(); });
+$("ic11").innerHTML=miniPizza("round",4,null,[[0,"tomato"],[1,"tomato"],[2,"tomato"]]);
+$("ic12").innerHTML=mouldInner("square",4,"ic",true);
+$("ic12").setAttribute("viewBox","-30 -30 660 660");
+[...new Set(Object.values(LEVELS).flatMap(L=>L.orders.flatMap(o=>[o.cust].concat(o.duo?[o.duo]:[]))))].map(k=>A+k+".webp")
+  .concat(TOPPINGS.map(t=>A+"piece_"+t.k+".webp"))
+  .concat(["pizza_round","pizza_square","pizza_rect","mould_round","mould_square","mould_rect","pizza_cutter"].map(n=>HD+n+".webp"))
+  .forEach(src=>{ const im=new Image(); im.src=src; });
+</script>
+
+</body>
+</html>

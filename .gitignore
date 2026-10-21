@@ -1,0 +1,13 @@
+# run logs and caches
+*.log
+__pycache__/
+*.pyc
+
+# editor + OS clutter
+.vscode/
+Thumbs.db
+desktop.ini
+
+# local scratch files from testing
+_*.html
+*-check.js

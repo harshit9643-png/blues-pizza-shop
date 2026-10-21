@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="620" viewBox="0 0 600 620">
+  <!-- 3D enamel-painted board: a thick slab with a visible side, bevelled top edge,
+       glossy paint and a soft contact shadow. Indigo keeps the golden pizza popping. -->
+  <defs>
+    <linearGradient id="top" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6684D2"/><stop offset=".45" stop-color="#4766B6"/><stop offset="1" stop-color="#31509A"/>
+    </linearGradient>
+    <linearGradient id="side" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A417E"/><stop offset="1" stop-color="#18264F"/>
+    </linearGradient>
+    <linearGradient id="bevel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/><stop offset=".45" stop-color="#FFFFFF" stop-opacity=".08"/>
+      <stop offset=".6" stop-color="#0B1433" stop-opacity=".08"/><stop offset="1" stop-color="#0B1433" stop-opacity=".45"/>
+    </linearGradient>
+    <radialGradient id="gloss" cx=".28" cy=".18" r=".6">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".30"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"/></filter>
+    <clipPath id="face"><rect x="18" y="14" width="564" height="564" rx="54"/></clipPath>
+  </defs>
+
+  <!-- contact shadow -->
+  <rect x="40" y="58" width="520" height="548" rx="60" fill="#0B1433" opacity=".45" filter="url(#blur)"/>
+  <!-- slab side (thickness) with end-grain lines -->
+  <rect x="18" y="38" width="564" height="566" rx="56" fill="url(#side)"/>
+  <g stroke="#3C569A" stroke-opacity=".5" stroke-width="2" fill="none">
+    <path d="M70 592h460M60 584h480"/>
+  </g>
+  <!-- top face -->
+  <rect x="18" y="14" width="564" height="564" rx="54" fill="url(#top)"/>
+  <g clip-path="url(#face)" fill="none" stroke-linecap="round">
+    <g stroke="#1E3168" stroke-opacity=".45" stroke-width="3"><path d="M159 14v564M300 14v564M441 14v564"/></g>
+    <g stroke="#8AA3E2" stroke-opacity=".35" stroke-width="2"><path d="M162 14v564M303 14v564M444 14v564"/></g>
+    <g stroke="#90A8E6" stroke-opacity=".22" stroke-width="2">
+      <path d="M50 60c20 90-15 170 6 260s-12 180 10 250"/><path d="M100 30c-14 100 22 180 0 270s18 170-4 270"/>
+      <path d="M200 40c18 80-20 160 4 250s-14 190 8 270"/><path d="M245 20c-10 110 16 200-4 290s12 170-2 260"/>
+      <path d="M350 30c16 100-18 190 4 270s-10 180 6 260"/><path d="M392 50c-12 90 20 160-2 250s16 190-4 260"/>
+      <path d="M490 20c18 110-16 190 4 280s-14 170 6 260"/><path d="M540 60c-10 90 16 180-4 260s12 170-2 250"/>
+    </g>
+    <rect x="18" y="14" width="564" height="564" fill="url(#gloss)"/>
+  </g>
+  <!-- inlaid marigold border (groove + gold) -->
+  <rect x="42" y="40" width="516" height="516" rx="36" fill="none" stroke="#14214A" stroke-opacity=".55" stroke-width="7"/>
+  <rect x="42" y="38" width="516" height="516" rx="36" fill="none" stroke="#F2A62C" stroke-width="5"/>
+  <rect x="42" y="37" width="516" height="516" rx="36" fill="none" stroke="#FFE3A3" stroke-opacity=".7" stroke-width="1.5"/>
+  <!-- bevelled top edge -->
+  <rect x="24" y="20" width="552" height="552" rx="49" fill="none" stroke="url(#bevel)" stroke-width="12"/>
+  <rect x="18" y="14" width="564" height="564" rx="54" fill="none" stroke="#0F1A3F" stroke-opacity=".7" stroke-width="3"/>
+</svg>
