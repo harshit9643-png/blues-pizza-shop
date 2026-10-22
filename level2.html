@@ -115,7 +115,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 .who{display:flex;align-items:center;gap:10px}
 .ava{position:relative;width:clamp(64px,10.5vh,88px);aspect-ratio:1;border-radius:50%;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;
   background:radial-gradient(circle at 50% 38%,#F2FBE6,#C9EBA9 60%,#94CF72);box-shadow:0 0 0 5px #FFFFFF,0 6px 10px rgba(60,40,10,.3);flex:0 0 auto}
-.ava img{height:112%;width:auto;margin-bottom:-4%}
+.ava img{width:84%;height:84%;object-fit:contain;object-position:50% 100%;margin-bottom:4%}
 .side.win .ava img,.fin.win .ava img{animation:hop .55s ease 3}
 .side.bad .ava img{animation:shake .5s}
 .tag{display:flex;align-items:center;gap:8px;white-space:nowrap;font-family:var(--display);font-weight:800;font-size:clamp(16px,1.75vw,21px);color:#FFFFFF;
@@ -191,14 +191,15 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 
 /* the final: finalists, diagrams, five slots */
 .final{grid-template-rows:auto auto auto;align-content:center;justify-items:center;gap:clamp(8px,1.6vh,16px);z-index:2}
-.row5{display:grid;grid-template-columns:repeat(5,minmax(0,clamp(96px,13vw,150px)));gap:clamp(8px,1.4vw,18px);justify-content:center}
-.home5 .cell{display:grid;place-items:center;min-height:clamp(118px,20vh,170px)}
-.fin{display:grid;justify-items:center;gap:4px;padding:6px;border-radius:18px;background:var(--paper);touch-action:none;cursor:grab;
+:root{--sq:clamp(96px,min(12vw,19vh),140px)}
+.row5{display:grid;grid-template-columns:repeat(5,var(--sq));gap:clamp(8px,1.4vw,18px);justify-content:center}
+.home5 .cell{display:grid;place-items:center;width:var(--sq);height:var(--sq)}
+.fin{width:calc(var(--sq) - 10px);height:calc(var(--sq) - 10px);display:grid;justify-items:center;align-content:center;gap:2px;padding:4px;border-radius:18px;background:var(--paper);touch-action:none;cursor:grab;
   box-shadow:0 5px 0 rgba(90,50,20,.35),0 10px 14px rgba(40,20,5,.22);transition:box-shadow .2s}
-.fin .ava{width:clamp(48px,8vh,64px)}
-.fin .mini{width:clamp(54px,8.6vh,72px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+.fin .ava{width:38%}
+.fin .mini{width:40%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
   background:radial-gradient(circle at 36% 26%,#FF8A68,#EA4E32 45%,#C2321C);box-shadow:0 0 0 4px #FFF4DC,0 0 0 6px #F3DDB0}
-.fin .mini .fr{font-size:clamp(18px,3vh,26px);color:#FFFFFF}
+.fin .mini .fr{font-size:clamp(14px,2.2vh,20px);color:#FFFFFF}
 .fin .nm{font-family:var(--display);font-weight:800;font-size:13px;color:var(--indigo)}
 .fin.sel{box-shadow:0 0 0 4px var(--marigold),0 10px 18px rgba(242,166,44,.5)}
 .fin.dragging{position:relative;z-index:50;cursor:grabbing;box-shadow:0 18px 26px rgba(40,20,5,.4);pointer-events:none}
@@ -210,7 +211,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 .diags5 .cell{display:grid;place-items:center;height:clamp(60px,10vh,92px)}
 .diags5 svg{height:100%;width:auto;opacity:0;transform:scale(.6);transition:opacity .4s,transform .45s cubic-bezier(.3,1.5,.5,1)}
 .diags5.show svg{opacity:1;transform:none}
-.slot{min-height:clamp(118px,20vh,170px);border-radius:20px;border:3px dashed rgba(74,37,8,.45);background:rgba(255,248,230,.35);
+.slot{width:var(--sq);height:var(--sq);border-radius:20px;border:3px dashed rgba(74,37,8,.45);background:rgba(255,248,230,.35);
   display:grid;place-items:center;position:relative;transition:background .2s,border-color .2s}
 .slot.over{background:rgba(255,236,170,.75);border-color:var(--marigold)}
 .slot.glow{box-shadow:0 0 0 4px var(--marigold),0 0 20px rgba(242,166,44,.8)}
@@ -581,16 +582,15 @@ function afterChange(st){
 }
 /* the tutorial walks one stack at a time, as in Tutorial 2 */
 function guideStep(st){
-  const sa=$("stack-a"), sb=$("stack-b");
-  if(S.g===1 && S.cnt.a===st.a.n) S.g=2;
-  if(S.g===2 && S.cnt.b===st.b.n) S.g=3;
-  sa.classList.toggle("off",S.g!==1); sb.classList.toggle("off",S.g!==2);
-  sa.classList.toggle("hint",S.g===1); sb.classList.toggle("hint",S.g===2);
-  ["a","b"].forEach(sd=>{ const n=$("num-"+sd); if(n) n.classList.toggle("blink",(S.g===1&&sd==="a")||(S.g===2&&sd==="b")); });
-  if(S.g===1){ const t=S.cnt.a===0?`${st.intro} The squirrel ate 2/7. Tap its stack to put 2 slices on its plate.`:"The squirrel ate 2/7. Put 2 slices on its plate.";
-    say(t,"","noori"); button("check",false,false); }
-  if(S.g===2){ say("The peacock ate 5/7. Put 5 slices on its plate.","","noori"); button("check",false,false); }
-  if(S.g===3){ say("Now tap Check plates.","","noori"); button("check",true,true,()=>checkPlates(st)); }
+  // both stacks stay open: kids may add too many or too few and learn from the feedback
+  const done=S.cnt.a>0&&S.cnt.b>0;
+  ["a","b"].forEach(sd=>{ const n=$("num-"+sd); if(n) n.classList.toggle("blink",S.cnt[sd]===0); });
+  $("stack-a").classList.toggle("hint",S.cnt.a===0); $("stack-b").classList.toggle("hint",S.cnt.a>0&&S.cnt.b===0);
+  if(S.keepMsg) {}                                       // keep the try-again / hint message on screen
+  else if(S.cnt.a===0&&S.cnt.b===0) say(`${st.intro} The squirrel ate 2/7 and the peacock ate 5/7. Tap a stack to put slices on its plate.`,"","noori");
+  else if(!done) say("Put slices on both plates. Tap a slice on a plate to take it off.","","noori");
+  else say("When both plates look right, tap Check plates.","","noori");
+  button("check",done,S.cnt.a===st.a.n&&S.cnt.b===st.b.n,()=>checkPlates(st));
 }
 async function checkPlates(st){
   if(S.phase!=="build") return;
@@ -616,7 +616,7 @@ async function checkPlates(st){
   else { say(st.label==="Match 1"?"Check the numerator. How many slices did each one eat?":`Check the numerator. That's how many slices ${who(o.k)} ate.`,"bad","noori");
     bump($("num-"+bad),"blink",2800); }
   await wait(650); if(!live(g)) return;
-  S.cnt[bad]=0; drawPie(st,bad,false); afterChange(st);
+  S.cnt[bad]=0; drawPie(st,bad,false); S.keepMsg=true; afterChange(st); S.keepMsg=false;
 }
 function winnerPhase(st){
   S.phase="winner"; S.wTries=0; Sound.drum();
