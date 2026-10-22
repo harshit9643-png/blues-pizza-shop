@@ -1373,7 +1373,7 @@ function showEnd(){
 $("guide").addEventListener("click",()=>speak(S.sayPlain));
 $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });
 /* Level 2 is the next page of the same game: level2/ next to this page */
-function goLevel2(){ location.href=new URL("level2/#play",location.href).href; }
+function goLevel2(){ location.href=new URL("level2/index.html#play",location.href).href; }
 document.querySelectorAll(".lvbtn").forEach(b=>b.addEventListener("click",()=>b.dataset.go==="level2"?goLevel2():startLevel(b.dataset.lv)));
 $("jump").innerHTML=Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
   `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("")

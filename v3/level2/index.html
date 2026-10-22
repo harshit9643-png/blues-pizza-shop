@@ -821,7 +821,7 @@ $("guide").addEventListener("click",()=>speak(S.sayPlain));
 $("home").addEventListener("click",()=>{ S.gen++; $("end").hidden=true; $("start").hidden=false; });
 $("play").addEventListener("click",()=>go(0));
 /* Level 1 is the previous page of the same game: the folder above this one */
-function goLevel1(lv){ location.href=new URL("../#"+lv,location.href).href; }
+function goLevel1(lv){ location.href=new URL("../index.html#"+lv,location.href).href; }
 document.querySelectorAll("[data-l1]").forEach(b=>b.addEventListener("click",()=>goLevel1(b.dataset.l1)));
 $("jump").innerHTML=`<optgroup label="Level 1"><option value="L1:1.1">Level 1.1 · Top and serve ◂</option><option value="L1:1.2">Level 1.2 · Cut, top and serve ◂</option></optgroup>`+[["Tutorial",["T"]],["Set A · Same denominator",["A"]],["Set B · Same numerator",["B"]],["Set C · Fractions only",["C"]],["Golden Trophy Final",["F"]]]
   .map(([lab,sets])=>`<optgroup label="${lab}">${STEPS.map((s,i)=>sets.includes(s.set)?`<option value="${i}">${s.label}${s.a?` · ${NAMES[s.a.k]} vs ${NAMES[s.b.k]}`:""}</option>`:"").join("")}</optgroup>`).join("");
