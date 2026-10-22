@@ -33,6 +33,7 @@ img{max-width:100%}
   color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}   /* also when the file is opened directly, without the page wrapper */
 html,body{height:100%}
 body{margin:0;overflow:hidden;color:var(--ink);font-family:var(--body);-webkit-user-select:none;user-select:none;
   background:#244D25}
@@ -364,10 +365,11 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 .stage.serving .boardwrap>img{opacity:0}
 .stage.serving #pz .hit{pointer-events:none}
 .servelayer{position:absolute;inset:0;z-index:1;pointer-events:none}
-.servelayer figure{position:absolute;top:50%;margin:0;translate:-50% -50%;display:grid;justify-items:center;gap:8px}
+.servelayer figure{position:absolute;top:50%;margin:0;translate:-50% -50%;display:grid;justify-items:center;gap:8px;
+  width:max-content}                                   /* never squeezed by the table edge */
 .servelayer figure.a{left:26%}
 .servelayer figure.b{left:74%}
-.servelayer figure>img{height:var(--ph,300px);width:auto;display:block;filter:drop-shadow(0 18px 16px rgba(40,20,5,.35));
+.servelayer figure>img{height:var(--ph,300px);width:auto;max-width:none;display:block;filter:drop-shadow(0 18px 16px rgba(40,20,5,.35));
   animation:plateIn .7s cubic-bezier(.25,1.3,.45,1) both}
 .servelayer figure.b>img{animation-delay:.12s}
 @keyframes plateIn{from{transform:translateY(70px) scale(.85);opacity:0}}
@@ -497,6 +499,8 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
         <span>Level 1.1<small>Top and serve</small></span></button>
       <button class="lvbtn" data-lv="1.2"><svg viewBox="0 0 600 600" aria-hidden="true" id="ic12"></svg>
         <span>Level 1.2<small>Cut, top and serve</small></span></button>
+      <button class="lvbtn" data-go="level2"><img src="assets/web/trophy.webp" alt="" style="width:60px;height:auto">
+        <span>Level 2<small>Big Eater Contest</small></span></button>
     </div>
   </div>
 </div>
@@ -1018,10 +1022,8 @@ function showCustomer(){
         <div class="rc-rays">${RAYS}</div>
         <div class="rc-badge"><div><span class="rc-frac ${frac.length>3?'wide':''}">${frac}</span></div></div>
         <div class="rc-of">of a pizza</div>
-        <div class="rc-row" style="top:calc(var(--u)*936)"><i class="ic face"><img src="${A}${o.cust}.webp" alt=""></i><b>Customer:</b><span>${name}</span></div>
-        <div class="rc-row" style="top:calc(var(--u)*1023)"><i class="ic"><svg viewBox="0 0 600 600" aria-hidden="true">${miniPizza(o.shape,1)}</svg></i><b>Base:</b><span>${SHAPE_NAME[o.shape]} pizza</span></div>
-        <div class="rc-row" style="top:calc(var(--u)*1111)"><i class="ic">${cutIcon(o)}</i><b>Cut:</b><span>${pieceName(o)}</span></div>
-        <div class="rc-row" style="top:calc(var(--u)*1199)"><i class="ic"><img src="${A}piece_tomato.webp" alt=""></i><b>Topping:</b><span>Any topping</span></div>
+        <div class="rc-row" style="top:calc(var(--u)*1010)"><i class="ic face"><img src="${A}${o.cust}.webp" alt=""></i><b>Customer:</b><span>${name}</span></div>
+        <div class="rc-row" style="top:calc(var(--u)*1130)"><i class="ic"><img src="${A}piece_tomato.webp" alt=""></i><b>Topping:</b><span>Any topping</span></div>
       </div>
     </article>`;
 }
@@ -1250,32 +1252,70 @@ async function plateScene(gen){
     <figure class="a"><img src="assets/draft2/plate_wood.svg" alt=""><figcaption>Served ${fracify(o.n+"/"+o.d)}</figcaption></figure>
     <figure class="b"><img src="assets/draft2/plate_wood.svg" alt=""><figcaption>Left ${fracify((o.d-o.n)+"/"+o.d)}</figcaption></figure>`;
   // plates as big as the table allows: leave room for the label underneath
-  const ph=Math.min(st.clientHeight-96, st.clientWidth*.36*630/600);
-  layer.style.setProperty("--ph", Math.max(160,ph)+"px");
+  const ph=Math.max(160, Math.min(st.clientHeight-96, st.clientWidth*.36*630/600));
+  layer.style.setProperty("--ph", ph+"px");
   st.appendChild(layer);
-  await wait(900); if(!live(gen)) return;
+  // measure the plates only once they have loaded and finished sliding in
+  await Promise.all([...layer.querySelectorAll("img")].map(im=>im.decode().catch(()=>{})));
+  layer.getBoundingClientRect();
+  await wait(60);
+  await Promise.all(layer.getAnimations({subtree:true}).map(settle));
+  await wait(120); if(!live(gen)) return;
   const m=PZ.getScreenCTM(); if(!m) return;
   const inv=m.inverse(), unit=PZ.getBoundingClientRect().width/600;
+  // where each plate comes to rest, from its figure's layout box (the figure never animates,
+  // only the image inside slides in), so the result does not depend on animation timing
   const target=fig=>{
-    const r=fig.querySelector("img").getBoundingClientRect();
-    const c=new DOMPoint(r.left+r.width/2, r.top+r.height*302/630).matrixTransform(inv);   // centre of the plate's well
-    return {x:c.x, y:c.y, k:(r.width*.74)/(564*unit)};
+    const r=fig.getBoundingClientRect(), w=ph*600/630;
+    const c=new DOMPoint(r.left+r.width/2, r.top+ph*302/630).matrixTransform(inv);   // centre of the plate's well
+    return {x:c.x, y:c.y, k:(w*.74)/(564*unit), well:w*240/600};                     // well radius in screen px
   };
   const A_=target(layer.querySelector(".a")), B_=target(layer.querySelector(".b"));
+  B_.k=A_.k=Math.min(A_.k,B_.k);
   const served=new Set(S.covered.keys());
-  await Promise.all(G.parts.map((p,i)=>{
-    const el=partEl(i), off=S.off[i]||{x:0,y:0}, T=served.has(i)?A_:B_, k=T.k;
-    el.style.transition="none"; el.style.transformOrigin="0 0";
+  // centre each group of pieces on its plate (same scale on both plates, so sizes still compare)
+  const centreOf=ids=>{
+    let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    ids.forEach(i=>{ const bb=partEl(i).querySelector(".hit").getBBox(), o=S.off[i]||{x:0,y:0};
+      x0=Math.min(x0,bb.x+o.x*.5); y0=Math.min(y0,bb.y+o.y*.5);
+      x1=Math.max(x1,bb.x+bb.width+o.x*.5); y1=Math.max(y1,bb.y+bb.height+o.y*.5); });
+    return {x:(x0+x1)/2, y:(y0+y1)/2};
+  };
+  const ids=G.parts.map((_,i)=>i);
+  const idsA=ids.filter(i=>served.has(i)), idsB=ids.filter(i=>!served.has(i));
+  const cA=centreOf(idsA), cB=centreOf(idsB);
+  // how far a group reaches from its centre, traced along the real piece outlines
+  const reach=(group,c)=>{ let m=0;
+    group.forEach(i=>{ const h=partEl(i).querySelector(".hit"), L=h.getTotalLength(), o=S.off[i]||{x:0,y:0};
+      for(let t=0;t<=48;t++){ const q=h.getPointAtLength(L*t/48); m=Math.max(m,Math.hypot(q.x+o.x*.5-c.x,q.y+o.y*.5-c.y)); } });
+    return m; };
+  // one scale for both plates, small enough that each group sits inside its plate's well
+  const fit=(T,group,c)=>T.well*.92/(reach(group,c)*unit);
+  A_.k=B_.k=Math.min(A_.k, fit(A_,idsA,cA), fit(B_,idsB,cB));
+  // drive the SVG transform attribute directly (CSS transforms on SVG groups can be drawn
+  // somewhere other than where they are measured, which knocked the pieces off-centre)
+  const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  await Promise.all(G.parts.map((p,i)=>new Promise(done=>{
+    const el=partEl(i), off=S.off[i]||{x:0,y:0}, T=served.has(i)?A_:B_, k=T.k, c=served.has(i)?cA:cB;
+    el.style.removeProperty("transform"); el.style.transition="none";
     if(served.has(i)) el.parentNode.appendChild(el);                 // served pieces travel on top
-    const tx=T.x-C*k, ty=T.y-C*k, gap=`translate(${(off.x*.5).toFixed(1)}px,${(off.y*.5).toFixed(1)}px)`;
-    const lift=served.has(i)?-120:-50;
-    return settle(el.animate([
-      {transform:`translate(${off.x}px,${off.y}px) scale(1)`},
-      {transform:`translate(${off.x}px,${off.y-24}px) scale(1.04)`,offset:.18},
-      {transform:`translate(${((tx+off.x)/2).toFixed(1)}px,${((ty+off.y)/2+lift).toFixed(1)}px) scale(${((1+k)/2).toFixed(3)})`,offset:.58},
-      {transform:`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${k.toFixed(4)}) ${gap}`}],
-      {duration:1500,delay:(served.has(i)?0:260)+i*40,easing:"cubic-bezier(.45,0,.3,1)",fill:"forwards"}));
-  }));
+    // keyframes as [offset, x, y, scale] for translate(x y) scale(s)
+    const fx=T.x-c.x*k+off.x*.5*k, fy=T.y-c.y*k+off.y*.5*k, lift=served.has(i)?-120:-50;
+    const K=[[0,off.x,off.y,1],[.18,off.x,off.y-24,1.04],[.58,(fx+off.x)/2,(fy+off.y)/2+lift,(1+k)/2],[1,fx,fy,k]];
+    const set=(x,y,sc)=>el.setAttribute("transform",`translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${sc.toFixed(4)})`);
+    set(off.x,off.y,1);
+    const delay=(served.has(i)?0:260)+i*40, dur=1500, t0=performance.now()+delay;
+    (function f(now){
+      if(!live(gen)){ done(); return; }
+      const t=Math.min(1,Math.max(0,(now-t0)/dur)), e=ease(t);
+      let j=1; while(j<K.length-1 && K[j][0]<e) j++;
+      const A=K[j-1], B=K[j], u=(e-A[0])/(B[0]-A[0]||1);
+      set(lerp(A[1],B[1],u),lerp(A[2],B[2],u),lerp(A[3],B[3],u));
+      if(t<1) requestAnimationFrame(f); else done();
+    })(performance.now());
+    setTimeout(()=>{ if(live(gen)) set(fx,fy,k); done(); }, delay+dur+400);   // never stall in a throttled tab
+  })));
   if(!live(gen)) return;
   layer.classList.add("show");
   await wait(500);
@@ -1332,19 +1372,27 @@ function showEnd(){
     <div class="hosts"><img src="${A}billu_happy.webp" alt="Chef Billu cheering"><img src="${A}noori_point.webp" alt="Noori"></div>
     <p>${L.end[1]}</p><div class="bigstars">⭐ ${S.stars} / ${L.orders.length}</div>
     <div class="endbtns">${S.lv==="1.1"?`<button class="done" id="goNext">LEVEL 1.2 ${ARROW}</button>`:""}
-      <button class="done alt" id="again">PLAY AGAIN</button>${S.lv==="1.2"?`<button class="done" id="goOther">LEVEL 1.1</button>`:""}</div>`;
+      ${S.lv==="1.2"?`<button class="done" id="goL2">LEVEL 2 ${ARROW}</button>`:""}
+      <button class="done alt" id="again">PLAY AGAIN</button>${S.lv==="1.2"?`<button class="done alt" id="goOther">LEVEL 1.1</button>`:""}</div>`;
   $("end").hidden=false; S.gen++; Sound.win(); speak(L.end.join(" "));
-  const n=$("goNext"), g=$("goOther"); if(n) n.onclick=()=>startLevel("1.2"); if(g) g.onclick=()=>startLevel("1.1");
+  const n=$("goNext"), g=$("goOther"), l2=$("goL2"); if(n) n.onclick=()=>startLevel("1.2"); if(g) g.onclick=()=>startLevel("1.1");
+  if(l2) l2.onclick=()=>goLevel2();
   $("again").onclick=()=>startLevel(S.lv);
 }
 
 /* ---------- wiring ---------- */
 $("guide").addEventListener("click",()=>speak(S.sayPlain));
 $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });
-document.querySelectorAll(".lvbtn").forEach(b=>b.addEventListener("click",()=>startLevel(b.dataset.lv)));
+/* Level 2 is the next page of the same game: level2/ next to this page */
+function goLevel2(){ location.href=new URL("level2/index.html#play",location.href).href; }
+document.querySelectorAll(".lvbtn").forEach(b=>b.addEventListener("click",()=>b.dataset.go==="level2"?goLevel2():startLevel(b.dataset.lv)));
 $("jump").innerHTML=Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
-  `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("");
-$("jump").addEventListener("change",e=>{ const [lv,i]=e.target.value.split(":"); jumpTo(lv,+i); e.target.blur(); });
+  `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("")
+  +`<optgroup label="Level 2 · Big Eater Contest"><option value="L2">Level 2 · Big Eater Contest ▸</option></optgroup>`;
+$("jump").addEventListener("change",e=>{ if(e.target.value==="L2"){ goLevel2(); return; }
+  const [lv,i]=e.target.value.split(":"); jumpTo(lv,+i); e.target.blur(); });
+/* arriving from Level 2 with #1.1 or #1.2 starts that level straight away */
+if(/^#1\.[12]$/.test(location.hash)) startLevel(location.hash.slice(1));
 $("ic11").innerHTML=miniPizza("round",4,null,[[0,"tomato"],[1,"tomato"],[2,"tomato"]]);
 $("ic12").innerHTML=mouldInner("square",4,"ic",true);
 $("ic12").setAttribute("viewBox","-30 -30 660 660");

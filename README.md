@@ -4,14 +4,11 @@ A fractions game for classes 6 and 7. Chef Billu the cat runs a pizza shop in th
 
 ## Play it
 
-**Online:**
+**Online (full game: Level 1.1 → 1.2 → Level 2):** https://harshit9643-png.github.io/blues-pizza-shop/
 
-| Version | Link |
-|---|---|
-| v1 (first release) | https://harshit9643-png.github.io/blues-pizza-shop/ |
-| v2 (pieces centred on the Served / Left plates) | https://harshit9643-png.github.io/blues-pizza-shop/v2/ |
-| **Level 2** (Big Eater Contest: who ate more?) | https://harshit9643-png.github.io/blues-pizza-shop/level2/ |
-| **v3 — full game** (Level 1.1 → 1.2 → Level 2 in one flow) | https://harshit9643-png.github.io/blues-pizza-shop/v3/ |
+Every link (`/`, `/v2/`, `/v3/`, `/level2/`) now shows the latest version. Earlier versions are in the git history.
+
+**Offline:** open `Blues_Pizza_Shop_Game/index.html` (or unzip `Blues_Pizza_Shop_Game.zip`).
 
 **On your computer:**
 
