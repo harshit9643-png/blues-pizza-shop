@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="240" viewBox="0 0 400 240">
+  <!-- Seamless jungle-stall plank tile: three honey planks with grain, seams and a knot.
+       Every grain line starts and ends at the same height so the tile repeats cleanly. -->
+  <rect width="400" height="80" fill="#D9A867"/>
+  <rect y="80" width="400" height="80" fill="#D19D5C"/>
+  <rect y="160" width="400" height="80" fill="#DCAD6E"/>
+  <g fill="none" stroke-linecap="round">
+    <g stroke="#B57B3E" stroke-opacity=".38" stroke-width="2">
+      <path d="M0 18C100 12 300 26 400 18M0 40C120 46 280 32 400 40M0 62C100 56 300 68 400 62"/>
+      <path d="M0 98C120 92 280 106 400 98M0 120C100 128 300 112 400 120M0 142C140 136 260 148 400 142"/>
+      <path d="M0 178C100 172 300 186 400 178M0 200C120 206 280 192 400 200M0 222C100 216 300 228 400 222"/>
+    </g>
+    <g stroke="#F3D3A0" stroke-opacity=".45" stroke-width="2">
+      <path d="M0 28C140 34 260 22 400 28M0 108C120 102 280 114 400 108M0 188C140 194 260 182 400 188"/>
+    </g>
+  </g>
+  <ellipse cx="290" cy="128" rx="14" ry="7" fill="#9C6430" fill-opacity=".45"/>
+  <ellipse cx="290" cy="128" rx="7" ry="3" fill="#7A4A20" fill-opacity=".5"/>
+  <g fill="#7A4A20" fill-opacity=".55">
+    <rect y="77" width="400" height="4"/><rect y="157" width="400" height="4"/><rect y="237" width="400" height="3"/>
+  </g>
+  <g fill="#F7DDAE" fill-opacity=".5"><rect y="81" width="400" height="1.5"/><rect y="161" width="400" height="1.5"/><rect y="0" width="400" height="1.5"/></g>
+  <!-- plank end joints, staggered -->
+  <g stroke="#7A4A20" stroke-opacity=".5" stroke-width="3"><path d="M120 0v80M330 80v80M60 160v80"/></g>
+  <g fill="#6B4220"><circle cx="112" cy="40" r="3"/><circle cx="128" cy="40" r="3"/><circle cx="322" cy="120" r="3"/><circle cx="338" cy="120" r="3"/></g>
+</svg>
