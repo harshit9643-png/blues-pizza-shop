@@ -72,20 +72,22 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
     0 12px 0 #7A4A22,0 15px 0 #4E2E14,0 30px 42px rgba(6,24,8,.5);grid-template-columns:minmax(190px,.82fr) auto minmax(230px,1fr);
   grid-template-areas:"cust board tray";align-items:center;column-gap:clamp(12px,2.2vw,36px)}
 .stage>*{min-width:0}
-/* a red-and-cream checked pizzeria tablecloth over the wooden table, with a stitched hem;
-   a strip of wood stays visible all round */
-.stage{isolation:isolate}
-.stage::before,.stage::after{content:"";position:absolute;z-index:-1;pointer-events:none}
-.stage::before{inset:clamp(12px,1.4vw,20px);border-radius:20px;
+/* a red-and-cream checked pizzeria tablecloth covers the whole table, edge to edge; its front
+   hem folds down over the table edge, and a stitched border runs just inside */
+.stage{isolation:isolate;border-radius:24px;
   background:
-    radial-gradient(ellipse 60% 45% at 50% 40%,rgba(255,255,255,.22),transparent 70%),
-    linear-gradient(100deg,transparent 30%,rgba(120,30,20,.07) 45%,transparent 60%),
     linear-gradient(90deg,rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/52px 52px,
     linear-gradient(rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/52px 52px,
     #FFF4E2;
-  box-shadow:0 6px 0 rgba(150,40,30,.35),0 10px 16px rgba(70,35,10,.35),inset 0 0 26px rgba(110,30,15,.18)}
-.stage::after{inset:calc(clamp(12px,1.4vw,20px) + 9px);border-radius:14px;
-  border:2px dashed rgba(255,248,232,.85)}
+  box-shadow:0 10px 0 #C2463A,0 14px 0 #8E2C22,0 30px 42px rgba(6,24,8,.5)}
+.stage::before,.stage::after{content:"";position:absolute;z-index:-1;pointer-events:none}
+.stage::before{inset:0;border-radius:inherit;            /* soft light and folds in the fabric */
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 40%,rgba(255,255,255,.22),transparent 70%),
+    linear-gradient(100deg,transparent 30%,rgba(120,30,20,.07) 45%,transparent 60%),
+    linear-gradient(80deg,transparent 62%,rgba(255,255,255,.1) 72%,transparent 82%);
+  box-shadow:inset 0 0 30px rgba(110,30,15,.2),inset 0 3px 0 rgba(255,255,255,.35)}
+.stage::after{inset:10px;border-radius:16px;border:2px dashed rgba(255,248,232,.9)}
 
 /* customer + order: a glossy jungle leaf with the animal on it and the fraction as the hero */
 .cust{grid-area:cust;align-self:center;display:grid;justify-items:center;position:relative;z-index:3}
@@ -164,7 +166,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 #cuts{transition:opacity .6s}
 .pc{transform-box:fill-box;transform-origin:center}
 .spin{transform-box:fill-box;transform-origin:center}
-#cutter.rolling .spin{animation:spin .45s linear infinite}
+#cutter.rolling .spin{animation:spin .3s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .crumb{animation:crumb .7s ease-out forwards}
 @keyframes crumb{to{transform:translate(var(--dx),var(--dy));opacity:0}}
@@ -837,7 +839,7 @@ const CUTTER = `<g id="cutter"><image href="${HD}pizza_cutter.webp" x="-44" y="-
 async function rollCutter(gen){
   const lines=[...$("cuts").querySelectorAll("line")]; if(!lines.length) return;
   $("over").innerHTML=CUTTER; const cut=$("cutter");
-  const per=clamp(8200/lines.length,900,1350);
+  const per=clamp(5200/lines.length,560,850);
   let pos={x:690,y:120}, ang=200;
   const place=(x,y,a,s)=>cut.setAttribute("transform",`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(${s})`);
   place(pos.x,pos.y,ang,1.1);
@@ -848,7 +850,7 @@ async function rollCutter(gen){
     const a=Math.atan2(y2-y1,x2-x1)*180/Math.PI+180, len=Math.hypot(x2-x1,y2-y1);
     const from={...pos}, a0=ang;
     // lift and glide to the start of the next cut
-    await tween(520,t=>{ const e=ease(t); place(from.x+(x1-from.x)*e, from.y+(y1-from.y)*e, a0+((a-a0+540)%360-180)*e, 1.1-.1*e); });
+    await tween(330,t=>{ const e=ease(t); place(from.x+(x1-from.x)*e, from.y+(y1-from.y)*e, a0+((a-a0+540)%360-180)*e, 1.1-.1*e); });
     if(!live(gen)) return;
     cut.classList.add("rolling"); Sound.cut();
     // press and roll slowly along the line
@@ -857,11 +859,11 @@ async function rollCutter(gen){
       const now=performance.now(); if(!S.skip && now-lastCrumb>70 && t>.05 && t<.98){ lastCrumb=now; crumb(x,y); } });
     cut.classList.remove("rolling");
     pos={x:x2,y:y2}; ang=a;
-    if(!S.skip) await wait(180);
+    if(!S.skip) await wait(100);
   }
   if(!live(gen)) return;
   const from={...pos};
-  await tween(500,t=>{ const e=ease(t); place(from.x+(700-from.x)*e, from.y+(-80-from.y)*e, ang, 1+.1*e); });
+  await tween(350,t=>{ const e=ease(t); place(from.x+(700-from.x)*e, from.y+(-80-from.y)*e, ang, 1+.1*e); });
   lines.forEach(L=>L.setAttribute("stroke-dashoffset",0));
   $("over").innerHTML="";
 }
