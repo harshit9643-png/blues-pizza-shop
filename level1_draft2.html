@@ -72,6 +72,20 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
     0 12px 0 #7A4A22,0 15px 0 #4E2E14,0 30px 42px rgba(6,24,8,.5);grid-template-columns:minmax(190px,.82fr) auto minmax(230px,1fr);
   grid-template-areas:"cust board tray";align-items:center;column-gap:clamp(12px,2.2vw,36px)}
 .stage>*{min-width:0}
+/* a red-and-cream checked pizzeria tablecloth over the wooden table, with a stitched hem;
+   a strip of wood stays visible all round */
+.stage{isolation:isolate}
+.stage::before,.stage::after{content:"";position:absolute;z-index:-1;pointer-events:none}
+.stage::before{inset:clamp(10px,1.8vh,20px) clamp(10px,1.4vw,22px);border-radius:20px;
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 40%,rgba(255,255,255,.22),transparent 70%),
+    linear-gradient(100deg,transparent 30%,rgba(120,30,20,.07) 45%,transparent 60%),
+    linear-gradient(90deg,rgba(196,48,38,.55) 50%,transparent 0) 0 0/52px 52px,
+    linear-gradient(rgba(196,48,38,.55) 50%,transparent 0) 0 0/52px 52px,
+    #FFF4E2;
+  box-shadow:0 6px 0 rgba(150,40,30,.35),0 10px 16px rgba(70,35,10,.35),inset 0 0 26px rgba(110,30,15,.18)}
+.stage::after{inset:calc(clamp(10px,1.8vh,20px) + 9px) calc(clamp(10px,1.4vw,22px) + 9px);border-radius:14px;
+  border:2px dashed rgba(255,248,232,.85)}
 
 /* customer + order: a glossy jungle leaf with the animal on it and the fraction as the hero */
 .cust{grid-area:cust;align-self:center;display:grid;justify-items:center;position:relative;z-index:3}
