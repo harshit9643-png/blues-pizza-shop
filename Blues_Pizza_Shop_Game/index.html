@@ -485,7 +485,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
       </div>
     </section>
     <section class="trayzone">
-      <div class="tray" id="tray"><img class="thali" src="assets/draft2/plate_wood.svg" alt=""><div id="slots"></div></div>
+      <div class="tray" id="tray"><img class="thali" src="assets/draft2/plate_white.svg" alt=""><div id="slots"></div></div>
     </section>
     <svg class="hand" id="hand" viewBox="0 0 64 64" hidden aria-hidden="true">
       <path d="M26 6c3 0 5 2 5 5v16l3-1c3-1 5 1 5 3v1l3-1c3-1 5 1 5 3v1l2-.5c3-.5 5 1.5 5 4V48c0 7-6 12-13 12h-6c-5 0-9-2-12-6L11 40c-2-3 1-6 4-5l6 3V11c0-3 2-5 5-5z" fill="#FFE1C4" stroke="#3B2A1A" stroke-width="3" stroke-linejoin="round"/>
@@ -942,7 +942,7 @@ const COCO = {W:1207, H:1052, bowls:[          // inner opening of each coconut 
 function setTray(kind){
   const t=$("tray"), img=t.querySelector("img.thali");
   if(kind==="coco"){ img.src="assets/draft2/coconut_tray.webp"; t.style.aspectRatio=`${COCO.W}/${COCO.H}`; t.classList.add("coco"); }
-  else { img.src="assets/draft2/plate_wood.svg"; t.style.aspectRatio="600/630"; t.classList.remove("coco"); }
+  else { img.src="assets/draft2/plate_white.svg"; t.style.aspectRatio="600/630"; t.classList.remove("coco"); }
 }
 /* A bowl filled to the brim: the topping covers the whole opening inside the coconut lip,
    mounded a little in the middle, its edge tucked under the lip with a soft shadow
@@ -1262,8 +1262,8 @@ async function plateScene(gen){
   st.classList.add("serving"); hideHint();
   const layer=document.createElement("div"); layer.className="servelayer";
   layer.innerHTML=`
-    <figure class="a"><img src="assets/draft2/plate_wood.svg" alt=""><figcaption>Served ${fracify(o.n+"/"+o.d)}</figcaption></figure>
-    <figure class="b"><img src="assets/draft2/plate_wood.svg" alt=""><figcaption>Left ${fracify((o.d-o.n)+"/"+o.d)}</figcaption></figure>`;
+    <figure class="a"><img src="assets/draft2/plate_white.svg" alt=""><figcaption>Served ${fracify(o.n+"/"+o.d)}</figcaption></figure>
+    <figure class="b"><img src="assets/draft2/plate_white.svg" alt=""><figcaption>Left ${fracify((o.d-o.n)+"/"+o.d)}</figcaption></figure>`;
   // plates as big as the table allows: leave room for the label underneath
   const ph=Math.max(160, Math.min(st.clientHeight-96, st.clientWidth*.36*630/600));
   layer.style.setProperty("--ph", ph+"px");
