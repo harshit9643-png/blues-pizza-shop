@@ -351,10 +351,11 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 .stage.serving .boardwrap>img{opacity:0}
 .stage.serving #pz .hit{pointer-events:none}
 .servelayer{position:absolute;inset:0;z-index:1;pointer-events:none}
-.servelayer figure{position:absolute;top:50%;margin:0;translate:-50% -50%;display:grid;justify-items:center;gap:8px}
+.servelayer figure{position:absolute;top:50%;margin:0;translate:-50% -50%;display:grid;justify-items:center;gap:8px;
+  width:max-content}                                   /* never squeezed by the table edge */
 .servelayer figure.a{left:26%}
 .servelayer figure.b{left:74%}
-.servelayer figure>img{height:var(--ph,300px);width:auto;display:block;filter:drop-shadow(0 18px 16px rgba(40,20,5,.35));
+.servelayer figure>img{height:var(--ph,300px);width:auto;max-width:none;display:block;filter:drop-shadow(0 18px 16px rgba(40,20,5,.35));
   animation:plateIn .7s cubic-bezier(.25,1.3,.45,1) both}
 .servelayer figure.b>img{animation-delay:.12s}
 @keyframes plateIn{from{transform:translateY(70px) scale(.85);opacity:0}}
@@ -1249,12 +1250,23 @@ async function plateScene(gen){
     return {x:c.x, y:c.y, k:(r.width*.74)/(564*unit)};
   };
   const A_=target(layer.querySelector(".a")), B_=target(layer.querySelector(".b"));
+  B_.k=A_.k=Math.min(A_.k,B_.k);
   const served=new Set(S.covered.keys());
+  // centre each group of pieces on its plate (same scale on both plates, so sizes still compare)
+  const centreOf=ids=>{
+    let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    ids.forEach(i=>{ const bb=partEl(i).querySelector(".hit").getBBox(), o=S.off[i]||{x:0,y:0};
+      x0=Math.min(x0,bb.x+o.x*.5); y0=Math.min(y0,bb.y+o.y*.5);
+      x1=Math.max(x1,bb.x+bb.width+o.x*.5); y1=Math.max(y1,bb.y+bb.height+o.y*.5); });
+    return {x:(x0+x1)/2, y:(y0+y1)/2};
+  };
+  const ids=G.parts.map((_,i)=>i);
+  const cA=centreOf(ids.filter(i=>served.has(i))), cB=centreOf(ids.filter(i=>!served.has(i)));
   await Promise.all(G.parts.map((p,i)=>{
     const el=partEl(i), off=S.off[i]||{x:0,y:0}, T=served.has(i)?A_:B_, k=T.k;
     el.style.transition="none"; el.style.transformOrigin="0 0";
     if(served.has(i)) el.parentNode.appendChild(el);                 // served pieces travel on top
-    const tx=T.x-C*k, ty=T.y-C*k, gap=`translate(${(off.x*.5).toFixed(1)}px,${(off.y*.5).toFixed(1)}px)`;
+    const c=served.has(i)?cA:cB, tx=T.x-c.x*k, ty=T.y-c.y*k, gap=`translate(${(off.x*.5).toFixed(1)}px,${(off.y*.5).toFixed(1)}px)`;
     const lift=served.has(i)?-120:-50;
     return settle(el.animate([
       {transform:`translate(${off.x}px,${off.y}px) scale(1)`},

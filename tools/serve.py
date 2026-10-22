@@ -15,7 +15,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME = os.path.join(ROOT, "level1_draft2.html")      # the current game opens at /
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+PORT = 8000
 
 SKELETON_HEAD = """<!doctype html>
 <html lang="en">
@@ -66,6 +66,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     http.server.ThreadingHTTPServer.allow_reuse_address = True
-    with http.server.ThreadingHTTPServer(("127.0.0.1", PORT), Handler) as srv:
-        print("Billu's Pizza Shop running at http://localhost:{}".format(PORT), flush=True)
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else PORT
+    with http.server.ThreadingHTTPServer(("127.0.0.1", port), Handler) as srv:
+        print("Blue's Pizza Shop running at http://localhost:{}".format(port), flush=True)
         srv.serve_forever()

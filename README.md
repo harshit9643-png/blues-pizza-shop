@@ -4,7 +4,12 @@ A fractions game for classes 6 and 7. Chef Billu the cat runs a pizza shop in th
 
 ## Play it
 
-**Online:** https://harshit9643-png.github.io/blues-pizza-shop/
+**Online:**
+
+| Version | Link |
+|---|---|
+| v1 (first release) | https://harshit9643-png.github.io/blues-pizza-shop/ |
+| v2 (pieces centred on the Served / Left plates) | https://harshit9643-png.github.io/blues-pizza-shop/v2/ |
 
 **On your computer:**
 
@@ -41,7 +46,7 @@ Then open http://localhost:8000. The server adds the page wrapper the game files
 | Script | Purpose |
 |---|---|
 | `tools/serve.py` | Local server (port 8000) |
-| `tools/build_index.py` | Rebuild `index.html` (the online play page) from the current game |
+| `tools/build_index.py` | Build a play page from the current game: `index.html`, or `<folder>/index.html` for a new version with its own link |
 | `tools/optimize_assets.py` | Rebuild the compressed WebP art in `assets/web/` |
 | `tools/make_draft_zip.py` | Freeze a version into `drafts/<name>/` and a ZIP |
 | `tools/cut_tray.py`, `tools/clean_receipt.py` | Cut the supplied coconut tray and order receipt out of their backgrounds |
