@@ -1238,8 +1238,8 @@ async function plateScene(gen){
     <figure class="a"><img src="assets/draft2/plate_wood.svg" alt=""><figcaption>Served ${fracify(o.n+"/"+o.d)}</figcaption></figure>
     <figure class="b"><img src="assets/draft2/plate_wood.svg" alt=""><figcaption>Left ${fracify((o.d-o.n)+"/"+o.d)}</figcaption></figure>`;
   // plates as big as the table allows: leave room for the label underneath
-  const ph=Math.min(st.clientHeight-96, st.clientWidth*.36*630/600);
-  layer.style.setProperty("--ph", Math.max(160,ph)+"px");
+  const ph=Math.max(160, Math.min(st.clientHeight-96, st.clientWidth*.36*630/600));
+  layer.style.setProperty("--ph", ph+"px");
   st.appendChild(layer);
   // measure the plates only once they have loaded and finished sliding in
   await Promise.all([...layer.querySelectorAll("img")].map(im=>im.decode().catch(()=>{})));
@@ -1249,10 +1249,12 @@ async function plateScene(gen){
   await wait(120); if(!live(gen)) return;
   const m=PZ.getScreenCTM(); if(!m) return;
   const inv=m.inverse(), unit=PZ.getBoundingClientRect().width/600;
+  // where each plate comes to rest, from its figure's layout box (the figure never animates,
+  // only the image inside slides in), so the result does not depend on animation timing
   const target=fig=>{
-    const r=fig.querySelector("img").getBoundingClientRect();
-    const c=new DOMPoint(r.left+r.width/2, r.top+r.height*302/630).matrixTransform(inv);   // centre of the plate's well
-    return {x:c.x, y:c.y, k:(r.width*.74)/(564*unit), well:r.width*240/600};   // well radius in screen px
+    const r=fig.getBoundingClientRect(), w=ph*600/630;
+    const c=new DOMPoint(r.left+r.width/2, r.top+ph*302/630).matrixTransform(inv);   // centre of the plate's well
+    return {x:c.x, y:c.y, k:(w*.74)/(564*unit), well:w*240/600};                     // well radius in screen px
   };
   const A_=target(layer.querySelector(".a")), B_=target(layer.querySelector(".b"));
   B_.k=A_.k=Math.min(A_.k,B_.k);
