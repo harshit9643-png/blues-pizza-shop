@@ -21,6 +21,7 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}   /* also when the file is opened directly, without the page wrapper */
 html,body{height:100%}
 body{margin:0;overflow:hidden;color:var(--ink);font-family:var(--body);-webkit-user-select:none;user-select:none;background:#244D25}
 body::before{content:"";position:fixed;inset:-40px;z-index:-2;
@@ -330,7 +331,11 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
       <div class="w-billu"><img src="assets/web/billu_happy.webp" alt="Chef Billu"></div>
       <div class="w-trophy"><img src="assets/web/trophy.webp" alt="The golden trophy"></div>
     </div>
-    <button class="lvbtn" id="play"><img src="assets/web/trophy.webp" alt=""><span>Level 2<small>Big Eater Contest: who ate more?</small></span></button>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+      <button class="lvbtn" data-l1="1.1"><img src="assets/web/hd/pizza_round.webp" alt=""><span>Level 1.1<small>Top and serve</small></span></button>
+      <button class="lvbtn" data-l1="1.2"><img src="assets/web/hd/pizza_square_sharp.webp" alt=""><span>Level 1.2<small>Cut, top and serve</small></span></button>
+      <button class="lvbtn" id="play"><img src="assets/web/trophy.webp" alt=""><span>Level 2<small>Big Eater Contest</small></span></button>
+    </div>
   </div>
 </div>
 <div class="overlay" id="end" hidden><div class="endcard" id="endcard"></div></div>
@@ -791,21 +796,27 @@ function showEnd(){
   $("endcard").innerHTML=`<h2>What a contest! You found every winner!</h2>
     <div class="crowd">${winners.map((k,i)=>`<img src="${A}${k}.webp" alt="${NAMES[k]}" style="animation-delay:${i*90}ms">`).join("")}</div>
     <p>You compared fractions like a champion!</p><div class="bigstars">⭐ ${S.stars} / ${SCORED.length}</div>
-    <div class="endbtns"><button class="done" id="again">PLAY AGAIN</button></div>`;
+    <div class="endbtns"><button class="done" id="again">PLAY AGAIN</button><button class="done" id="toL1" style="background:var(--cream);box-shadow:0 5px 0 rgba(35,53,111,.25)">LEVEL 1</button></div>`;
   $("end").hidden=false; S.gen++; Sound.win(); speak("What a contest! You found every winner! You compared fractions like a champion!");
   $("again").onclick=()=>{ S.stars=0; S.done={}; go(0); };
+  $("toL1").onclick=()=>goLevel1("1.1");
 }
 
 /* ---------- wiring ---------- */
 $("guide").addEventListener("click",()=>speak(S.sayPlain));
 $("home").addEventListener("click",()=>{ S.gen++; $("end").hidden=true; $("start").hidden=false; });
 $("play").addEventListener("click",()=>go(0));
-$("jump").innerHTML=[["Tutorial",["T"]],["Set A · Same denominator",["A"]],["Set B · Same numerator",["B"]],["Set C · Fractions only",["C"]],["Golden Trophy Final",["F"]]]
+/* Level 1 is the previous page of the same game: the folder above this one */
+function goLevel1(lv){ location.href=new URL("../#"+lv,location.href).href; }
+document.querySelectorAll("[data-l1]").forEach(b=>b.addEventListener("click",()=>goLevel1(b.dataset.l1)));
+$("jump").innerHTML=`<optgroup label="Level 1"><option value="L1:1.1">Level 1.1 · Top and serve ◂</option><option value="L1:1.2">Level 1.2 · Cut, top and serve ◂</option></optgroup>`+[["Tutorial",["T"]],["Set A · Same denominator",["A"]],["Set B · Same numerator",["B"]],["Set C · Fractions only",["C"]],["Golden Trophy Final",["F"]]]
   .map(([lab,sets])=>`<optgroup label="${lab}">${STEPS.map((s,i)=>sets.includes(s.set)?`<option value="${i}">${s.label}${s.a?` · ${NAMES[s.a.k]} vs ${NAMES[s.b.k]}`:""}</option>`:"").join("")}</optgroup>`).join("");
-$("jump").addEventListener("change",e=>{ go(+e.target.value); e.target.blur(); });
+$("jump").addEventListener("change",e=>{ const v=e.target.value; if(v.startsWith("L1:")){ goLevel1(v.slice(3)); return; } go(+v); e.target.blur(); });
 let _rz; window.addEventListener("resize",()=>{ clearTimeout(_rz); _rz=setTimeout(()=>document.querySelectorAll(".plate").forEach(p=>p.style.setProperty("--pw",plateWidth()+"px")),150); });
 [...new Set(STEPS.flatMap(s=>s.a?[s.a.k,s.b.k]:[]).concat(FINALISTS.map(f=>f.k)))].map(k=>A+k+".webp")
   .concat([A+"trophy.webp",A+"billu_happy.webp",HD+"pizza_round.webp",HD+"pizza_square_sharp.webp",HD+"pizza_rect_sharp.webp","assets/draft2/plate_wood.svg"])
   .forEach(src=>{ const im=new Image(); im.src=src; });
 renderTop();
+/* arriving from the end of Level 1.2: start the Level 2 tutorial straight away */
+if(location.hash==="#play") go(0);
 </script>

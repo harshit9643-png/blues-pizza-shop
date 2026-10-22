@@ -20,6 +20,7 @@
   color-scheme:light;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}   /* also when the file is opened directly, without the page wrapper */
 html,body{height:100%}
 body{margin:0;overflow:hidden;color:var(--ink);font-family:var(--body);-webkit-user-select:none;user-select:none;
   background:#244D25}
@@ -485,6 +486,8 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
         <span>Level 1.1<small>Top and serve</small></span></button>
       <button class="lvbtn" data-lv="1.2"><svg viewBox="0 0 600 600" aria-hidden="true" id="ic12"></svg>
         <span>Level 1.2<small>Cut, top and serve</small></span></button>
+      <button class="lvbtn" data-go="level2"><img src="assets/web/trophy.webp" alt="" style="width:60px;height:auto">
+        <span>Level 2<small>Big Eater Contest</small></span></button>
     </div>
   </div>
 </div>
@@ -1358,19 +1361,27 @@ function showEnd(){
     <div class="hosts"><img src="${A}billu_happy.webp" alt="Chef Billu cheering"><img src="${A}noori_point.webp" alt="Noori"></div>
     <p>${L.end[1]}</p><div class="bigstars">⭐ ${S.stars} / ${L.orders.length}</div>
     <div class="endbtns">${S.lv==="1.1"?`<button class="done" id="goNext">LEVEL 1.2 ${ARROW}</button>`:""}
-      <button class="done alt" id="again">PLAY AGAIN</button>${S.lv==="1.2"?`<button class="done" id="goOther">LEVEL 1.1</button>`:""}</div>`;
+      ${S.lv==="1.2"?`<button class="done" id="goL2">LEVEL 2 ${ARROW}</button>`:""}
+      <button class="done alt" id="again">PLAY AGAIN</button>${S.lv==="1.2"?`<button class="done alt" id="goOther">LEVEL 1.1</button>`:""}</div>`;
   $("end").hidden=false; S.gen++; Sound.win(); speak(L.end.join(" "));
-  const n=$("goNext"), g=$("goOther"); if(n) n.onclick=()=>startLevel("1.2"); if(g) g.onclick=()=>startLevel("1.1");
+  const n=$("goNext"), g=$("goOther"), l2=$("goL2"); if(n) n.onclick=()=>startLevel("1.2"); if(g) g.onclick=()=>startLevel("1.1");
+  if(l2) l2.onclick=()=>goLevel2();
   $("again").onclick=()=>startLevel(S.lv);
 }
 
 /* ---------- wiring ---------- */
 $("guide").addEventListener("click",()=>speak(S.sayPlain));
 $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });
-document.querySelectorAll(".lvbtn").forEach(b=>b.addEventListener("click",()=>startLevel(b.dataset.lv)));
+/* Level 2 is the next page of the same game: level2/ next to this page */
+function goLevel2(){ location.href=new URL("level2/#play",location.href).href; }
+document.querySelectorAll(".lvbtn").forEach(b=>b.addEventListener("click",()=>b.dataset.go==="level2"?goLevel2():startLevel(b.dataset.lv)));
 $("jump").innerHTML=Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
-  `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("");
-$("jump").addEventListener("change",e=>{ const [lv,i]=e.target.value.split(":"); jumpTo(lv,+i); e.target.blur(); });
+  `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("")
+  +`<optgroup label="Level 2 · Big Eater Contest"><option value="L2">Level 2 · Big Eater Contest ▸</option></optgroup>`;
+$("jump").addEventListener("change",e=>{ if(e.target.value==="L2"){ goLevel2(); return; }
+  const [lv,i]=e.target.value.split(":"); jumpTo(lv,+i); e.target.blur(); });
+/* arriving from Level 2 with #1.1 or #1.2 starts that level straight away */
+if(/^#1\.[12]$/.test(location.hash)) startLevel(location.hash.slice(1));
 $("ic11").innerHTML=miniPizza("round",4,null,[[0,"tomato"],[1,"tomato"],[2,"tomato"]]);
 $("ic12").innerHTML=mouldInner("square",4,"ic",true);
 $("ic12").setAttribute("viewBox","-30 -30 660 660");
