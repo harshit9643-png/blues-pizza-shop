@@ -2,6 +2,7 @@
 
     python -I tools/build_index.py          # index.html (the main play link)
     python -I tools/build_index.py v2       # v2/index.html, its own link; the main one is untouched
+    python -I tools/build_index.py level2 level2.html   # build a folder from another game file
 
 The game file is written without its own <!doctype>/<head> (the artifact host and
 tools/serve.py add those). The play page wraps it in the same skeleton so it plays
@@ -18,7 +19,8 @@ from serve import GAME, ROOT, SKELETON_HEAD, SKELETON_TAIL  # noqa: E402
 
 def main():
     folder = sys.argv[1].strip("/\\") if len(sys.argv) > 1 else ""
-    with open(GAME, encoding="utf-8") as fh:
+    source = os.path.join(ROOT, sys.argv[2]) if len(sys.argv) > 2 else GAME
+    with open(source, encoding="utf-8") as fh:
         body = fh.read()
     head = SKELETON_HEAD
     if folder:
@@ -28,7 +30,7 @@ def main():
     out = os.path.join(ROOT, folder, "index.html")
     with open(out, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(head + body + SKELETON_TAIL)
-    print(os.path.relpath(out, ROOT), "built from", os.path.basename(GAME), f"({os.path.getsize(out) // 1024} KB)")
+    print(os.path.relpath(out, ROOT), "built from", os.path.basename(source), f"({os.path.getsize(out) // 1024} KB)")
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ A fractions game for classes 6 and 7. Chef Billu the cat runs a pizza shop in th
 |---|---|
 | v1 (first release) | https://harshit9643-png.github.io/blues-pizza-shop/ |
 | v2 (pieces centred on the Served / Left plates) | https://harshit9643-png.github.io/blues-pizza-shop/v2/ |
+| **Level 2** (Big Eater Contest: who ate more?) | https://harshit9643-png.github.io/blues-pizza-shop/level2/ |
 
 **On your computer:**
 
@@ -32,6 +33,7 @@ Then open http://localhost:8000. The server adds the page wrapper the game files
 | Path | What it is |
 |---|---|
 | `level1_draft2.html` | The current game (Level 1, jungle table design) |
+| `level2.html` | Level 2: compare fractions in the Big Eater Contest (Tutorial, Sets A–C, Golden Trophy Final) |
 | `level1_draft1.html` | Draft 1, kept unchanged for comparison |
 | `level1.html` | Working copy of Draft 1 |
 | `billu-pizza-kitchen.html` | Early full-story prototype (story + Levels 1 and 2) |
