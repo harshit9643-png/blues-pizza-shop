@@ -36,13 +36,21 @@ img{max-width:100%}
 [hidden]{display:none!important}   /* also when the file is opened directly, without the page wrapper */
 html,body{height:100%}
 body{margin:0;overflow:hidden;color:var(--ink);font-family:var(--body);-webkit-user-select:none;user-select:none;
-  background:#244D25}
-/* the jungle shop from the first scene, softly out of focus behind everything */
-body::before{content:"";position:fixed;inset:-40px;z-index:-2;
-  background:url("assets/web/backdrop.webp") center 62%/cover;filter:blur(9px) saturate(1.15) brightness(.8)}
+  background:#FFF4E2}
+/* zoomed in on the table: a red-and-cream checked pizzeria tablecloth fills the whole screen,
+   with soft light and folds in the fabric */
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/56px 56px,
+    linear-gradient(rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/56px 56px,
+    #FFF4E2}
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 44%,rgba(18,48,20,0) 34%,rgba(8,28,10,.55) 100%)}
-.frond{position:fixed;top:-30px;width:min(30vw,340px);height:auto;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 45%,rgba(255,255,255,.2),transparent 70%),
+    linear-gradient(100deg,transparent 30%,rgba(120,30,20,.07) 45%,transparent 60%),
+    linear-gradient(80deg,transparent 62%,rgba(255,255,255,.1) 72%,transparent 82%),
+    radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(110,30,15,.18) 100%)}
+.frond{display:none;position:fixed;top:-30px;width:min(30vw,340px);height:auto;z-index:-1;pointer-events:none;
   filter:drop-shadow(0 10px 12px rgba(0,20,0,.35))}
 .frond.l{left:-50px;transform-origin:0 0;animation:frondL 7s ease-in-out infinite}
 .frond.r{right:-50px;transform:scaleX(-1);transform-origin:100% 0;animation:frondR 7.6s ease-in-out infinite}
@@ -51,8 +59,8 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px solid var(--marigold);outline-offset:3px}
 
-#app{height:100%;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:8px;max-width:1360px;margin:0 auto;
-  padding-block:10px 12px;
+#app{height:100%;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:8px;margin:0 auto;
+  padding-block:10px 10px;
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 
 /* ---------- header chips ---------- */
@@ -85,22 +93,8 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
     0 12px 0 #7A4A22,0 15px 0 #4E2E14,0 30px 42px rgba(6,24,8,.5);grid-template-columns:minmax(190px,.82fr) auto minmax(230px,1fr);
   grid-template-areas:"cust board tray";align-items:center;column-gap:clamp(12px,2.2vw,36px)}
 .stage>*{min-width:0}
-/* a red-and-cream checked pizzeria tablecloth covers the whole table, edge to edge; its front
-   hem folds down over the table edge, and a stitched border runs just inside */
-.stage{isolation:isolate;border-radius:24px;
-  background:
-    linear-gradient(90deg,rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/52px 52px,
-    linear-gradient(rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/52px 52px,
-    #FFF4E2;
-  box-shadow:0 10px 0 #C2463A,0 14px 0 #8E2C22,0 30px 42px rgba(6,24,8,.5)}
-.stage::before,.stage::after{content:"";position:absolute;z-index:-1;pointer-events:none}
-.stage::before{inset:0;border-radius:inherit;            /* soft light and folds in the fabric */
-  background:
-    radial-gradient(ellipse 60% 45% at 50% 40%,rgba(255,255,255,.22),transparent 70%),
-    linear-gradient(100deg,transparent 30%,rgba(120,30,20,.07) 45%,transparent 60%),
-    linear-gradient(80deg,transparent 62%,rgba(255,255,255,.1) 72%,transparent 82%);
-  box-shadow:inset 0 0 30px rgba(110,30,15,.2),inset 0 3px 0 rgba(255,255,255,.35)}
-.stage::after{inset:10px;border-radius:16px;border:2px dashed rgba(255,248,232,.9)}
+/* the table is the whole screen now (see body): the stage is just the play area on the cloth */
+.stage{padding:1vh 1vw;background:none;box-shadow:none;border-radius:0}
 
 /* customer + order: a glossy jungle leaf with the animal on it and the fraction as the hero */
 .cust{grid-area:cust;align-self:center;display:grid;justify-items:center;position:relative;z-index:3}
@@ -161,13 +155,13 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 
 /* board + pizza */
 .boardzone{grid-area:board;display:grid;place-items:center;position:relative;z-index:2}
-.boardwrap{--bsz:min(calc(100vh - 262px),40vw);position:relative;width:var(--bsz);aspect-ratio:600/620;max-width:100%}
+.boardwrap{--bsz:min(calc(100vh - 200px),44vw);position:relative;width:var(--bsz);aspect-ratio:1;max-width:100%}
 .boardwrap.in{animation:boardIn .7s cubic-bezier(.25,1.2,.4,1) both}
 .boardwrap.thud{animation:thud .32s ease}
 .boardwrap.wiggle{animation:shake .55s}
 @keyframes boardIn{from{transform:translateY(-70px) rotate(-4deg);opacity:0}}
 @keyframes thud{40%{transform:translateY(5px) scale(.995)}}
-#pz{position:absolute;left:6%;top:5.8%;width:88%;height:auto;aspect-ratio:1;overflow:visible;touch-action:none;
+#pz{position:absolute;left:0;top:0;width:100%;height:auto;aspect-ratio:1;overflow:visible;touch-action:none;
   filter:drop-shadow(0 14px 14px rgba(80,25,10,.35))}   /* sits straight on the tablecloth */
 #pz.bad{filter:drop-shadow(0 0 16px rgba(225,40,30,.9))}
 .part{transition:transform .7s cubic-bezier(.3,1.35,.5,1)}
@@ -191,7 +185,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 
 /* thali of toppings / moulds */
 .trayzone{grid-area:tray;display:grid;place-items:center;position:relative;z-index:2}
-.tray{--tsz:min(27vw,calc(100vh - 290px),380px);position:relative;width:var(--tsz);aspect-ratio:600/630;max-width:100%}
+.tray{--tsz:min(30vw,calc(100vh - 230px),480px);position:relative;width:var(--tsz);aspect-ratio:600/630;max-width:100%}
 .tray>img.thali{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 16px 16px rgba(25,20,60,.30))}
 .slot{position:absolute;width:31%;translate:-50% -50%;display:grid;justify-items:center;gap:2px;touch-action:none}
 .slot.mould{width:36%}
@@ -318,7 +312,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 
 /* ===== order receipt: the supplied jungle frame, live content drawn on top.
    Every size is in design pixels of the 927x1367 frame (1u = 1 px of the art). ===== */
-.rcpt{position:relative;width:min(100%,330px,calc((100vh - 232px) * .678));aspect-ratio:927/1367;
+.rcpt{position:relative;width:min(100%,420px,calc((100vh - 200px) * .678));aspect-ratio:927/1367;
   container-type:inline-size;filter:drop-shadow(0 16px 14px rgba(20,12,4,.38));
   background:url("assets/draft2/receipt_frame.webp") center/100% 100% no-repeat}
 .rcpt.enter{animation:leafIn .8s cubic-bezier(.2,1.2,.4,1) both}
