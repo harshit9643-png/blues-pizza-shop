@@ -174,9 +174,13 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 /* thali of toppings / moulds */
 .trayzone{grid-area:tray;display:grid;place-items:center;position:relative;z-index:2}
 .tray{--tsz:min(30vw,calc(100vh - 230px),480px);position:relative;width:var(--tsz);aspect-ratio:600/630;max-width:100%}
+.tray.out{animation:trayOut .42s cubic-bezier(.5,0,.8,.4) forwards;pointer-events:none}
+.tray.in{animation:trayIn .6s cubic-bezier(.25,1.25,.4,1) both}
+@keyframes trayOut{to{transform:translateX(130%) rotate(10deg);opacity:0}}
+@keyframes trayIn{from{transform:translateX(130%) rotate(10deg);opacity:0}}
 .tray>img.thali{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 16px 16px rgba(25,20,60,.30))}
 .slot{position:absolute;width:31%;translate:-50% -50%;display:grid;justify-items:center;gap:2px;touch-action:none}
-.slot.mould{width:36%}
+.slot.mould{width:28%}
 /* the supplied coconut tray: each bowl slot is placed in the tray image's own pixels */
 .bowl{position:absolute;display:block;cursor:grab;touch-action:none;transition:transform .18s}
 .bowl svg{width:100%;height:100%;display:block;overflow:visible;pointer-events:none}
@@ -300,7 +304,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 
 /* ===== order receipt: the supplied jungle frame, live content drawn on top.
    Every size is in design pixels of the 927x1367 frame (1u = 1 px of the art). ===== */
-.rcpt{position:relative;width:min(100%,420px,calc((100vh - 200px) * .678));aspect-ratio:927/1367;
+.rcpt{position:relative;width:min(100%,340px,calc((100vh - 270px) * .678));aspect-ratio:927/1367;
   container-type:inline-size;filter:drop-shadow(0 16px 14px rgba(20,12,4,.38));
   background:url("assets/draft2/receipt_frame.webp") center/100% 100% no-repeat}
 .rcpt.enter{animation:leafIn .8s cubic-bezier(.2,1.2,.4,1) both}
@@ -334,8 +338,12 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
   box-shadow:inset 0 calc(var(--u)*-16) calc(var(--u)*22) rgba(120,20,5,.35),inset 0 calc(var(--u)*12) calc(var(--u)*16) rgba(255,255,255,.3)}
 .rc-frac{font-family:var(--display);font-weight:800;font-size:calc(var(--u)*176);line-height:1;color:#FFFFFF;letter-spacing:-.02em;
   -webkit-text-stroke:calc(var(--u)*14) #7E1B0C;paint-order:stroke fill;text-shadow:0 calc(var(--u)*8) 0 rgba(90,15,5,.35);
-  white-space:nowrap}
-.rc-frac.wide{font-size:calc(var(--u)*132)}
+  white-space:nowrap;display:grid;justify-items:center;font-size:calc(var(--u)*128);line-height:.92;margin-top:calc(var(--u)*-40)}
+.rc-frac.wide{font-size:calc(var(--u)*104)}
+/* stacked fraction: numerator on top, a white bar, denominator below */
+.rc-frac b{display:block;font-weight:800}
+.rc-frac i{display:block;width:calc(100% + var(--u)*40);height:calc(var(--u)*16);margin:calc(var(--u)*10) 0 calc(var(--u)*14);
+  border-radius:999px;background:#FFFFFF;box-shadow:0 0 0 calc(var(--u)*7) #7E1B0C,0 calc(var(--u)*8) 0 calc(var(--u)*7) rgba(90,15,5,.35)}
 .rc-of{left:calc(var(--u)*464);top:calc(var(--u)*842);height:calc(var(--u)*74);padding:0 calc(var(--u)*42);display:grid;place-items:center;
   background:#FFF4DC;border:calc(var(--u)*4) solid #F0D7A6;border-radius:999px;white-space:nowrap;
   font-family:var(--display);font-weight:800;font-size:calc(var(--u)*50);color:#4A2810;
@@ -494,7 +502,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
         <span>Level 1.1<small>Top and serve</small></span></button>
       <button class="lvbtn" data-lv="1.2"><svg viewBox="0 0 600 600" aria-hidden="true" id="ic12"></svg>
         <span>Level 1.2<small>Cut, top and serve</small></span></button>
-      <button class="lvbtn" data-go="level2"><img src="assets/web/trophy.webp" alt="" style="width:60px;height:auto">
+      <button class="lvbtn" data-go="level2"><img src="assets/web/trophy.svg" alt="" style="width:60px;height:auto">
         <span>Level 2<small>Big Eater Contest</small></span></button>
     </div>
   </div>
@@ -534,7 +542,7 @@ const LEVELS = {
 const TOPPINGS = [{k:"tomato",name:"Tomato"},{k:"mushroom",name:"Mushroom"},{k:"corn",name:"Sweet corn"},{k:"onion",name:"Onion"}];
 /* slots sit inside the thali's well (centre 50%,49.7%, well radius 42%) */
 const KATORI_POS = [[31.5,32.5],[68.5,32.5],[31.5,63.5],[68.5,63.5]];   // around the walnut tray's well (50%, 48%)
-const MOULD_POS  = [[50,27],[30.6,60],[69.4,60]];    // even triangle round the tray's well
+const MOULD_POS  = [[50,29.8],[36,60.3],[64,60.3]];  // even triangle centred on the plate's well (50%,47.9%), every corner inside it
 
 /* ============================================================
    GEOMETRY (viewBox 600) — exact equal parts over the painted pizza
@@ -639,18 +647,24 @@ function insidePart(p,x,y,h){
 function piecesFor(g,i,n){
   const p=g.parts[i], rnd=rng(i*977+n*131+7), out=[];
   const area = p.kind==="sector" ? Math.PI*R*R/n : p.w*p.h;
-  const s=clamp(Math.sqrt(area)/4.8,22,38), gap=s*.8, h=s*.4;
+  // like a real pizza: one layer of pieces with cheese showing between them, loosely scattered
+  // (not a packed carpet); small parts space them a little closer so each still gets a few
+  const s=clamp(Math.sqrt(area)/4.8,22,38), h=s*.42;
   let x0,y0,x1,y1;
   if(p.kind==="sector"){
     const xs=[C], ys=[C];
     for(let t=0;t<=12;t++){ const a=p.a0+(p.a1-p.a0)*t/12; xs.push(C+R*Math.cos(a)); ys.push(C+R*Math.sin(a)); }
     x0=Math.min(...xs); x1=Math.max(...xs); y0=Math.min(...ys); y1=Math.max(...ys);
   } else { x0=p.x; y0=p.y; x1=p.x+p.w; y1=p.y+p.h; }
-  for(let y=y0, row=0; y<=y1; y+=gap*.866, row++){
-    for(let x=x0+(row%2)*gap/2; x<=x1; x+=gap){
-      const q={x:x+(rnd()-.5)*gap*.24, y:y+(rnd()-.5)*gap*.24, s:s*(.92+rnd()*.16), rot:rnd()*360};
-      if(insidePart(p,q.x,q.y,h) && onSauce(g.shape,q.x,q.y,h)) out.push(q);
+  for(let f=1.4; f>=1; f-=.1){
+    const gap=s*f, seed=rnd; out.length=0;
+    for(let y=y0, row=0; y<=y1; y+=gap*.866, row++){
+      for(let x=x0+(row%2)*gap/2; x<=x1; x+=gap){
+        const q={x:x+(seed()-.5)*gap*.4, y:y+(seed()-.5)*gap*.4, s:s*(.88+seed()*.24), rot:seed()*360};
+        if(insidePart(p,q.x,q.y,h) && onSauce(g.shape,q.x,q.y,h)) out.push(q);
+      }
     }
+    if(out.length>=6) break;
   }
   return out;
 }
@@ -679,10 +693,10 @@ function mouldInner(shape,k,pfx,tray){
   const join = shape==="round" ? "round" : "miter";
   const ring=(off,st)=>`<path d="${edgePath(shape,off)}" fill="none" stroke-linejoin="${join}" stroke-miterlimit="8" ${st}/>`;
   const blades = g.cuts.map(([x1,y1,x2,y2])=>`
-      <line x1="${x1}" y1="${y1+9}" x2="${x2}" y2="${y2+9}" stroke="#2A3038" stroke-width="16" stroke-linecap="round"/>
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#4E5663" stroke-width="20" stroke-linecap="round"/>
+      <line x1="${x1}" y1="${y1+9}" x2="${x2}" y2="${y2+9}" stroke="#1A1E24" stroke-width="16" stroke-linecap="round"/>
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2E343C" stroke-width="20" stroke-linecap="round"/>
       <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="url(#${id}b)" stroke-width="13" stroke-linecap="round"/>
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="3" stroke-linecap="round"/>`).join("");
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#FFFFFF" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/>`).join("");
   const kr = tray ? (k>9 ? 92 : 104) : (k>9 ? 50 : 56);
   const knob = `<g transform="translate(${C} ${C})">
       <circle r="${kr+8}" fill="#0A1030" fill-opacity=".3" transform="translate(4 ${kr*.32})"/>
@@ -696,22 +710,22 @@ function mouldInner(shape,k,pfx,tray){
   return `<defs>
       <clipPath id="${id}c"><path d="${edgePath(shape,RIM)}"/></clipPath>
       <linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#FAFBFD"/><stop offset=".3" stop-color="#BFC6D0"/><stop offset=".52" stop-color="#F1F4F7"/>
-        <stop offset=".75" stop-color="#A3ABB7"/><stop offset="1" stop-color="#E6EAEF"/></linearGradient>
+        <stop offset="0" stop-color="#9AA3AE"/><stop offset=".3" stop-color="#4A525D"/><stop offset=".52" stop-color="#848D99"/>
+        <stop offset=".75" stop-color="#363D47"/><stop offset="1" stop-color="#6B7480"/></linearGradient>
       <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#9AA3AF"/><stop offset=".5" stop-color="#DDE2E8"/><stop offset="1" stop-color="#8E97A3"/></linearGradient>
+        <stop offset="0" stop-color="#4F5864"/><stop offset=".5" stop-color="#8B95A2"/><stop offset="1" stop-color="#46505B"/></linearGradient>
       <radialGradient id="${id}k" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#5D7BD0"/><stop offset=".6" stop-color="#2A3F86"/><stop offset="1" stop-color="#16214C"/></radialGradient>
       <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE29A"/><stop offset=".5" stop-color="#F2A62C"/><stop offset="1" stop-color="#B9740C"/></linearGradient>
     </defs>
     ${tray ? `<path d="${edgePath(shape,0)}" fill="#FFFFFF" fill-opacity=".38"/>` : ""}
     <g clip-path="url(#${id}c)">${blades}</g>
     ${ring(RIM,'stroke="#141E45" stroke-opacity=".28" stroke-width="32" transform="translate(4 18)"')}
-    ${ring(RIM,'stroke="#3B424C" stroke-width="24" transform="translate(0 11)"')}
-    ${ring(RIM,'stroke="#59616C" stroke-width="24" transform="translate(0 5)"')}
+    ${ring(RIM,'stroke="#22272E" stroke-width="24" transform="translate(0 11)"')}
+    ${ring(RIM,'stroke="#353B44" stroke-width="24" transform="translate(0 5)"')}
     ${ring(RIM,`stroke="url(#${id}s)" stroke-width="24"`)}
     ${ring(RIM-12,'stroke="#6E7682" stroke-opacity=".65" stroke-width="2.5"')}
     ${ring(RIM+12,'stroke="#5C6470" stroke-opacity=".75" stroke-width="2.5"')}
-    <path d="${edgeArc(shape,RIM-3,136,168)}" fill="none" stroke="#FFFFFF" stroke-opacity=".85" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${edgeArc(shape,RIM-3,136,168)}" fill="none" stroke="#FFFFFF" stroke-opacity=".45" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
     ${k>1 ? knob : ""}`;
 }
 
@@ -951,6 +965,13 @@ function heapSVG(k, b, box){
       <ellipse cx="${b.cx}" cy="${b.cy+iy*.06}" rx="${ix}" ry="${iy}" fill="url(#${id}e)"/></g>
   </svg>`;
 }
+/* the cutter plate slides away to the side, then the next tray slides in with a little bounce */
+async function swapTray(render,gen){
+  const t=$("tray"); t.classList.remove("in"); t.classList.add("out");
+  await wait(430); t.classList.remove("out"); if(!live(gen)) return;
+  render(); void t.offsetWidth; t.classList.add("in");
+  await wait(350);
+}
 function showKatoris(){
   setTray("coco");
   const pct=(v,of)=>(v/of*100).toFixed(3)+"%";
@@ -1009,7 +1030,7 @@ function showCustomer(){
         <div class="rc-leaf r"><svg viewBox="0 0 86 56" aria-hidden="true"><path d="M84 30C64 4 24 0 2 26c22 26 62 26 82 4z" fill="#58B44A" stroke="#2D6A27" stroke-width="3"/><path d="M80 29C58 22 30 22 8 27" fill="none" stroke="#C9EC9E" stroke-width="2.5" stroke-linecap="round"/></svg></div>
         <div class="rc-name ${name.length>8?'long':''}">${name}</div>
         <div class="rc-rays">${RAYS}</div>
-        <div class="rc-badge"><div><span class="rc-frac ${frac.length>3?'wide':''}">${frac}</span></div></div>
+        <div class="rc-badge"><div><span class="rc-frac ${frac.length>3?'wide':''}" aria-label="${o.n} out of ${o.d}"><b>${o.n}</b><i></i><b>${o.d}</b></span></div></div>
         <div class="rc-of">of a pizza</div>
         <div class="rc-row" style="top:calc(var(--u)*1010)"><i class="ic face"><img src="${A}${o.cust}.webp" alt=""></i><b>Customer:</b><span>${name}</span></div>
         <div class="rc-row" style="top:calc(var(--u)*1130)"><i class="ic"><img src="${A}piece_tomato.webp" alt=""></i><b>Topping:</b><span>Any topping</span></div>
@@ -1105,7 +1126,8 @@ async function useMould(k,btn){
   if(k===o.d){
     say(`${o.d} equal ${pieceName(o,k).toLowerCase()}!`,"good"); Sound.good(); guideMood("cheer");
     await countParts(gen); if(!live(gen)) return;
-    showKatoris(); beginTopping();
+    await swapTray(showKatoris,gen); if(!live(gen)) return;
+    beginTopping();
   } else {
     S.tries++; Sound.bad(); btn.classList.add("wrong"); custMood("sad"); guideMood("hmm");
     PZ.classList.add("bad"); boardFx("wiggle");

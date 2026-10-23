@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="280" viewBox="0 0 120 140">
+  <!-- A simple golden cup: two handles, a star on the bowl, short stem, wooden base with a gold plate. -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#E9A21C"/><stop offset=".35" stop-color="#FFD455"/>
+      <stop offset=".6" stop-color="#F6B92B"/><stop offset="1" stop-color="#C98410"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE68A"/><stop offset="1" stop-color="#E9A21C"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8A5A2E"/><stop offset="1" stop-color="#5C3815"/>
+    </linearGradient>
+  </defs>
+  <!-- handles -->
+  <path d="M30 24H18c-8 0-9 26 16 32M90 24h12c8 0 9 26-16 32" fill="none" stroke="#B9770C" stroke-width="9" stroke-linecap="round"/>
+  <path d="M30 24H18c-8 0-9 26 16 32M90 24h12c8 0 9 26-16 32" fill="none" stroke="url(#gold)" stroke-width="5.5" stroke-linecap="round"/>
+  <!-- bowl -->
+  <path d="M28 16h64v24c0 26-15 42-32 42S28 66 28 40z" fill="url(#gold)" stroke="#B9770C" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="24" y="10" width="72" height="10" rx="5" fill="url(#rim)" stroke="#B9770C" stroke-width="2.5"/>
+  <path d="M37 24v16c0 14 5 24 12 30" fill="none" stroke="#FFFFFF" stroke-opacity=".55" stroke-width="5" stroke-linecap="round"/>
+  <path d="M60 30l4.7 9.5 10.5 1.5-7.6 7.4 1.8 10.4L60 53.9l-9.4 4.9 1.8-10.4-7.6-7.4 10.5-1.5z" fill="#FFFFFF" fill-opacity=".9" stroke="#D99317" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- stem -->
+  <path d="M53 80h14l2 16H51z" fill="url(#gold)" stroke="#B9770C" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="42" y="95" width="36" height="9" rx="4" fill="url(#rim)" stroke="#B9770C" stroke-width="2.5"/>
+  <!-- base -->
+  <rect x="30" y="104" width="60" height="28" rx="5" fill="url(#wood)" stroke="#3E240C" stroke-width="2.5"/>
+  <rect x="44" y="111" width="32" height="13" rx="3" fill="url(#rim)" stroke="#B9770C" stroke-width="1.5"/>
+</svg>
