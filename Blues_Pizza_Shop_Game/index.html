@@ -36,20 +36,20 @@ img{max-width:100%}
 [hidden]{display:none!important}   /* also when the file is opened directly, without the page wrapper */
 html,body{height:100%}
 body{margin:0;overflow:hidden;color:var(--ink);font-family:var(--body);-webkit-user-select:none;user-select:none;
-  background:#FFF4E2}
+  background:#F7FAFE}
 /* zoomed in on the table: a red-and-cream checked pizzeria tablecloth fills the whole screen,
    with soft light and folds in the fabric */
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:
-    linear-gradient(90deg,rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/56px 56px,
-    linear-gradient(rgba(196,48,38,.55) 50%,transparent 0) 50% 50%/56px 56px,
-    #FFF4E2}
+    linear-gradient(90deg,rgba(96,150,214,.36) 50%,transparent 0) 50% 50%/56px 56px,
+    linear-gradient(rgba(96,150,214,.36) 50%,transparent 0) 50% 50%/56px 56px,
+    #F7FAFE}
 body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:
     radial-gradient(ellipse 60% 50% at 50% 45%,rgba(255,255,255,.2),transparent 70%),
-    linear-gradient(100deg,transparent 30%,rgba(120,30,20,.07) 45%,transparent 60%),
+    linear-gradient(100deg,transparent 30%,rgba(40,70,120,.05) 45%,transparent 60%),
     linear-gradient(80deg,transparent 62%,rgba(255,255,255,.1) 72%,transparent 82%),
-    radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(110,30,15,.18) 100%)}
+    radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(40,70,120,.14) 100%)}
 .frond{display:none;position:fixed;top:-30px;width:min(30vw,340px);height:auto;z-index:-1;pointer-events:none;
   filter:drop-shadow(0 10px 12px rgba(0,20,0,.35))}
 .frond.l{left:-50px;transform-origin:0 0;animation:frondL 7s ease-in-out infinite}
@@ -488,7 +488,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
       </div>
     </section>
     <section class="trayzone">
-      <div class="tray" id="tray"><img class="thali" src="assets/draft2/plate_white.svg" alt=""><div id="slots"></div></div>
+      <div class="tray" id="tray"><img class="thali" src="assets/draft2/board_paddle.svg" alt=""><div id="slots"></div></div>
     </section>
     <svg class="hand" id="hand" viewBox="0 0 64 64" hidden aria-hidden="true">
       <path d="M26 6c3 0 5 2 5 5v16l3-1c3-1 5 1 5 3v1l3-1c3-1 5 1 5 3v1l2-.5c3-.5 5 1.5 5 4V48c0 7-6 12-13 12h-6c-5 0-9-2-12-6L11 40c-2-3 1-6 4-5l6 3V11c0-3 2-5 5-5z" fill="#FFE1C4" stroke="#3B2A1A" stroke-width="3" stroke-linejoin="round"/>
@@ -555,7 +555,7 @@ const LEVELS = {
 const TOPPINGS = [{k:"tomato",name:"Tomato"},{k:"mushroom",name:"Mushroom"},{k:"corn",name:"Sweet corn"},{k:"onion",name:"Onion"}];
 /* slots sit inside the thali's well (centre 50%,49.7%, well radius 42%) */
 const KATORI_POS = [[31.5,32.5],[68.5,32.5],[31.5,63.5],[68.5,63.5]];   // around the walnut tray's well (50%, 48%)
-const MOULD_POS  = [[50,29.8],[36,60.3],[64,60.3]];  // even triangle centred on the plate's well (50%,47.9%), every corner inside it
+const MOULD_POS  = [[55,27.9],[41,58.4],[69,58.4]];  // even triangle centred on the chopping board's round part (55%,46%), every corner inside it
 
 /* ============================================================
    GEOMETRY (viewBox 600) — exact equal parts over the painted pizza
@@ -945,7 +945,7 @@ const COCO = {W:1207, H:1052, bowls:[          // inner opening of each coconut 
 function setTray(kind){
   const t=$("tray"), img=t.querySelector("img.thali");
   if(kind==="coco"){ img.src="assets/draft2/coconut_tray.webp"; t.style.aspectRatio=`${COCO.W}/${COCO.H}`; t.classList.add("coco"); }
-  else { img.src="assets/draft2/plate_white.svg"; t.style.aspectRatio="600/630"; t.classList.remove("coco"); }
+  else { img.src="assets/draft2/board_paddle.svg"; t.style.aspectRatio="600/630"; t.classList.remove("coco"); }
 }
 /* A bowl filled to the brim: the topping covers the whole opening inside the coconut lip,
    mounded a little in the middle, its edge tucked under the lip with a soft shadow
@@ -978,12 +978,40 @@ function heapSVG(k, b, box){
       <ellipse cx="${b.cx}" cy="${b.cy+iy*.06}" rx="${ix}" ry="${iy}" fill="url(#${id}e)"/></g>
   </svg>`;
 }
-/* the cutter plate slides away to the side, then the next tray slides in with a little bounce */
+/* Once the order has been seen, the receipt shrinks into the top-right corner, the tray (toppings or
+   cutters) shrinks to the bottom-right, and the pizza slides to the middle: the focus stays on the pizza.
+   Each one moves with a transform from where the layout puts it, so nothing else has to change. */
+const DOCK_EASE="transform .75s cubic-bezier(.3,1.05,.4,1), opacity .5s ease";
+const dockable=()=>!matchMedia("(max-aspect-ratio: 5/6)").matches;
+function placeDock(el,on,k,where,animate){
+  if(!el) return;
+  const prev=el.style.transform;
+  el.style.transition="none"; el.style.transform=""; const r=el.getBoundingClientRect();   // where the layout puts it
+  if(!on||!dockable()){ el._dock=null; void el.offsetWidth; el.style.transition=""; return; }
+  const st=$("stage").getBoundingClientRect(), pad=Math.max(12,st.width*.012);
+  const x = where==="c" ? st.left+st.width/2-r.width/2 : st.right-pad-r.width*k;
+  const y = where==="tr" ? st.top+pad : where==="br" ? st.bottom-pad-r.height*k : r.top;
+  const to=`translate(${(x-r.left).toFixed(1)}px,${(y-r.top).toFixed(1)}px) scale(${k})`;
+  el.style.transformOrigin="0 0"; el.style.transform=prev; void el.offsetWidth;            // back to where it was drawn
+  el.style.transition=animate?DOCK_EASE:"none"; el.style.transform=to; el._dock=to;
+  if(!animate){ void el.offsetWidth; el.style.transition=""; }
+}
+function setDock(on,animate=true){
+  S.docked=on;
+  placeDock($("cust"),on,.55,"tr",animate);
+  placeDock($("tray"),on,.5,"br",animate);
+  placeDock(document.querySelector(".boardzone"),on,1,"c",animate);
+}
+addEventListener("resize",()=>{ if(S.docked) setDock(true,false); });
+/* the cutter plate slides away to the side, then the next tray slides in at full size, then docks */
 async function swapTray(render,gen){
   const t=$("tray"); t.classList.remove("in"); t.classList.add("out");
   await wait(430); t.classList.remove("out"); if(!live(gen)) return;
+  placeDock(t,false,1,"",false);
   render(); void t.offsetWidth; t.classList.add("in");
-  await wait(350);
+  await wait(1300); if(!live(gen)) return;
+  t.classList.remove("in");
+  if(S.docked){ placeDock(t,true,.5,"br",true); await wait(700); }
 }
 function showKatoris(){
   setTray("coco");
@@ -1067,11 +1095,13 @@ async function loadOrder(){
   clearPlateScene();
   document.querySelectorAll(".flyer").forEach(f=>f.remove());
   hideHint(); S.tries=0; S.covered=new Map(); S.topping=null; S.busy=true; S.skip=false;
+  setDock(false,false);
   renderTop(); showCustomer(); boardFx("in");
   if(!LEVELS[S.lv].cut){
     S.k=o.d; S.phase="cutting"; G=geom(o.shape,S.k); renderWhole(false); showKatoris();
     say(`Cutting the pizza into ${o.d} equal ${pieceName(o).toLowerCase()}…`); setDone("done",false); setCount();
-    await wait(1100); if(!live(gen)) return;
+    await wait(1500); if(!live(gen)) return;
+    setDock(true); await wait(750); if(!live(gen)) return;
     await rollCutter(gen); if(!live(gen)) return;
     await split(gen); if(!live(gen)) return;
     say(`${o.d} equal ${pieceName(o).toLowerCase()}!`, "good");
@@ -1080,6 +1110,8 @@ async function loadOrder(){
   } else {
     S.k=1; S.phase="mould"; G=geom(o.shape,1); renderWhole(true); showMoulds();
     say("Pick the mould that cuts this pizza for the order."); setDone("done",false); setCount();
+    await wait(1500); if(!live(gen)) return;
+    setDock(true); await wait(750); if(!live(gen)) return;
     S.busy=false;
   }
 }
