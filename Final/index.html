@@ -1231,8 +1231,8 @@ function mouldInner(shape,k,pfx,tray){
   const join = shape==="round" ? "round" : "miter";
   const ring=(off,st)=>`<path d="${edgePath(shape,off)}" fill="none" stroke-linejoin="${join}" stroke-miterlimit="8" ${st}/>`;
   const blades = g.cuts.map(([x1,y1,x2,y2])=>`
-      <line x1="${x1}" y1="${y1+9}" x2="${x2}" y2="${y2+9}" stroke="#1A1E24" stroke-width="16" stroke-linecap="round"/>
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#2E343C" stroke-width="20" stroke-linecap="round"/>
+      <line x1="${x1}" y1="${y1+9}" x2="${x2}" y2="${y2+9}" stroke="#050506" stroke-width="16" stroke-linecap="round"/>
+      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0E0F11" stroke-width="20" stroke-linecap="round"/>
       <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="url(#${id}b)" stroke-width="13" stroke-linecap="round"/>
       <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#FFFFFF" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/>`).join("");
   const kr = tray ? (k>9 ? 92 : 104) : (k>9 ? 50 : 56);
@@ -1248,18 +1248,18 @@ function mouldInner(shape,k,pfx,tray){
   return `<defs>
       <clipPath id="${id}c"><path d="${edgePath(shape,RIM)}"/></clipPath>
       <linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#9AA3AE"/><stop offset=".3" stop-color="#4A525D"/><stop offset=".52" stop-color="#848D99"/>
-        <stop offset=".75" stop-color="#363D47"/><stop offset="1" stop-color="#6B7480"/></linearGradient>
+        <stop offset="0" stop-color="#5A5E64"/><stop offset=".3" stop-color="#1A1C20"/><stop offset=".52" stop-color="#3C4046"/>
+        <stop offset=".75" stop-color="#101114"/><stop offset="1" stop-color="#2E3136"/></linearGradient>
       <linearGradient id="${id}b" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="#4F5864"/><stop offset=".5" stop-color="#8B95A2"/><stop offset="1" stop-color="#46505B"/></linearGradient>
+        <stop offset="0" stop-color="#16181B"/><stop offset=".5" stop-color="#3E4248"/><stop offset="1" stop-color="#121417"/></linearGradient>
       <radialGradient id="${id}k" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#5D7BD0"/><stop offset=".6" stop-color="#2A3F86"/><stop offset="1" stop-color="#16214C"/></radialGradient>
       <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE29A"/><stop offset=".5" stop-color="#F2A62C"/><stop offset="1" stop-color="#B9740C"/></linearGradient>
     </defs>
     ${tray ? `<path d="${edgePath(shape,0)}" fill="#FFFFFF" fill-opacity=".38"/>` : ""}
     <g clip-path="url(#${id}c)">${blades}</g>
     ${ring(RIM,'stroke="#141E45" stroke-opacity=".28" stroke-width="32" transform="translate(4 18)"')}
-    ${ring(RIM,'stroke="#22272E" stroke-width="24" transform="translate(0 11)"')}
-    ${ring(RIM,'stroke="#353B44" stroke-width="24" transform="translate(0 5)"')}
+    ${ring(RIM,'stroke="#060607" stroke-width="24" transform="translate(0 11)"')}
+    ${ring(RIM,'stroke="#121315" stroke-width="24" transform="translate(0 5)"')}
     ${ring(RIM,`stroke="url(#${id}s)" stroke-width="24"`)}
     ${ring(RIM-12,'stroke="#6E7682" stroke-opacity=".65" stroke-width="2.5"')}
     ${ring(RIM+12,'stroke="#5C6470" stroke-opacity=".75" stroke-width="2.5"')}
@@ -2304,7 +2304,7 @@ function actor(key,x,y,h,o={}){
   }
   const e=sAdd(`<div class="act ${o.cls||""}"><div class="bod"><div class="rig"><img class="ch" src="${A}${o.img||(R?R.src:key)}.webp" alt=""><div class="parts">${parts}</div></div></div></div>`,o.z??5);
   if((o.rig||key)==="monty") e.querySelector(".bod").insertAdjacentHTML("beforeend",`<div class="sprw"></div>`);
-  e._rig=R; e.style.height=h+"%"; sPos(e,x,y);
+  e._rig=R; e._key=o.as||key; e.style.height=h+"%"; sPos(e,x,y);
   if(R && (!o.img||o.img===R.src)) e.classList.add("rigged");
   if(o.flip) e.classList.add("flip");
   if(o.as) STORY.cast[o.as]=e;
@@ -2438,25 +2438,28 @@ function sBubbleSay(e,name,text){
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(27,6+len*.25))+"%";
   bb._set=0; bb.classList.remove("on"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
-    const w=$("sworld").getBoundingClientRect(), r=e.getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
-    // everything the bubble must not cover: small pop-up bubbles, the order card, the menu and Skip, other speakers' heads
-    const obs=[...document.querySelectorAll("#sworld .bubble, #sworld>.orderc, .top>.jump, .top>.home, #sSkip, #ssub:not(.bub), #ssub .snext")].map(o=>o.getBoundingClientRect()).filter(o=>o.width)
-      .concat([...document.querySelectorAll("#slayer .act")].map(a=>{ const q=a.querySelector(".rig").getBoundingClientRect();
-        return {left:q.left+q.width*.1,top:q.top,right:q.right-q.width*.1,bottom:q.top+q.height*(a===e?.5:.7),width:q.width}; }).filter(o=>o.width))
-      .map(o=>({l:o.left-w.left,t:o.top-w.top,r:o.right-w.left,b:o.bottom-w.top,vt:o.top}));
-    const menuB=Math.max(8-w.top,...obs.filter(o=>o.vt<60).map(o=>o.b+6));   // never under the menu bar, whatever part of the scene is on screen
+    const w=$("sworld").getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
+    // each character's face, as a fraction of its picture box: the bubble must never cover a face
+    const FACE={noori:[.22,0,.72,.46],billu:[.18,0,.82,.52],monty:[.15,0,.85,.5],chintu:[.15,0,.85,.5],ant:[.18,0,.82,.55],rabbit:[.2,0,.8,.5]};
+    const faceOf=a=>{ const q=a.getBoundingClientRect(), f=FACE[a._key]||[0,0,1,1];
+      return {l:q.left+q.width*f[0]-w.left,t:q.top+q.height*f[1]-w.top,r:q.left+q.width*f[2]-w.left,b:q.top+q.height*f[3]-w.top}; };
+    const me=faceOf(e);
+    const faces=[...document.querySelectorAll("#slayer .act, #sworld>.anch")].filter(a=>a.offsetParent||a.classList.contains("anch")).map(faceOf);
+    const ui=[...document.querySelectorAll("#sworld .bubble, #sworld>.orderc, .top>.jump, .top>.home, #sSkip, #ssub:not(.bub), #ssub .snext")]
+      .map(o=>o.getBoundingClientRect()).filter(o=>o.width).map(o=>({l:o.left-w.left,t:o.top-w.top,r:o.right-w.left,b:o.bottom-w.top,vt:o.top}));
+    const obs=faces.map(f=>({l:f.l-6,t:f.t-6,r:f.r+6,b:f.b+6})).concat(ui);
+    const menuB=Math.max(8-w.top,...ui.filter(o=>o.vt<60).map(o=>o.b+6));   // never under the menu bar
     const vw=innerWidth-w.left, vh=innerHeight-w.top, x0=Math.max(8,8-w.left);
     const fit=(x,y)=>({x:Math.max(x0,Math.min(x,Math.min(w.width,vw)-bw-8)),y:Math.max(menuB,Math.min(y,Math.min(w.height,vh)-bh-8))});
-    const hxL=r.left+r.width*.4-w.left, hxR=r.right-r.width*.4-w.left, hy=r.top+r.height*.02-w.top;   // the tail points at the top of the head
+    // the tail tip (69% down the bubble's side) sits just beside the face, level with the top of the head
     const cands=[];
-    for(const dy of [.69,.8,.95,1.15,1.4]){ cands.push({...fit(hxL-bw*.995,hy-bh*dy),flip:false},{...fit(hxR-bw*.005,hy-bh*dy),flip:true}); }
-    for(const dx of [0,-.35,.35]) cands.push({...fit(r.left+r.width/2-w.left-bw/2+dx*bw,r.top-w.top-bh-6),flip:dx>0});
+    for(const k of [.1,.0,.25,-.2,-.45]){ const ty=me.t+(me.b-me.t)*k;
+      cands.push({...fit(me.l-8-bw*.995,ty-bh*.69),flip:false,tx:me.l,ty},{...fit(me.r+8-bw*.005,ty-bh*.69),flip:true,tx:me.r,ty}); }
+    for(const dx of [0,-.3,.3]) cands.push({...fit((me.l+me.r)/2-bw/2+dx*bw,me.t-bh-8),flip:dx>0,tx:(me.l+me.r)/2,ty:me.t});
     const hit=c=>obs.reduce((a,o)=>a+Math.max(0,Math.min(c.x+bw,o.r)-Math.max(c.x,o.l))*Math.max(0,Math.min(c.y+bh,o.b)-Math.max(c.y,o.t)),0);
-    // keep the current side if it is still clear, so the bubble does not jump around
-    const keep=cands.find(c=>c.flip===bb.classList.contains("flip")&&hit(c)===0&&bb._set);
-    const gap=c=>{ const tx=c.flip?c.x:c.x+bw, ty=c.y+bh*.69; return Math.hypot(tx-(c.flip?hxR:hxL),ty-hy); };
-    const best=keep||cands.reduce((a,c)=>(hit(c)*50+gap(c))<(hit(a)*50+gap(a))?c:a);
-    bb._set=1; bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
+    const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
+    const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
+    bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
     };   // placed once per line, so the bubble stays put while the speaker moves
   // wait until the speaker has arrived (entering, walking or flying in), then place the bubble and pop it in
   const tok=(STORY.bubTok=(STORY.bubTok||0)+1), moving=e.getAnimations().filter(a=>a.playState==="running");

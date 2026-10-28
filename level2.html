@@ -1048,6 +1048,7 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .tut .board2{width:min(calc(100vh - 470px),19vw)!important;min-width:150px!important}
 .tut .tsd .stack{flex-direction:column;padding:8px 10px}
 .tut .duel{padding-left:5vw}
+.story .sbub{z-index:30!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1693,7 +1694,7 @@ function actor(key,x,y,h,o={}){
   }
   const e=sAdd(`<div class="act ${o.cls||""}"><div class="bod"><div class="rig"><img class="ch" src="${A}${o.img||(R?R.src:key)}.webp" alt=""><div class="parts">${parts}</div></div></div></div>`,o.z??5);
   if((o.rig||key)==="monty") e.querySelector(".bod").insertAdjacentHTML("beforeend",`<div class="sprw"></div>`);
-  e._rig=R; e.style.height=h+"%"; sPos(e,x,y);
+  e._rig=R; e._key=o.as||key; e.style.height=h+"%"; sPos(e,x,y);
   if(R && (!o.img||o.img===R.src)) e.classList.add("rigged");
   if(o.flip) e.classList.add("flip");
   if(o.as) STORY.cast[o.as]=e;
@@ -1821,31 +1822,34 @@ function sTalk(e,text){
 /* speech bubble over the speaker's head (the supplied bubble art; its tail points at the speaker) */
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
-  if(!e||!e.isConnected||document.querySelector("#sworld>.sshot")){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
+  if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(27,6+len*.25))+"%";
   bb._set=0; bb.classList.remove("on"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
-    const w=$("sworld").getBoundingClientRect(), r=e.getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
-    // everything the bubble must not cover: small pop-up bubbles, the order card, the menu and Skip, other speakers' heads
-    const obs=[...document.querySelectorAll("#sworld .bubble, #sworld>.orderc, .top>.jump, .top>.home, #sSkip, #ssub:not(.bub), #ssub .snext")].map(o=>o.getBoundingClientRect()).filter(o=>o.width)
-      .concat([...document.querySelectorAll("#slayer .act")].map(a=>{ const q=a.querySelector(".rig").getBoundingClientRect();
-        return {left:q.left+q.width*.1,top:q.top,right:q.right-q.width*.1,bottom:q.top+q.height*(a===e?.5:.7),width:q.width}; }).filter(o=>o.width))
-      .map(o=>({l:o.left-w.left,t:o.top-w.top,r:o.right-w.left,b:o.bottom-w.top,vt:o.top}));
-    const menuB=Math.max(8-w.top,...obs.filter(o=>o.vt<60).map(o=>o.b+6));   // never under the menu bar, whatever part of the scene is on screen
+    const w=$("sworld").getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
+    // each character's face, as a fraction of its picture box: the bubble must never cover a face
+    const FACE={noori:[.22,0,.72,.46],billu:[.18,0,.82,.52],monty:[.15,0,.85,.5],chintu:[.15,0,.85,.5],ant:[.18,0,.82,.55],rabbit:[.2,0,.8,.5]};
+    const faceOf=a=>{ const q=a.getBoundingClientRect(), f=FACE[a._key]||[0,0,1,1];
+      return {l:q.left+q.width*f[0]-w.left,t:q.top+q.height*f[1]-w.top,r:q.left+q.width*f[2]-w.left,b:q.top+q.height*f[3]-w.top}; };
+    const me=faceOf(e);
+    const faces=[...document.querySelectorAll("#slayer .act, #sworld>.anch")].filter(a=>a.offsetParent||a.classList.contains("anch")).map(faceOf);
+    const ui=[...document.querySelectorAll("#sworld .bubble, #sworld>.orderc, .top>.jump, .top>.home, #sSkip, #ssub:not(.bub), #ssub .snext")]
+      .map(o=>o.getBoundingClientRect()).filter(o=>o.width).map(o=>({l:o.left-w.left,t:o.top-w.top,r:o.right-w.left,b:o.bottom-w.top,vt:o.top}));
+    const obs=faces.map(f=>({l:f.l-6,t:f.t-6,r:f.r+6,b:f.b+6})).concat(ui);
+    const menuB=Math.max(8-w.top,...ui.filter(o=>o.vt<60).map(o=>o.b+6));   // never under the menu bar
     const vw=innerWidth-w.left, vh=innerHeight-w.top, x0=Math.max(8,8-w.left);
     const fit=(x,y)=>({x:Math.max(x0,Math.min(x,Math.min(w.width,vw)-bw-8)),y:Math.max(menuB,Math.min(y,Math.min(w.height,vh)-bh-8))});
-    const hxL=r.left+r.width*.4-w.left, hxR=r.right-r.width*.4-w.left, hy=r.top+r.height*.02-w.top;   // the tail points at the top of the head
+    // the tail tip (69% down the bubble's side) sits just beside the face, level with the top of the head
     const cands=[];
-    for(const dy of [.69,.8,.95,1.15,1.4]){ cands.push({...fit(hxL-bw*.995,hy-bh*dy),flip:false},{...fit(hxR-bw*.005,hy-bh*dy),flip:true}); }
-    for(const dx of [0,-.35,.35]) cands.push({...fit(r.left+r.width/2-w.left-bw/2+dx*bw,r.top-w.top-bh-6),flip:dx>0});
+    for(const k of [.1,.0,.25,-.2,-.45]){ const ty=me.t+(me.b-me.t)*k;
+      cands.push({...fit(me.l-8-bw*.995,ty-bh*.69),flip:false,tx:me.l,ty},{...fit(me.r+8-bw*.005,ty-bh*.69),flip:true,tx:me.r,ty}); }
+    for(const dx of [0,-.3,.3]) cands.push({...fit((me.l+me.r)/2-bw/2+dx*bw,me.t-bh-8),flip:dx>0,tx:(me.l+me.r)/2,ty:me.t});
     const hit=c=>obs.reduce((a,o)=>a+Math.max(0,Math.min(c.x+bw,o.r)-Math.max(c.x,o.l))*Math.max(0,Math.min(c.y+bh,o.b)-Math.max(c.y,o.t)),0);
-    // keep the current side if it is still clear, so the bubble does not jump around
-    const keep=cands.find(c=>c.flip===bb.classList.contains("flip")&&hit(c)===0&&bb._set);
-    const gap=c=>{ const tx=c.flip?c.x:c.x+bw, ty=c.y+bh*.69; return Math.hypot(tx-(c.flip?hxR:hxL),ty-hy); };
-    const best=keep||cands.reduce((a,c)=>(hit(c)*50+gap(c))<(hit(a)*50+gap(a))?c:a);
-    bb._set=1; bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
+    const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
+    const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
+    bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
     };   // placed once per line, so the bubble stays put while the speaker moves
   // wait until the speaker has arrived (entering, walking or flying in), then place the bubble and pop it in
   const tok=(STORY.bubTok=(STORY.bubTok||0)+1), moving=e.getAnimations().filter(a=>a.playState==="running");
@@ -1969,10 +1973,13 @@ function sShot(src){
   $("sworld").appendChild(el); SFX.whoosh(); void el.offsetWidth; el.classList.add("in");
   return async()=>{ el.classList.remove("in"); await sleep(450); el.remove(); };
 }
+/* an invisible box over a character painted in a full-screen picture, so speech bubbles can point at it */
+function anchor(l,t,w,h){ const d=document.createElement("div"); d.className="anch"; Object.assign(d.style,{position:"absolute",left:l+"%",top:t+"%",width:w+"%",height:h+"%",pointerEvents:"none"});
+  d.innerHTML='<div class="rig" style="width:100%;height:100%"></div>'; $("sworld").appendChild(d); return d; }
 /* plays one story; resolves when it ends or is skipped */
 async function playStory(script){
   const gen=++STORY.gen; STORY.run=gen; STORY.cast={};
-  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
+  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub,#sworld>.anch").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
   clear(); st.classList.remove("dusk"); $("scam").style.transition="none"; $("scam").style.transform="none";
   $("sLine").innerHTML=""; $("sWho").innerHTML=""; $("sNext").classList.add("wait");
   document.body.classList.add("tutoring"); st.hidden=false; void st.offsetWidth; st.classList.add("on");
@@ -2027,26 +2034,29 @@ async function storyContext2(){
   await W(sleep(1600));
   crowd.forEach((c,i)=>setTimeout(()=>sHop(c,2,8),i*120));
   await l2;
-  // 3-5. the contest itself is told with the supplied picture: Monty and the ant at the table, ready to eat.
-  // The picture's own speech bubble says Billu's first line, so it is not repeated in the top box; after it,
-  // the pizzas show the eaten slices.
-  const startShot=sShot("assets/story/contest_start.webp"), sImg=()=>document.querySelector("#sworld>.sshot:last-of-type img");
-  STORY.inPicture=true;
+  // 3-5. the contest is told with the supplied pictures; each line's bubble points at the character painted
+  // in the picture and goes away when the line is done. The pizzas are whole at "Ready… eat!" and show the
+  // eaten slices (1/8 and 1/4) from "Munch, munch" on.
+  const real={...STORY.cast};
+  const startShot=sShot("assets/story/contest_start.webp"), sImg=()=>[...document.querySelectorAll("#sworld>.sshot img")].pop();
+  let anc=[anchor(47.5,25,10,27),anchor(18.5,35,17,30),anchor(66.5,47.5,12,17)];
+  Object.assign(STORY.cast,{billu:anc[0],monty:anc[1],ant:anc[2]});
   await sLine("billu","First up, Monty and the ant! Ready… eat!");
-  STORY.inPicture=false;
   SFX.ding(); SFX.chomp(); sImg().src="assets/story/contest_start_eaten.webp";
   await sLine("ant","Munch, munch, munch…");
   SFX.ding();
   await sLine("billu","Time’s up! Monty ate 1/8. The ant ate 1/4.");
-  // 6-9. Billu gives Monty the trophy (the second picture, also with the eaten slices)
+  // 6-9. Billu gives Monty the trophy (the second picture, with the eaten slices)
   const winShot=sShot("assets/story/contest_win_eaten.webp"); setTimeout(()=>startShot(),450);
+  anc.forEach(a=>a.remove()); anc=[anchor(48,25.5,11,27),anchor(19,36,18,29),anchor(67.5,47.5,11.5,17)];
+  Object.assign(STORY.cast,{billu:anc[0],monty:anc[1],ant:anc[2]});
   SFX.cheer();
-  STORY.inPicture=true;
   await sLine("billu","8 is bigger than 4. So Monty wins!");
-  STORY.inPicture=false;
   await sLine("ant","Wait! Look at our plates!");
   await sLine("monty","Uh-oh…");
   await sLine("billu","Oh yes, you ate a bigger piece!");
+  const bb=$("sbub"); if(bb) bb.classList.remove("on");
+  anc.forEach(a=>a.remove()); Object.assign(STORY.cast,real);
   // 10. back at the shop: Noori steps in
   await winShot(); tro.remove();
   await sLine("noori","Let’s find out who really ate more!");
