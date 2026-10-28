@@ -1343,7 +1343,7 @@ function sideHTML(sd,o,canBuild){
   return `<section class="side ${sd}" id="side-${sd}">
     <div class="who"><div class="ava"><img src="${A}${o.k}.webp" alt="${NAMES[o.k]}"></div>
       <div class="info"><div class="tag">${NAMES[o.k]}</div>
-        <div class="eat"><span class="ate">Ate ${frac(o.n,o.d,"num-"+sd)}</span><span class="left">Left ${frac(o.d-o.n,o.d)}</span></div></div></div>
+        <div class="eat"><span class="ate">Ate ${frac(o.n,o.d,"num-"+sd)}</span></div></div></div>
     <div class="plate" style="--pw:${plateWidth()}px"><img src="assets/draft2/board_round.svg" alt=""><div class="pie" id="pie-${sd}">${plateOverlay(0,o.d)}</div></div>
     ${canBuild?`<button class="stack" id="stack-${sd}" aria-label="Add a one ${o.d}th slice to ${NAMES[o.k]}'s plate">${stackIcon(o.d)}<span>+ ${frac(1,o.d)} slice</span></button>`:""}
   </section>`;
