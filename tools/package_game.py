@@ -1,9 +1,9 @@
-"""Package the whole game (Level 1.1, 1.2 and Level 2) into one self-contained folder + ZIP.
+"""Package the whole game (story, tutorials, Level 1.1, 1.2 and Level 2) into one self-contained folder.
 
     python -I tools/package_game.py
 
-Writes Blues_Pizza_Shop_Game/ and Blues_Pizza_Shop_Game.zip next to this project:
-    index.html            start screen + Level 1 (buttons for every level)
+Writes Final/ in this project (the online link serves it too):
+    index.html            main screen (PLAY), story, tutorial, Level 1.1 and 1.2
     level2/index.html     Level 2
     assets/               only the art the two pages load
 Open index.html by double-clicking, or host the folder anywhere.
@@ -13,12 +13,11 @@ import os
 import re
 import shutil
 import sys
-import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from serve import ROOT, SKELETON_HEAD, SKELETON_TAIL  # noqa: E402
 
-NAME = "Blues_Pizza_Shop_Game"
+NAME = "Final"
 PAGES = {"index.html": ("level1_draft2.html", ""), "level2/index.html": ("level2.html", "../")}
 
 
@@ -42,7 +41,7 @@ def main():
             fh.write(page)
         used |= set(re.findall(r"assets/[A-Za-z0-9_/\-]+\.(?:webp|svg|png|jpg)", body))
     # the pages also build file names in code (characters, topping pieces, pizzas): ship those folders whole
-    folders = ["assets/web", "assets/web/hd"]
+    folders = ["assets/web", "assets/web/hd", "assets/web/noori_anim", "assets/draft2"]
     files = set(used)
     for f in folders:
         for fn in os.listdir(os.path.join(ROOT, f)):
@@ -58,19 +57,12 @@ def main():
         os.makedirs(os.path.dirname(d), exist_ok=True)
         shutil.copy(s, d)
     with open(os.path.join(out, "README.txt"), "w", encoding="utf-8") as fh:
-        fh.write("Blue's Pizza Shop - fractions game (Level 1.1, Level 1.2, Level 2)\n\n"
+        fh.write("Billu's Pizza Kitchen - fractions game (story, tutorials, Level 1.1, Level 1.2, Level 2)\n\n"
                  "Double-click index.html to play. Chrome or Edge recommended.\n"
-                 "The start screen has a button for every level; finishing Level 1.2 leads into Level 2.\n"
+                 "Press PLAY: the story, the tutorial, Level 1.1, 1.2, then Level 2. The menu at the top jumps anywhere.\n"
                  "Fonts come from Google Fonts, so an internet connection gives the intended look.\n")
-    zpath = out + ".zip"
-    with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
-        for base, _, fns in os.walk(out):
-            for fn in fns:
-                full = os.path.join(base, fn)
-                z.write(full, os.path.join(NAME, os.path.relpath(full, out)))
     total = sum(os.path.getsize(os.path.join(b, f)) for b, _, fs in os.walk(out) for f in fs)
     print(f"{NAME}/  {len(files) - len(missing) + len(PAGES) + 1} files, {total / 1048576:.1f} MB")
-    print(f"{NAME}.zip  {os.path.getsize(zpath) / 1048576:.1f} MB")
     if missing:
         print("MISSING:", ", ".join(missing))
         return 1
