@@ -1070,6 +1070,18 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .tut{background:#7FC4E8!important}
 .tut{isolation:isolate}
 .tut::before{content:"";position:absolute;inset:-30px;z-index:-1;background:#7FC4E8 url("assets/web/backdrop.webp") center/cover!important;opacity:1!important;filter:blur(7px) brightness(.95);pointer-events:none}
+/* story spotlight on the speaker */
+@property --sx{syntax:"<length>";inherits:false;initial-value:50vw}
+@property --sy{syntax:"<length>";inherits:false;initial-value:50vh}
+@property --sr{syntax:"<length>";inherits:false;initial-value:200px}
+.story .sspot{position:absolute;inset:0;z-index:28;pointer-events:none;opacity:0;transition:opacity .45s ease,--sx .55s ease,--sy .55s ease,--sr .55s ease;
+  background:radial-gradient(circle at var(--sx) var(--sy),rgba(8,14,30,0) 0,rgba(8,14,30,0) var(--sr),rgba(8,14,30,.62) calc(var(--sr) + 70px))}
+.story .sspot.on{opacity:1}
+.story .sbub{z-index:30!important}
+/* game focus layer */
+.gfocus{position:fixed;inset:0;z-index:70;pointer-events:none;background:rgba(8,14,30,.5);opacity:0;transition:opacity .4s ease;
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+.gfocus.on{opacity:1}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2542,10 +2554,16 @@ function sTalk(e,text){
   setTimeout(off,est);
 }
 
+/* spotlight on whoever is speaking: the scene dims around a bright circle on their face */
+function sSpot(face){ let s=$("sspot");
+  if(!face){ if(s) s.classList.remove("on"); return; }
+  if(!s){ s=document.createElement("div"); s.id="sspot"; s.className="sspot"; $("sworld").appendChild(s); }
+  const cx=(face.l+face.r)/2, cy=(face.t+face.b)/2, r=Math.max(face.r-face.l,face.b-face.t)*.95+40;
+  s.style.setProperty("--sx",cx+"px"); s.style.setProperty("--sy",cy+"px"); s.style.setProperty("--sr",r+"px"); s.classList.add("on"); }
 /* speech bubble over the speaker's head (the supplied bubble art; its tail points at the speaker) */
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
-  if(!e||!e.isConnected||document.querySelector("#sworld>.sshot")){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
+  if(!e||!e.isConnected||document.querySelector("#sworld>.sshot")){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(19,6+len*.25))+"%";
@@ -2574,6 +2592,7 @@ function sBubbleSay(e,name,text){
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
     (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
+    sSpot(me);
     };   // placed once per line, so the bubble stays put while the speaker moves
   // wait until the speaker has arrived (entering, walking or flying in), then place the bubble and pop it in
   const tok=(STORY.bubTok=(STORY.bubTok||0)+1), moving=e.getAnimations().filter(a=>a.playState==="running");
@@ -2688,7 +2707,7 @@ function sShot(src){
 /* plays one story; resolves when it ends or is skipped */
 async function playStory(script){
   const gen=++STORY.gen; STORY.run=gen; STORY.cast={};
-  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
+  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub,#sworld>.sspot").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
   clear(); st.classList.remove("dusk"); $("scam").style.transition="none"; $("scam").style.transform="none";
   $("sLine").innerHTML=""; $("sWho").innerHTML=""; $("sNext").classList.add("wait");
   document.body.classList.add("tutoring"); st.hidden=false; void st.offsetWidth; st.classList.add("on");
@@ -2876,6 +2895,35 @@ if(location.hash==="#story") startLevel("1.1",true);
   pan.addEventListener("click",e=>{ if(e.target.closest(".x")){ open(false); return; }
     const c=e.target.closest(".chip2"); if(!c) return; open(false);
     sel.value=c.dataset.v; sel.dispatchEvent(new Event("change")); });
+})();
+</script>
+<script>
+/* Level 1: the order for the first moments, then the pizza; with the moulds or toppings when the child uses them */
+function FOCUS_TARGETS(t){ const card=[".card"];
+  if(t<2600) return card.concat(["#slip"]);
+  if(S.phase==="cutting") return card.concat(["#boardwrap"]);
+  if(S.phase==="mould"||S.phase==="top") return card.concat(["#boardwrap",".trayzone"]);
+  return null; }
+</script>
+<script>
+/* focus: the game screen dims except what the child should look at now (the order first, then the pizza,
+   then the pizza with the moulds or toppings). FOCUS_TARGETS(key) returns the elements to keep lit. */
+(()=>{ const ov=document.createElement("div"); ov.className="gfocus"; document.body.appendChild(ov);
+  let key=null, t0=0;
+  const lit=sel=>sel.flatMap(s=>[...document.querySelectorAll(s)]).filter(e=>e.getClientRects().length);
+  setInterval(()=>{
+    const busy=!document.getElementById("story").hidden || !document.getElementById("tut").hidden ||
+      (document.getElementById("start")&&!document.getElementById("start").hidden) || (document.getElementById("end")&&!document.getElementById("end").hidden);
+    const k=document.getElementById("slip")||document.getElementById("side-a")||null; if(k!==key){ key=k; t0=performance.now(); }   // a new order or match starts the steps again
+    const sel=busy?null:FOCUS_TARGETS(performance.now()-t0);
+    const els=sel?lit(sel):[];
+    if(!els.length){ ov.classList.remove("on"); return; }
+    const pad=18, layers=els.map(e=>{ const r=e.getBoundingClientRect();
+      const cx=r.left+r.width/2, cy=r.top+r.height/2, rx=r.width/2*1.25+pad, ry=r.height/2*1.25+pad;
+      return `radial-gradient(${rx}px ${ry}px at ${cx}px ${cy}px,transparent 0,transparent 78%,#000 100%)`; });
+    ov.style.webkitMaskImage=ov.style.maskImage=layers.join(",");
+    ov.classList.add("on");
+  },150);
 })();
 </script>
 
