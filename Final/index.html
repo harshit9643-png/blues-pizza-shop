@@ -966,6 +966,36 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
 .tut .skip{top:auto!important;bottom:13.5%!important;right:13.6%!important}   /* the line box is at the top now */
 .tut .skip{position:fixed!important;top:12px!important;right:14px!important;bottom:auto!important;z-index:210!important;background:rgba(255,253,246,.92)!important;color:var(--indigo)!important}
+/* tutorial 1.1 layout: giraffe and order side by side, pizza in the middle, everything fits inside the board */
+.tut .scene{align-items:center!important;min-height:0}
+.tut .guest{grid-auto-flow:column;grid-template-rows:auto;align-items:center;gap:clamp(10px,1.4vw,22px)!important}
+.tut .guest .ava{width:clamp(96px,15vh,150px)!important}
+.tut .order{padding:8px 18px 10px!important}
+.tut .order .tf{font-size:clamp(34px,5vh,50px)!important}
+.tut .pz{width:min(calc(70vh - 220px),28vw)!important}
+.tut .tside{min-width:clamp(200px,18vw,300px)}
+.tut .guest{position:relative}
+.tut .guest>.tplate{position:absolute;left:clamp(0px,1vw,20px);top:calc(100% + 10px);width:clamp(90px,13vh,130px)!important}
+.tut .ttl{transition:opacity .4s,max-height .5s,margin .5s;max-height:120px;overflow:hidden}
+.tut .ttl.gone{opacity:0;max-height:0;margin:0}
+/* Billu's small speech-box picture: a close-up of his head and chest, framed inside the round badge */
+.tut .talk .who.billu,.story .ssub .who.billu{overflow:hidden;place-items:start center}
+.tut .talk .who.billu img,.story .ssub .who.billu img{height:190%!important;width:auto;margin:6% 0 0!important;filter:none}
+.tut .talk .who.billu img,.story .ssub .who.billu img,.guide.billu img{position:relative;left:50%;transform:translateX(-66%)!important;height:190%!important;width:auto!important;max-width:none!important;margin:6% 0 0!important}
+.guide.billu{overflow:hidden;place-items:start start!important}
+/* Noori in the instruction box: a close-up of her head and wing, framed inside the round badge */
+.guide:not(.billu){overflow:hidden!important;place-items:start start!important}
+.guide:not(.billu) img{position:relative;left:50%;transform:translateX(-45%)!important;height:165%!important;width:auto!important;max-width:none!important;margin:4% 0 0!important}
+.guide .spk{z-index:2}
+.guide:not(.billu) img{height:108px!important}
+.guide.billu img{height:124px!important}
+@media (max-height:700px){ .guide:not(.billu) img{height:89px!important} .guide.billu img{height:102px!important} }
+/* round badges: the picture is placed absolutely so its head lands in the middle of the circle */
+.guide:not(.billu) img,.guide.billu img,.tut .talk .who.billu img,.story .ssub .who.billu img{position:absolute!important;left:50%!important;top:6%!important;margin:0!important;width:auto!important;max-width:none!important}
+.guide:not(.billu) img{transform:translateX(-43%)!important}
+.guide.billu img,.tut .talk .who.billu img,.story .ssub .who.billu img{transform:translateX(-66%)!important}
+.tut .talk .who.billu,.story .ssub .who.billu{position:relative}
+.tut .talk .who.billu img,.story .ssub .who.billu img{height:130px!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1604,7 +1634,7 @@ function showCustomer(){
         <div class="rc-rays">${RAYS}</div>
         <div class="rc-badge"><div><span class="rc-frac ${frac.length>3?'wide':''}" aria-label="${o.n} out of ${o.d}"><b>${o.n}</b><i></i><b>${o.d}</b></span></div></div>
         <div class="rc-of">of a pizza</div>
-        <div class="rc-row" style="top:calc(var(--u)*1010)"><i class="ic face"><img src="${A}${o.cust}.webp" alt=""></i><b>Customer:</b><span>${name}</span></div>
+        <div class="rc-row" style="top:calc(var(--u)*1010)"><b>Customer:</b><span>${name}</span></div>
         <div class="rc-row" style="top:calc(var(--u)*1130)"><i class="ic"><img src="${A}piece_tomato.webp" alt=""></i><b>Topping:</b><span>Any topping</span></div>
       </div>
     </article>`;
@@ -2050,6 +2080,8 @@ let tutNext=null;
 function tutSay(who,text,opts={}){
   const [img,name]=SPEAK[who], w=$("tutWho");
   w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":who==="guest"?" guestc":""); w.innerHTML=`<img src="${A}${img}.webp" alt="${name}">`;
+  // the "Let's learn" title shows with the first line only, then gives its space back
+  const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
   p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
   speak(text);
@@ -2149,6 +2181,7 @@ function tutBuild(){
 }
 /* plays Tutorial 1.1; resolves when the scroll has rolled up again */
 async function runTutorial(){
+  try{ $("jump").value="T"; }catch(e){}
   const gen=++TUT.gen, o=TUT.o, ok=()=>gen===TUT.gen;
   TUT.topping=null; TUT.done=new Set(); TUT.onPick=TUT.onServe=null; tutNext=null;
   document.body.classList.add("tutoring"); tutBuild(); tutPizza(false);
