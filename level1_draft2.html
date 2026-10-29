@@ -1022,6 +1022,14 @@ body.tutoring .trail{display:none!important}
 .story .orderc .f{font-size:2.6cqw!important;margin:0!important}
 .story .orderc .f i{width:2.6cqw!important;height:.32cqw!important}
 .story .orderc span{display:none!important}
+/* every speaker badge shows only the face (crop window measured on each picture) */
+.tut .talk .who:not(.billu),.story .ssub .who:not(.billu):not(.narr){position:relative;overflow:hidden!important}
+.tut .talk .who:not(.billu) img,.story .ssub .who:not(.billu) img{position:absolute!important;height:auto!important;max-width:none!important;margin:0!important;transform:none!important;filter:none!important}
+.tut .talk .who img[src*="noori"],.story .ssub .who img[src*="noori"]{left:-27.8%!important;top:4%!important;width:162%!important}
+.tut .talk .who img[src*="giraffe"],.story .ssub .who img[src*="giraffe"]{left:0!important;top:2.5%!important;width:100%!important}
+.tut .talk .who img[src*="monty"],.story .ssub .who img[src*="monty"]{left:-22.5%!important;top:6.25%!important;width:143.75%!important}
+.tut .talk .who img[src*="ant."],.story .ssub .who img[src*="ant."]{left:-27.3%!important;top:-18.2%!important;width:157%!important}
+#done{position:fixed!important;left:50%;bottom:14px;translate:-50% 0;z-index:80;margin:0!important;padding:12px 34px!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1078,6 +1086,7 @@ body.tutoring .trail{display:none!important}
 
 </div>
 <div class="fx" id="fx"></div>
+<script>document.body.appendChild(document.getElementById("done"));   /* the DONE button sits at the bottom centre, not in the instruction box */</script>
 <div class="story" id="story" hidden>
   <div class="sfill"></div>
   <div class="sworld" id="sworld"><div class="scam" id="scam"><img class="sback" src="assets/story/shop_scene_empty.webp" alt=""><div class="sname">Billu’s Pizza Kitchen</div><div class="sdusk"></div><div class="slayer" id="slayer"></div></div></div>
@@ -2280,7 +2289,7 @@ function autoClick(el,text,extra=1500){
     if(el._auto!==tok) return;
     const ready=performance.now()-t0>=est && !(window.speechSynthesis&&speechSynthesis.speaking);
     if(!ready){ setTimeout(tick,250); return; }
-    setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.offsetParent) return; el.click(); },extra);
+    setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.getClientRects().length) return; el.click(); },extra);
   })();
 }
 
@@ -2492,7 +2501,7 @@ function sBubbleSay(e,name,text){
   if(!e||!e.isConnected||document.querySelector("#sworld>.sshot")){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
-  const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(27,6+len*.25))+"%";
+  const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(19,6+len*.25))+"%";
   bb._set=0; bb.classList.remove("on"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
     const w=$("sworld").getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
@@ -2517,6 +2526,7 @@ function sBubbleSay(e,name,text){
     const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
+    (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
     };   // placed once per line, so the bubble stays put while the speaker moves
   // wait until the speaker has arrived (entering, walking or flying in), then place the bubble and pop it in
   const tok=(STORY.bubTok=(STORY.bubTok||0)+1), moving=e.getAnimations().filter(a=>a.playState==="running");

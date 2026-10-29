@@ -1107,6 +1107,19 @@ body.tutoring .trail{display:none!important}
 .story .orderc .f{font-size:2.6cqw!important;margin:0!important}
 .story .orderc .f i{width:2.6cqw!important;height:.32cqw!important}
 .story .orderc span{display:none!important}
+/* every speaker badge shows only the face (crop window measured on each picture) */
+.tut .talk .who:not(.billu),.story .ssub .who:not(.billu):not(.narr){position:relative;overflow:hidden!important}
+.tut .talk .who:not(.billu) img,.story .ssub .who:not(.billu) img{position:absolute!important;height:auto!important;max-width:none!important;margin:0!important;transform:none!important;filter:none!important}
+.tut .talk .who img[src*="noori"],.story .ssub .who img[src*="noori"]{left:-27.8%!important;top:4%!important;width:162%!important}
+.tut .talk .who img[src*="giraffe"],.story .ssub .who img[src*="giraffe"]{left:0!important;top:2.5%!important;width:100%!important}
+.tut .talk .who img[src*="monty"],.story .ssub .who img[src*="monty"]{left:-22.5%!important;top:6.25%!important;width:143.75%!important}
+.tut .talk .who img[src*="ant."],.story .ssub .who img[src*="ant."]{left:-27.3%!important;top:-18.2%!important;width:157%!important}
+.stack .plus{font-family:var(--display);font-weight:800;font-size:clamp(26px,2.4vw,38px);line-height:1;color:var(--indigo,#23356F)}   /* the slice button: just "+" and the slice */
+/* match name tags: no name, just the picture and a brown "Ate n/d" plate */
+.eat>span.ate{color:#FFFFFF!important;background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A)!important;-webkit-text-stroke:3px var(--wood-dark);paint-order:stroke fill;
+  border-radius:14px!important;padding:4px 14px!important;font-size:clamp(16px,1.75vw,21px)!important;box-shadow:0 0 0 3px var(--wood-dark),inset 0 3px 0 rgba(255,220,170,.35),0 6px 10px rgba(0,0,0,.28)!important}
+.eat>span.ate .fr{color:#FFE08A!important;-webkit-text-stroke-width:0;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+#done{position:fixed!important;left:50%;bottom:14px;translate:-50% 0;z-index:80;margin:0!important;padding:12px 34px!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1139,6 +1152,7 @@ body.tutoring .trail{display:none!important}
   <main class="stage" id="stage"><div class="view" id="view"></div></main>
 </div>
 <div class="fx" id="fx"></div>
+<script>document.body.appendChild(document.getElementById("done"));   /* the DONE button sits at the bottom centre, not in the instruction box */</script>
 <div class="story" id="story" hidden>
   <div class="sfill"></div>
   <div class="sworld" id="sworld"><div class="scam" id="scam"><img class="sback" src="assets/story/shop_scene_empty.webp" alt=""><div class="sname">Billu’s Pizza Kitchen</div><div class="sdusk"></div><div class="slayer" id="slayer"></div></div></div>
@@ -1172,8 +1186,8 @@ const NAMES={tez:"Tez",monty:"Monty",ant:"Ant",squirrel:"Squirrel",bijli:"Bijli"
 const THE={ant:"the ant",squirrel:"the squirrel",peacock:"the peacock",mouse:"the mouse",hippo:"the hippo"};
 const who=k=>THE[k]||NAMES[k], Who=k=>{const w=who(k);return w[0].toUpperCase()+w.slice(1)};
 const MEDAL=`<svg class="medal" viewBox="0 0 80 110" role="img" aria-label="Medal">
-  <path d="M22 0h14l10 40H32z" fill="#D4473A"/><path d="M58 0H44L34 40h14z" fill="#3A55A0"/>
-  <path d="M26 0h4l10 40h-4zM50 0h4L44 40h-4z" fill="#FFFFFF" opacity=".8"/>
+  <path d="M22 0h14l10 40H32z" fill="#D4473A"/><path d="M58 0H44L34 40h14z" fill="#C23A2E"/>
+  <path d="M23 0h3l10 40h-3zM54 0h3L47 40h-3z" fill="#F6C34A"/>
   <circle cx="40" cy="72" r="30" fill="#B97410"/><circle cx="40" cy="70" r="30" fill="#F2A62C"/>
   <circle cx="40" cy="70" r="22" fill="#FBD584" stroke="#D99415" stroke-width="3"/>
   <path d="M40 56l4.2 8.6 9.5 1.4-6.9 6.7 1.6 9.4L40 77.6l-8.4 4.5 1.6-9.4-6.9-6.7 9.5-1.4z" fill="#F2A62C" stroke="#B97410" stroke-width="1.5"/>
@@ -1181,8 +1195,8 @@ const MEDAL=`<svg class="medal" viewBox="0 0 80 110" role="img" aria-label="Meda
 /* the winner's medal drops from above, swings, and settles with its ribbon round the animal's neck */
 /* where each animal's neck is in its own picture: [x, y] as fractions of the image, and how wide
    its chest is (fraction of the image width) so the medal is sized to the animal */
-const NECK={tez:[.55,.45,.42],monty:[.5,.42,.3],ant:[.52,.46,.22],squirrel:[.34,.33,.28],bijli:[.44,.34,.2],badal:[.4,.38,.2],
-  madhu:[.45,.55,.36],peacock:[.5,.39,.2],hippo:[.5,.41,.38],jhumru:[.5,.47,.3],mouse:[.5,.48,.24]};
+const NECK={tez:[.55,.45,.42],monty:[.5,.42,.36],ant:[.52,.46,.3],squirrel:[.34,.33,.34],bijli:[.44,.34,.3],badal:[.4,.38,.3],
+  madhu:[.45,.55,.4],peacock:[.5,.4,.34],hippo:[.5,.41,.42],jhumru:[.5,.47,.36],mouse:[.5,.48,.32]};
 function hangMedal(side,k){
   const who=side.querySelector(".who"), ava=who&&who.querySelector(".ava"), img=ava&&ava.querySelector("img");
   if(!img||!img.naturalWidth){ side.insertAdjacentHTML("beforeend",MEDAL); return; }
@@ -1387,10 +1401,10 @@ function showIntro(st){
 function sideHTML(sd,o,canBuild){
   return `<section class="side ${sd}" id="side-${sd}">
     <div class="who"><div class="ava"><img src="${A}${o.k}.webp" alt="${NAMES[o.k]}"></div>
-      <div class="info"><div class="tag">${NAMES[o.k]}</div>
+      <div class="info">
         <div class="eat"><span class="ate">Ate ${frac(o.n,o.d,"num-"+sd)}</span></div></div></div>
     <div class="plate" style="--pw:${plateWidth()}px"><img src="assets/draft2/board_round.svg" alt=""><div class="pie" id="pie-${sd}">${plateOverlay(0,o.d)}</div></div>
-    ${canBuild?`<button class="stack" id="stack-${sd}" aria-label="Add a one ${o.d}th slice to ${NAMES[o.k]}'s plate">${stackIcon(o.d)}<span>+ ${frac(1,o.d)} slice</span></button>`:""}
+    ${canBuild?`<button class="stack" id="stack-${sd}" aria-label="Add a one ${o.d}th slice to ${NAMES[o.k]}'s plate"><span class="plus">+</span>${stackIcon(o.d)}</button>`:""}
   </section>`;
 }
 function midHTML(st){
@@ -1538,7 +1552,7 @@ const finCard=(f,i)=>`<div class="fin" id="fin-${i}" data-i="${i}" tabindex="0" 
 function finDiag(f){ const s=diagram("round",1,f.d); return s.replace('class="diag"','class=""'); }
 /* the brown columns reach right down to the bottom edge of the screen */
 function pinColumns(){ const c=document.querySelector(".final>div:last-child"); if(!c) return;
-  c.style.transform="none"; const sl=c.querySelector(".slot")||c, gap=innerHeight-64-sl.getBoundingClientRect().bottom;   /* stop above the menu row */ c.style.transform=`translateY(${Math.max(0,gap)}px)`; }
+  c.style.transform="none"; const sl=c.querySelector(".slot")||c, gap=innerHeight-76-sl.getBoundingClientRect().bottom;   /* stop above the menu row */ c.style.transform=`translateY(${Math.max(0,gap)}px)`; }
 addEventListener("resize",()=>pinColumns());
 function showFinal(){
   setView("final",`
@@ -1672,7 +1686,7 @@ function autoClick(el,text,extra=1500){
     if(el._auto!==tok) return;
     const ready=performance.now()-t0>=est && !(window.speechSynthesis&&speechSynthesis.speaking);
     if(!ready){ setTimeout(tick,250); return; }
-    setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.offsetParent) return; el.click(); },extra);
+    setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.getClientRects().length) return; el.click(); },extra);
   })();
 }
 
@@ -1884,7 +1898,7 @@ function sBubbleSay(e,name,text){
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
-  const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(27,6+len*.25))+"%";
+  const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(19,6+len*.25))+"%";
   bb._set=0; bb.classList.remove("on"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
     const w=$("sworld").getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
@@ -1909,6 +1923,7 @@ function sBubbleSay(e,name,text){
     const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
+    (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
     };   // placed once per line, so the bubble stays put while the speaker moves
   // wait until the speaker has arrived (entering, walking or flying in), then place the bubble and pop it in
   const tok=(STORY.bubTok=(STORY.bubTok||0)+1), moving=e.getAnimations().filter(a=>a.playState==="running");
@@ -2098,7 +2113,7 @@ async function storyContext2(){
   // eaten slices (1/8 and 1/4) from "Munch, munch" on.
   const real={...STORY.cast};
   const startShot=sShot("assets/story/contest_start.webp"), sImg=()=>[...document.querySelectorAll("#sworld>.sshot img")].pop();
-  let anc=[anchor(47.5,25,10,27),anchor(18.5,35,17,30),anchor(66.5,47.5,12,17)];
+  let anc=[anchor(47,24,10,26),anchor(19.5,35.5,13,20),anchor(68.5,47.5,6.5,14)];   // the faces in the picture
   Object.assign(STORY.cast,{billu:anc[0],monty:anc[1],ant:anc[2]});
   await sLine("billu","First up, Monty and the ant! Ready… eat!");
   SFX.ding(); SFX.chomp(); sImg().src="assets/story/contest_start_eaten.webp";
@@ -2107,7 +2122,7 @@ async function storyContext2(){
   await sLine("billu","Time’s up! Monty ate 1/8. The ant ate 1/4.");
   // 6-9. Billu gives Monty the trophy (the second picture, with the eaten slices)
   const winShot=sShot("assets/story/contest_win_eaten.webp"); setTimeout(()=>startShot(),450);
-  anc.forEach(a=>a.remove()); anc=[anchor(48,25.5,11,27),anchor(19,36,18,29),anchor(67.5,47.5,11.5,17)];
+  anc.forEach(a=>a.remove()); anc=[anchor(49,25.5,10,25),anchor(21,37,10,18),anchor(68,47,7,15),anchor(16,24,9,25)];   // faces, and the trophy kept clear
   Object.assign(STORY.cast,{billu:anc[0],monty:anc[1],ant:anc[2]});
   SFX.cheer();
   await sLine("billu","8 is bigger than 4. So Monty wins!");
@@ -2231,9 +2246,9 @@ function t2Side(sd){
   const o=TUT2[sd];
   return `<section class="tsd ${sd}" id="t2-${sd}">
     <div class="who"><div class="ava"><img src="${A}${o.k}.webp" alt="${NAMES[o.k]}"></div>
-      <div class="tag" id="t2tag-${sd}">${NAMES[o.k]} ate ${frac(o.n,o.d,"t2n-"+sd)}</div></div>
+      <div class="tag" id="t2tag-${sd}">Ate ${frac(o.n,o.d,"t2n-"+sd)}</div></div>
     <div class="board2" id="t2board-${sd}"><img src="assets/draft2/board_round.svg" alt=""><div class="pie" id="t2pie-${sd}">${plateOverlay(0,o.d)}</div></div>
-    <button class="stack" id="t2stack-${sd}" aria-label="Add a one ${o.d}th slice to ${NAMES[o.k]}'s plate">${stackIcon(o.d)}<span>+ ${frac(1,o.d)} slice</span></button>
+    <button class="stack" id="t2stack-${sd}" aria-label="Add a one ${o.d}th slice to ${NAMES[o.k]}'s plate"><span class="plus">+</span>${stackIcon(o.d)}</button>
   </section>`;
 }
 function t2Draw(sd,pop){ $("t2pie-"+sd).innerHTML=plateOverlay(TUT2.cnt[sd],TUT2[sd].d,pop); }
