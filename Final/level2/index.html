@@ -1390,6 +1390,11 @@ const Sound=(()=>{ let ctx=null;
     bad(){tone(260,0,.18,"sawtooth",.08);tone(190,.13,.26,"sawtooth",.08)},
     win(){[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,i*.1,.45,"triangle",.14))} };
 })();
+/* Noori talks only while she has a line: nooriTalk(text) starts her talking, nooriTalk(null) when someone else speaks */
+const NT={on:false,until:0};
+function nooriTalk(text){ if(!text){ NT.on=false; NT.until=0; return; }
+  const words=String(text).replace(/<[^>]+>/g," ").split(/\s+/).filter(Boolean).length;
+  NT.on=true; NT.until=performance.now()+Math.max(1200,words*300+400); }
 function speak(text){ if(!window.speechSynthesis) return;
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; speechSynthesis.speak(u); }catch(e){} }
 
@@ -1406,7 +1411,7 @@ const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 let onDone=null;
 function say(text,tone,speaker){
-  S.sayPlain=text; $("say").innerHTML=fracify(text); $("say").className="say"+(tone?" "+tone:"");
+  nooriTalk(speaker==="billu"?null:text); S.sayPlain=text; $("say").innerHTML=fracify(text); $("say").className="say"+(tone?" "+tone:"");
   $("guideImg").src = speaker==="billu" ? A+"billu_idle.webp" : A+"noori.webp";
   $("guide").classList.toggle("billu",speaker==="billu");
 }
@@ -2000,7 +2005,7 @@ function sBubbleSay(e,name,text){
     if(tok!==STORY.bubTok||!bb.isConnected) return; place(); void bb.offsetWidth; bb.classList.add("on"); });
 }
 /* show a line under the scene; resolves when NEXT is tapped */
-function sLine(who,text){
+function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   const [name,img,cls]=SPK[who], w=$("sWho");
   w.className="who "+cls; w.innerHTML=img?`<img src="${A}${img}.webp" alt="${name}">`:NARR_ICON;
   const p=$("sLine"); p.className=""; void p.offsetWidth; p.className="in";
@@ -2282,7 +2287,7 @@ const easeInOut=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 const SPEAK={noori:["noori","Noori"],billu:["billu_idle","Billu"]};
 let tutNext=null;
 const ARROW_T='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-function tutSay(who,text,opts={}){
+function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const [img,name]=SPEAK[who], w=$("tutWho");
   w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":""); w.innerHTML=`<img src="${A}${img}.webp" alt="${name}">`;
   // the "Let's learn" title shows with the first line only, then gives its space back
@@ -2457,7 +2462,11 @@ if(location.hash==="#play") startLevel2();
 (()=>{ const OPEN=[7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,27,28,29,30,31];   // only the frames with her eyes open
   const FR=OPEN.map(i=>`assets/web/noori_anim/${i}.webp`); FR.forEach(s=>{ new Image().src=s; });
   const isNoori=s=>/noori(_point)?\.webp|noori_anim\//.test(s||""); let f=0;
-  setInterval(()=>{ f=(f+1)%FR.length; document.querySelectorAll("img").forEach(im=>{ if(isNoori(im.getAttribute("src"))) im.src=FR[f]; }); },120); })();
+  const REST="assets/web/noori_anim/10.webp";
+  setInterval(()=>{ const now=performance.now(), voice=!!(window.speechSynthesis&&speechSynthesis.speaking);
+    const talking=NT.on && (now<NT.until || voice); if(NT.on && !talking) NT.on=false;
+    const src=talking ? FR[f=(f+1)%FR.length] : REST;
+    document.querySelectorAll("img").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 </script>
 <script>
 /* QA panel: built from the jump menu's groups; picking a chip makes the same jump the dropdown did */
