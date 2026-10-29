@@ -1120,6 +1120,8 @@ body.tutoring .trail{display:none!important}
   border-radius:14px!important;padding:4px 14px!important;font-size:clamp(16px,1.75vw,21px)!important;box-shadow:0 0 0 3px var(--wood-dark),inset 0 3px 0 rgba(255,220,170,.35),0 6px 10px rgba(0,0,0,.28)!important}
 .eat>span.ate .fr{color:#FFE08A!important;-webkit-text-stroke-width:0;text-shadow:0 2px 0 rgba(0,0,0,.35)}
 #done{position:fixed!important;left:50%;bottom:14px;translate:-50% 0;z-index:80;margin:0!important;padding:12px 34px!important}
+.ava.medalpic img{width:100%!important;height:100%!important;max-height:none!important;margin:0!important;object-fit:cover!important;border-radius:50%;animation:medalPic .6s cubic-bezier(.3,1.5,.5,1) both!important}
+@keyframes medalPic{from{transform:scale(.6);opacity:0}}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1197,8 +1199,10 @@ const MEDAL=`<svg class="medal" viewBox="0 0 80 110" role="img" aria-label="Meda
    its chest is (fraction of the image width) so the medal is sized to the animal */
 const NECK={tez:[.55,.45,.42],monty:[.5,.42,.36],ant:[.52,.46,.3],squirrel:[.34,.33,.34],bijli:[.44,.34,.3],badal:[.4,.38,.3],
   madhu:[.45,.55,.4],peacock:[.5,.4,.34],hippo:[.5,.41,.42],jhumru:[.5,.47,.36],mouse:[.5,.48,.32]};
+const MEDAL_PIC={peacock:"peacock_medal.webp"};
 function hangMedal(side,k){
   const who=side.querySelector(".who"), ava=who&&who.querySelector(".ava"), img=ava&&ava.querySelector("img");
+  if(img&&MEDAL_PIC[k]){ img.src=A+MEDAL_PIC[k]; ava.classList.add("medalpic"); return; }   // a supplied picture of the winner wearing the medal
   if(!img||!img.naturalWidth){ side.insertAdjacentHTML("beforeend",MEDAL); return; }
   who.insertAdjacentHTML("beforeend",MEDAL.replace('class="medal"','class="medal neck"'));
   const m=who.lastElementChild, [nx,ny,cw]=NECK[k]||[.5,.42,.3];
