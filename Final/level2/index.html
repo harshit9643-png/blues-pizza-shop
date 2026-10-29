@@ -1168,6 +1168,13 @@ body:has(.view.final) header.top,body:has(.view.podium) header.top{top:12px!impo
 body:has(.view.final) #done{display:none!important}
 body:has(.view.final) .qap{padding-top:78px!important}
 body:has(.view.final) #app{padding-bottom:0!important}
+/* Golden Trophy Final intro: each finalist pops up holding the trophy */
+.intro:has(.lineup.trophies){align-content:center!important}
+.intro .lineup.trophies{width:min(98%,1600px);align-items:flex-end}
+.intro .lineup.trophies img{height:clamp(220px,58vh,520px);max-width:19%;object-fit:contain;object-position:50% 100%}
+.intro .lineup.trophies{width:calc(100vw - 110px)!important;max-width:1600px;justify-content:space-evenly!important;gap:1vw!important}
+.intro .lineup.trophies img{max-width:18%!important}
+.podium .step.top img.a{height:clamp(190px,40vh,380px)!important}   /* the champion holds the trophy up */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1581,8 +1588,7 @@ function pickCard(st,sd){
 
 /* ---------- the Golden Trophy Final ---------- */
 function showFinalIntro(){
-  setView("intro",`<img class="trophy" src="${A}trophy.svg" alt="The golden trophy">
-    <div class="lineup">${FINALISTS.map((f,i)=>`<img src="${A}${f.k}.webp" alt="${NAMES[f.k]}" style="animation-delay:${400+i*450}ms,${1300+i*450}ms">`).join("")}</div>`);
+  setView("intro",`<div class="lineup trophies">${FINALISTS.map((f,i)=>`<img src="${A}${f.k}_trophy.webp" alt="${NAMES[f.k]}" style="animation-delay:${400+i*450}ms,${1300+i*450}ms">`).join("")}</div>`);
   Sound.drum(); say("The Golden Trophy Final! Our top medal winners eat one more time!","","billu"); speak(S.sayPlain);
   button("next",true,true,next);
 }
@@ -1710,8 +1716,8 @@ function showChampion(){
   const order=[["squirrel",4],["hippo",2],["ant",1],["tez",3],["bijli",5]];      // 1/2 > 1/3 > 1/4 > 1/5 > 1/6
   const H={1:"clamp(150px,32vh,300px)",2:"clamp(110px,23vh,220px)",3:"clamp(86px,17vh,165px)",4:"clamp(62px,12vh,115px)",5:"clamp(46px,8vh,80px)"};
   setView("podium",`<div class="steps">${order.map(([k,p])=>`<div class="step ${p===1?'top':''}">
-      <img class="a" src="${A}${k}.webp" alt="${NAMES[k]}">
-      <div class="blk" style="height:${H[p]}">${p===1?`<img class="trophy" src="${A}trophy.svg" alt="Golden trophy">`:""}<span>${p}</span></div></div>`).join("")}</div>`);
+      <img class="a" src="${A}${k}${p===1?"_trophy":""}.webp" alt="${NAMES[k]}">
+      <div class="blk" style="height:${H[p]}"><span>${p}</span></div></div>`).join("")}</div>`);
   Sound.win(); confetti(); say("The ant is our Big Eater Champion!  Monty (from the crowd): “Beaten by an ant… again!”","good","noori"); speak("The ant is our Big Eater Champion!");
   button("next",true,true,playEnding);
 }
