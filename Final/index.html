@@ -1066,6 +1066,10 @@ body.tutoring .top>.qa{visibility:visible!important;pointer-events:auto!importan
 .tut .check2.on{animation:none!important}   /* CHECK PLATES stays still in one place */
 header.top{z-index:450!important}   /* home + QA stay tappable above the QA panel */
 .qap{padding-bottom:90px!important}
+/* tutorials: the jungle behind the board is blurred */
+.tut{background:#7FC4E8!important}
+.tut{isolation:isolate}
+.tut::before{content:"";position:absolute;inset:-30px;z-index:-1;background:#7FC4E8 url("assets/web/backdrop.webp") center/cover!important;opacity:1!important;filter:blur(7px) brightness(.95);pointer-events:none}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
