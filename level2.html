@@ -1680,7 +1680,13 @@ function pickChampion(i){
     S.phase="champ"; $("stage").classList.remove("dim"); const c=$("fin-"+i); c.classList.add("win");
     c.insertAdjacentHTML("beforeend",`<img class="medal" src="${A}trophy.svg" alt="Golden trophy" style="right:-14px;top:-30px">`);
     Sound.win(); confetti(); say("Ant: “One big piece, one golden trophy!”","good","billu"); speak(S.sayPlain);
-    button("next",true,true,next); return;
+    button("next",true,true,next);
+    // the button is hidden on this screen: move on by itself 2 s after the line has been spoken
+    const g=S.gen, t0=performance.now();
+    (function go(){ if(!live(g)||S.phase!=="champ") return;
+      if(performance.now()-t0<1200 || (window.speechSynthesis&&speechSynthesis.speaking)){ setTimeout(go,250); return; }
+      setTimeout(()=>{ if(live(g)&&S.phase==="champ") next(); },2000); })();
+    return;
   }
   S.wTries++; Sound.bad(); guideMood("hmm"); bump($("fin-"+i),"bad",600);
   if(S.wTries===1) say("Hmm, look at the order again. Who ate the most?","bad","noori");
