@@ -1094,7 +1094,7 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 #app{padding-right:64px!important;padding-bottom:64px!important}   /* room for the dots column and the menu row */
 body.tutoring .trail{display:none!important}
 .final .slot:nth-child(n),.final .slot:has(.fin){--h:max(150px,calc(100vh - 2 * var(--sq) - 314px))}
-.final .row5:has(.slot){width:calc(100vw - 120px)!important}
+.final .row5:has(.slot){width:calc(100vw - 80px)!important}
 .trail:empty{display:none!important}
 /* Noori's badge shows only her face, centred: the head is the square x 138-418, y 0-280 of the 584x512 picture */
 .guide:not(.billu){overflow:hidden!important;place-items:start!important}
@@ -1109,6 +1109,10 @@ body.tutoring .trail{display:none!important}
 .story .ssub .who.billu img{height:90px!important}
 .story .ssub p{font-size:clamp(14px,1.25vw,17px)!important;line-height:1.3!important}
 .story .snext{visibility:hidden!important;position:absolute!important;right:0;pointer-events:none!important}
+/* progress dots: small column on the left edge */
+#app{padding-right:16px!important;padding-left:44px!important}
+.trail{right:auto!important;left:8px!important;gap:4px!important;padding:6px 4px!important}
+.trail .tok{width:18px!important;height:18px!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
