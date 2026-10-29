@@ -1043,6 +1043,29 @@ body.tutoring .trail{display:none!important}
 .tut .talk .who img[src*="monty"],.story .ssub .who img[src*="monty"]{left:-22.5%!important;top:6.25%!important;width:143.75%!important}
 .tut .talk .who img[src*="ant."],.story .ssub .who img[src*="ant."]{left:-27.3%!important;top:-18.2%!important;width:157%!important}
 #done{position:fixed!important;left:50%;bottom:14px;translate:-50% 0;z-index:80;margin:0!important;padding:12px 34px!important}
+/* QA panel: a small round QA button (instead of the big dropdown) opens a side panel to jump anywhere */
+.top>.jump{display:none!important}
+.qa{width:52px;height:52px;border-radius:50%;flex:0 0 auto;font-family:var(--display);font-weight:800;font-size:17px;letter-spacing:.04em;color:#F6C34A!important;
+  background:rgba(43,35,82,.92)!important;box-shadow:0 0 0 2px rgba(246,195,74,.55),0 6px 14px rgba(0,0,0,.3);cursor:pointer}
+.qa.on{background:#F6C34A!important;color:#2B2352!important}
+body.tutoring .top>.qa{visibility:visible!important;pointer-events:auto!important}
+.qap{position:fixed;top:0;right:0;bottom:0;width:min(360px,92vw);z-index:400;background:#251D45;color:#F4EFFF;box-shadow:-10px 0 30px rgba(0,0,0,.4);
+  padding:18px 18px 28px;overflow-y:auto;transform:translateX(105%);transition:transform .28s cubic-bezier(.3,.9,.3,1);font-family:var(--display)}
+.qap.open{transform:none}
+.qap .hd{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.qap h2{margin:0;font-size:22px;color:#F6C34A;line-height:1.1}
+.qap .now{font-family:var(--body);font-weight:700;font-size:13px;opacity:.85;margin-top:3px}
+.qap .x{margin-left:auto;width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.35);color:#fff;font-size:18px;line-height:1;flex:0 0 auto;cursor:pointer}
+.qap .grp{border-top:1px solid rgba(255,255,255,.14);padding:12px 0 4px}
+.qap h3{margin:0 0 8px;font-size:16px;color:#F6C34A}
+.qap .chips{display:flex;flex-wrap:wrap;gap:8px}
+.qap .chip2{min-width:40px;height:40px;padding:0 14px;border-radius:999px;border:2px solid rgba(255,255,255,.4);color:#fff;font-family:var(--display);font-weight:800;font-size:14px;cursor:pointer;background:transparent}
+.qap .chip2.n{width:40px;padding:0;border-radius:50%}
+.qap .chip2:hover{background:rgba(255,255,255,.1)}
+.qap .chip2.cur{background:#F6C34A;border-color:#F6C34A;color:#2B2352}
+.tut .check2.on{animation:none!important}   /* CHECK PLATES stays still in one place */
+.top{z-index:450!important}   /* home + QA stay tappable above the QA panel */
+.qap{padding-bottom:90px!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2817,6 +2840,28 @@ if(location.hash==="#story") startLevel("1.1",true);
   const FR=OPEN.map(i=>`assets/web/noori_anim/${i}.webp`); FR.forEach(s=>{ new Image().src=s; });
   const isNoori=s=>/noori(_point)?\.webp|noori_anim\//.test(s||""); let f=0;
   setInterval(()=>{ f=(f+1)%FR.length; document.querySelectorAll("img").forEach(im=>{ if(isNoori(im.getAttribute("src"))) im.src=FR[f]; }); },120); })();
+</script>
+<script>
+/* QA panel: built from the jump menu's groups; picking a chip makes the same jump the dropdown did */
+(()=>{ const sel=document.getElementById("jump"), top=document.querySelector(".top"); if(!sel||!top) return;
+  const btn=document.createElement("button"); btn.className="qa"; btn.textContent="QA"; btn.setAttribute("aria-label","Open the QA panel");
+  top.appendChild(btn);
+  const pan=document.createElement("aside"); pan.className="qap"; pan.setAttribute("aria-label","QA panel"); document.body.appendChild(pan);
+  const short=t=>{ const seg=t.split(" · "); let m=seg[0].match(/^(Match|Round) (\d+)$/); if(m) return [m[2],1];
+    const rest=seg.slice(1).join(" · "); m=rest.match(/^(\d+)\. /); if(m) return [m[1],1];
+    if(/[▸◂]$/.test(t)) return [seg[0]+(t.endsWith("▸")?" ▸":" ◂"),0];
+    return [rest||t,0]; };
+  const build=()=>{ const cur=sel.value, curT=(sel.selectedOptions[0]||{}).text||"";
+    pan.innerHTML=`<div class="hd"><div><h2>QA panel</h2><div class="now">Now: ${curT}</div></div><button class="x" aria-label="Close">✕</button></div>`+
+      [...sel.querySelectorAll("optgroup")].map(g=>`<div class="grp"><h3>${g.label}</h3><div class="chips">${[...g.querySelectorAll("option")].map(o=>{
+        const [lab,num]=short(o.text); return `<button class="chip2${num?" n":""}${o.value===cur?" cur":""}" data-v="${o.value}" title="${o.text.replace(/"/g,"&quot;")}">${lab}</button>`; }).join("")}</div></div>`).join("");
+  };
+  const open=v=>{ if(v) build(); pan.classList.toggle("open",v); btn.classList.toggle("on",v); };
+  btn.addEventListener("click",()=>open(!pan.classList.contains("open")));
+  pan.addEventListener("click",e=>{ if(e.target.closest(".x")){ open(false); return; }
+    const c=e.target.closest(".chip2"); if(!c) return; open(false);
+    sel.value=c.dataset.v; sel.dispatchEvent(new Event("change")); });
+})();
 </script>
 
 </body>
