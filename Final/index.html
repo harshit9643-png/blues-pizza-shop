@@ -1026,7 +1026,10 @@ body.tutoring .trail{display:none!important}
 .trail .tok{width:18px!important;height:18px!important}
 /* receipt: no order-number plaque, and smaller */
 .rcpt{background-image:url("assets/draft2/receipt_frame_plain.webp")!important;width:min(100%,272px,calc((100vh - 270px) * .54))!important}
-@media (min-width:900px){ .boardwrap{--bsz:min(calc(100vh - 290px),38vw)} }   /* pizza board a little smaller */
+@media (min-width:900px){ .boardwrap{--bsz:min(calc(100vh - 330px),34vw)} }   /* pizza board a little smaller */
+/* the instruction box and the story narrator box are only as wide as their text */
+.card{width:fit-content!important;max-width:min(940px,calc(100vw - 120px))!important}
+.story .ssub{width:fit-content!important;max-width:min(760px,calc(100% - 230px))!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
