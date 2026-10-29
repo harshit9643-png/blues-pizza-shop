@@ -2304,13 +2304,15 @@ let FLOW=0;   // bumped when the menu takes over, so a running story -> tutorial
 
 const STOP={stop:true};
 /* auto-advance: a NEXT that is not tapped presses itself once the line has been read out, plus a short pause */
-function autoClick(el,text,extra=1500){
+function autoClick(el,text,extra=2000){
   if(!el) return; const tok=(el._auto||0)+1; el._auto=tok; const html=el.innerHTML;
   const words=String(text||"").replace(/<[^>]+>/g," ").split(/\s+/).filter(Boolean).length;
-  const est=Math.max(1800,words*330+600), t0=performance.now();
+  const est=Math.max(1400,words*240+300), t0=performance.now(); let spoke=false;
+  // move on 2 s after the voice finishes; without a voice, after a reading-time estimate
   (function tick(){
     if(el._auto!==tok) return;
-    const ready=performance.now()-t0>=est && !(window.speechSynthesis&&speechSynthesis.speaking);
+    const talking=!!(window.speechSynthesis&&speechSynthesis.speaking), t=performance.now()-t0; if(talking) spoke=true;
+    const ready=spoke ? !talking : t>=1200 && t>=est;
     if(!ready){ setTimeout(tick,250); return; }
     setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.getClientRects().length) return; el.click(); },extra);
   })();
