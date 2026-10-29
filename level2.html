@@ -1079,7 +1079,6 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .tut .skip{top:12px!important}
 #app{padding-right:64px!important;padding-bottom:64px!important}   /* room for the dots column and the menu row */
 body.tutoring .trail{display:none!important}
-.final .slot:nth-child(n),.final .slot:has(.fin){--h:max(150px,calc(100vh - 2 * var(--sq) - 314px))}
 .final .row5:has(.slot){width:calc(100vw - 80px)!important}
 .trail:empty{display:none!important}
 /* Noori's badge shows only her face, centred: the head is the square x 138-418, y 0-280 of the 584x512 picture */
@@ -1150,6 +1149,11 @@ body.tutoring .top>.qa{visibility:visible!important;pointer-events:auto!importan
 .tut .check2.on{animation:none!important}   /* CHECK PLATES stays still in one place */
 .top{z-index:450!important}   /* home + QA stay tappable above the QA panel */
 .qap{padding-bottom:90px!important}
+/* the Final ordering screen: Home + QA at the top right, no CHECK ORDER button (it checks by itself), columns down to the bottom */
+body:has(.view.final) .top{top:12px!important;bottom:auto!important}
+body:has(.view.final) #done{display:none!important}
+body:has(.view.final) .qap{padding-top:78px!important}
+body:has(.view.final) #app{padding-bottom:0!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1584,7 +1588,7 @@ const finCard=(f,i)=>`<div class="fin" id="fin-${i}" data-i="${i}" tabindex="0" 
 function finDiag(f){ const s=diagram("round",1,f.d); return s.replace('class="diag"','class=""'); }
 /* the brown columns reach right down to the bottom edge of the screen */
 function pinColumns(){ const c=document.querySelector(".final>div:last-child"); if(!c) return;
-  c.style.transform="none"; const sl=c.querySelector(".slot")||c, gap=innerHeight-76-sl.getBoundingClientRect().bottom;   /* stop above the menu row */ c.style.transform=`translateY(${Math.max(0,gap)}px)`; }
+  c.style.transform="none"; const sl=c.querySelector(".slot")||c, gap=innerHeight-sl.getBoundingClientRect().bottom; c.style.transform=`translateY(${Math.max(0,gap)}px)`; }
 addEventListener("resize",()=>pinColumns());
 function showFinal(){
   setView("final",`
@@ -1608,6 +1612,7 @@ function putIn(card,slot){
   else home.appendChild(card);
   card.classList.remove("sel","bad"); S.sel=null; Sound.pick();
   button("order",placed().every(x=>x!==null),placed().every(x=>x!==null),checkOrder);
+  if(placed().every(x=>x!==null)){ const g=S.gen; setTimeout(()=>{ if(live(g)&&S.phase==="order"&&placed().every(x=>x!==null)) checkOrder(); },700); }   // checks by itself once every card is placed
 }
 function wireFinal(){
   const view=$("view");
