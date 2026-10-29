@@ -1071,7 +1071,7 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .tut .talk .who.billu img,.story .ssub .who.billu img{height:130px!important}
 /* layout: instruction box top-left (where the menu was), home + menu bottom-right, progress dots down the right edge, no star counter */
 #app{grid-template-rows:auto minmax(0,1fr)!important}
-.top{position:fixed!important;right:14px;bottom:12px;z-index:220!important}
+header.top{position:fixed!important;right:14px;bottom:12px;z-index:220!important}
 .stars{display:none!important}
 .trail{position:fixed!important;right:14px;top:50%;translate:0 -50%;flex-direction:column;margin:0!important;padding:10px 7px!important;z-index:200}
 .card{justify-self:start!important;margin-left:4px}
@@ -1147,10 +1147,10 @@ body.tutoring .top>.qa{visibility:visible!important;pointer-events:auto!importan
 .qap .chip2:hover{background:rgba(255,255,255,.1)}
 .qap .chip2.cur{background:#F6C34A;border-color:#F6C34A;color:#2B2352}
 .tut .check2.on{animation:none!important}   /* CHECK PLATES stays still in one place */
-.top{z-index:450!important}   /* home + QA stay tappable above the QA panel */
+header.top{z-index:450!important}   /* home + QA stay tappable above the QA panel */
 .qap{padding-bottom:90px!important}
 /* the Final ordering screen: Home + QA at the top right, no CHECK ORDER button (it checks by itself), columns down to the bottom */
-body:has(.view.final) .top{top:12px!important;bottom:auto!important}
+body:has(.view.final) header.top,body:has(.view.podium) header.top{top:12px!important;bottom:auto!important}
 body:has(.view.final) #done{display:none!important}
 body:has(.view.final) .qap{padding-top:78px!important}
 body:has(.view.final) #app{padding-bottom:0!important}
