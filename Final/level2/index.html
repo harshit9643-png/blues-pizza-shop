@@ -1083,6 +1083,19 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .guide.billu img,.tut .talk .who.billu img,.story .ssub .who.billu img{transform:translateX(-66%)!important}
 .tut .talk .who.billu,.story .ssub .who.billu{position:relative}
 .tut .talk .who.billu img,.story .ssub .who.billu img{height:130px!important}
+/* layout: instruction box top-left (where the menu was), home + menu bottom-right, progress dots down the right edge, no star counter */
+#app{grid-template-rows:auto minmax(0,1fr)!important}
+.top{position:fixed!important;right:14px;bottom:12px;z-index:220!important}
+.stars{display:none!important}
+.trail{position:fixed!important;right:14px;top:50%;translate:0 -50%;flex-direction:column;margin:0!important;padding:10px 7px!important;z-index:200}
+.card{justify-self:start!important;margin-left:4px}
+.story .ssub{left:14px!important;top:12px!important;translate:none!important;width:min(1100px,calc(100% - 230px))!important}
+.tut .skip{top:12px!important}
+#app{padding-right:64px!important;padding-bottom:64px!important}   /* room for the dots column and the menu row */
+body.tutoring .trail{display:none!important}
+.final .slot:nth-child(n),.final .slot:has(.fin){--h:max(150px,calc(100vh - 2 * var(--sq) - 314px))}
+.final .row5:has(.slot){width:calc(100vw - 120px)!important}
+.trail:empty{display:none!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1514,7 +1527,7 @@ const finCard=(f,i)=>`<div class="fin" id="fin-${i}" data-i="${i}" tabindex="0" 
 function finDiag(f){ const s=diagram("round",1,f.d); return s.replace('class="diag"','class=""'); }
 /* the brown columns reach right down to the bottom edge of the screen */
 function pinColumns(){ const c=document.querySelector(".final>div:last-child"); if(!c) return;
-  c.style.transform="none"; const sl=c.querySelector(".slot")||c, gap=innerHeight-sl.getBoundingClientRect().bottom; c.style.transform=`translateY(${Math.max(0,gap)}px)`; }
+  c.style.transform="none"; const sl=c.querySelector(".slot")||c, gap=innerHeight-64-sl.getBoundingClientRect().bottom;   /* stop above the menu row */ c.style.transform=`translateY(${Math.max(0,gap)}px)`; }
 addEventListener("resize",()=>pinColumns());
 function showFinal(){
   setView("final",`

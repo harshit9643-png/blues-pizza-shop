@@ -996,6 +996,17 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .guide.billu img,.tut .talk .who.billu img,.story .ssub .who.billu img{transform:translateX(-66%)!important}
 .tut .talk .who.billu,.story .ssub .who.billu{position:relative}
 .tut .talk .who.billu img,.story .ssub .who.billu img{height:130px!important}
+/* layout: instruction box top-left (where the menu was), home + menu bottom-right, progress dots down the right edge, no star counter */
+#app{grid-template-rows:auto minmax(0,1fr)!important}
+.top{position:fixed!important;right:14px;bottom:12px;z-index:220!important}
+.stars{display:none!important}
+.trail{position:fixed!important;right:14px;top:50%;translate:0 -50%;flex-direction:column;margin:0!important;padding:10px 7px!important;z-index:200}
+.card{justify-self:start!important;margin-left:4px}
+.story .ssub{left:14px!important;top:12px!important;translate:none!important;width:min(1100px,calc(100% - 230px))!important}
+.tut .skip{top:12px!important}
+#app{padding-right:64px!important;padding-bottom:64px!important}   /* room for the dots column and the menu row */
+body.tutoring .trail{display:none!important}
+.trail:empty{display:none!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
