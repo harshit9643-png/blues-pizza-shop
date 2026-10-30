@@ -1106,7 +1106,7 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .tut .learn .li{display:grid;justify-items:center;align-content:center;gap:clamp(6px,1vh,12px);position:relative;flex:0 0 auto}
 .tut .learn .li.row{grid-auto-flow:column;align-items:center;gap:clamp(16px,2.4vw,44px)}
 .tut .learn .pz{width:var(--ls)!important;height:auto;aspect-ratio:1;animation:lIn .55s cubic-bezier(.3,1.4,.5,1) both}
-.tut .learn .pz .part{transition:transform .8s cubic-bezier(.4,0,.2,1),opacity .6s}
+.tut .learn .pz .part{transition:transform 1.4s cubic-bezier(.4,0,.2,1),opacity 1.1s}
 .tut .learn .pz .part.lit{filter:brightness(1.12) drop-shadow(0 0 14px #FFD45A)}
 .tut .learn .pz .part.gone{opacity:0}
 @keyframes lIn{from{opacity:0;transform:scale(.6)}}
@@ -2228,7 +2228,7 @@ function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
   p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
   speak(text);
-  const b=$("tutNext"); b.hidden=!!opts.wait; b.innerHTML=(opts.label||"NEXT")+" "+ARROW_T; b._auto=(b._auto||0)+1; if(!opts.wait) autoClick(b,text);
+  const b=$("tutNext"); b.hidden=!!opts.wait; b.innerHTML=(opts.label||"NEXT")+" "+ARROW_T; b._auto=(b._auto||0)+1; if(!opts.wait) autoClick(b,text,opts.extra);
   return opts.wait ? Promise.resolve() : new Promise(res=>{ tutNext=res; });
 }
 const ARROW_T='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
@@ -2341,13 +2341,13 @@ function lDraw(svg,d,o={}){
 /* roll the cutter along the lines, then show the pizza in equal parts */
 async function lCut(svg,o={}){
   svg.querySelectorAll(".dot").forEach(e=>e.classList.add("on"));
-  await wait(o.pause===undefined?500:o.pause);
+  await wait((o.pause===undefined?500:o.pause)*1.8);
   const lines=[...svg.querySelectorAll(".cutl")], over=svg.querySelector(".over");
   over.innerHTML=`<image href="${HD}pizza_cutter.webp" x="-44" y="-40" width="170" height="83"/>`; const cu=over.firstChild;
   for(const L of lines){
     const x1=+L.getAttribute("x1"), y1=+L.getAttribute("y1"), x2=+L.getAttribute("x2"), y2=+L.getAttribute("y2"), len=+L.getAttribute("stroke-dasharray");
     const a=Math.atan2(y2-y1,x2-x1)*180/Math.PI+180; if(Sound.cut) Sound.cut();
-    await tw(o.ms||520,t=>{ cu.setAttribute("transform",`translate(${x1+(x2-x1)*t} ${y1+(y2-y1)*t}) rotate(${a})`); L.setAttribute("stroke-dashoffset",len*(1-t)); },easeInOut);
+    await tw((o.ms||520)*1.7,t=>{ cu.setAttribute("transform",`translate(${x1+(x2-x1)*t} ${y1+(y2-y1)*t}) rotate(${a})`); L.setAttribute("stroke-dashoffset",len*(1-t)); },easeInOut);
   }
   lDraw(svg,svg._d,{cut:true});
 }
@@ -2356,14 +2356,15 @@ function lTop(svg,i){ lPart(svg,i).querySelector(".tops").innerHTML=piecesSVG(sv
 function lLit(svg,i,on=true){ lPart(svg,i).classList.toggle("lit",on); }
 function lPulse(svg){ svg.querySelectorAll(".part").forEach((el,i)=>setTimeout(()=>{ el.classList.remove("pulse"); void el.getBBox(); el.classList.add("pulse"); },i*200)); }
 /* the topped parts slide out of the pizza (towards dx,dy in pizza units) and fade */
-function lServe(svg,parts,dx,dy){ parts.forEach((i,k)=>{ const el=lPart(svg,i); setTimeout(()=>{ el.style.transform=`translate(${dx}px,${dy}px) scale(.35)`; el.classList.add("gone"); },k*140); }); }
+function lServe(svg,parts,dx,dy){ parts.forEach((i,k)=>{ const el=lPart(svg,i); setTimeout(()=>{ el.style.transform=`translate(${dx}px,${dy}px) scale(.35)`; el.classList.add("gone"); },k*300); }); }
 const lStage=(html,cls="")=>{ const s=$("tutLearn"); s.className="learn "+cls; s.innerHTML=html; return s; };
 const lGlow=(card,which,on=true)=>card.querySelector(which==="n"?"b.n":"b.d").classList.toggle("lit",on);
 
 async function runLearning(ok){
   const page=document.querySelector(".tut .page"), ttl=document.querySelector(".tut .ttl");
   page.classList.add("learning"); ttl.innerHTML="Let's learn: <b>What is a fraction?</b>"; ttl.classList.remove("gone"); ttl._n=0;
-  const say=(who,t)=>tutSay(who,t);
+  const say=(who,t)=>tutSay(who,t,{extra:4000});   // the lesson goes slowly: 4 s to look after each line
+  const wait=ms=>new Promise(r=>setTimeout(r,ms*1.8));
   // 1. one whole
   lStage(`<div class="li">${lPizzaHTML("lA")}<div class="lword">1 whole</div></div>`); lDraw($("lA"),2);
   await say("noori","This is one whole."); if(!ok()) return;
