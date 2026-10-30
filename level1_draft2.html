@@ -1013,7 +1013,7 @@ body.tutoring .trail{display:none!important}
 .trail .tok{width:18px!important;height:18px!important}
 /* receipt: no order-number plaque, and smaller */
 .rcpt{background-image:url("assets/draft2/receipt_frame_plain.webp")!important;width:min(100%,272px,calc((100vh - 270px) * .54))!important}
-@media (min-width:900px){ .boardwrap{--bsz:min(calc(100vh - 330px),34vw)} }   /* pizza board a little smaller */
+@media (min-width:900px){ .boardwrap{--bsz:min(calc(100vh - 282px),37vw)} }   /* pizza board (about half an inch bigger than before) */
 /* the instruction box and the story narrator box are only as wide as their text */
 .card{width:fit-content!important;max-width:min(940px,calc(100vw - 120px))!important}
 .story .ssub{width:fit-content!important;max-width:min(760px,calc(100% - 230px))!important}
@@ -1120,6 +1120,21 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .tut .lqueue .li{gap:10px}
 .tut .lqueue .lf{font-size:clamp(24px,3.6vh,34px);padding:6px 14px 8px}
 .tut .learn #lAc,.tut .learn #lBc,.tut .learn [id^="lDc"],.tut .learn [id^="lNc"]{min-height:calc(10vh + 34px);display:grid;place-items:start center}   /* the card's space is kept, so pizzas stay level */
+/* tutorial board fills the height: top log at the top edge, bottom log at the bottom edge; jungle only at the sides
+   (board_only.webp is 880 tall: ropes 0-50, logs+board 50-880) */
+.tut .rig{top:0!important;bottom:0!important;background-size:100% 108.6%!important;background-position:center -6.17vh!important}
+.tut .sheet{top:8.8%!important;height:78.9%!important}
+/* tutorial + learning pizzas on the same wooden paddle as the levels */
+.tut .tpzw{position:relative;display:grid;place-items:center}
+.tut .tpzw>.tpaddle{position:absolute;left:-9.35%;top:-3.4%;width:112.6%;max-width:none;height:auto;pointer-events:none;z-index:0;filter:drop-shadow(0 10px 10px rgba(0,0,0,.35))}
+.tut .tpzw>.pz{position:relative;z-index:1;filter:drop-shadow(0 6px 6px rgba(60,25,10,.35))!important}
+/* dragging a topping bowl in the tutorial */
+.tdrag{position:fixed;z-index:500;pointer-events:none;transform:translate(-50%,-50%) scale(1.05);filter:drop-shadow(0 10px 10px rgba(0,0,0,.45))}
+.tut .pz .part.over .hl{fill:rgba(255,226,120,.45)}
+.tut .tp{touch-action:none;cursor:grab}
+/* receipt: no topping row now, so the fraction badge sits centred in the paper under the name */
+.rc-rays,.rc-badge{top:calc(var(--u)*860)!important}
+.rc-of{top:calc(var(--u)*1012)!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1765,7 +1780,6 @@ function showCustomer(){
         <div class="rc-rays">${RAYS}</div>
         <div class="rc-badge"><div><span class="rc-frac ${frac.length>3?'wide':''}" aria-label="${o.n} out of ${o.d}"><b>${o.n}</b><i></i><b>${o.d}</b></span></div></div>
         <div class="rc-of">of a pizza</div>
-        <div class="rc-row" style="top:calc(var(--u)*1060)"><i class="ic"><img src="${A}piece_tomato.webp" alt=""></i><b>Topping:</b><span>Any topping</span></div>
       </div>
     </article>`;
 }
@@ -2288,9 +2302,9 @@ function tutBuild(){
               <div class="order" id="tutOrder"><small>ORDER</small><div class="tf" id="tutFrac"><b>${o.n}</b><i></i><b>${o.d}</b></div><span>of a pizza</span></div>
               <div class="tplate" id="tutPlate" hidden><img src="assets/draft2/plate_white.svg" alt=""><svg viewBox="0 0 600 600"></svg></div>
             </div>
-            <svg class="pz" id="tutPz" viewBox="0 0 600 600" role="img" aria-label="Pizza"></svg>
+            <div class="tpzw"><img class="tpaddle" src="assets/draft2/pizza_paddle.webp" alt=""><svg class="pz" id="tutPz" viewBox="0 0 600 600" role="img" aria-label="Pizza"></svg></div>
             <div class="tside">
-              <div class="ttray" id="tutTray">${TOPPINGS.map(t=>`<button class="tp" data-top="${t.k}" data-name="${t.name}" aria-label="${t.name}"><img src="assets/draft2/topbowl_${t.k}.webp" alt="">${t.name}</button>`).join("")}</div>
+              <div class="ttray" id="tutTray">${TOPPINGS.map(t=>`<button class="tp" data-top="${t.k}" data-name="${t.name}" aria-label="${t.name}"><img src="assets/draft2/topbowl_${t.k}.webp" alt="" draggable="false">${t.name}</button>`).join("")}</div>
               <div class="tcount" id="tutCount"></div>
               <button class="serve" id="tutServe">SERVE</button>
             </div>
@@ -2312,7 +2326,7 @@ function tutBuild(){
 }
 /* ===== Learning 1 (sheet: Level 1_Final, "Learning 1") — the fraction lesson on the tutorial board ===== */
 let _lid=0;
-const lPizzaHTML=id=>`<svg class="pz" id="${id}" viewBox="0 0 600 600" aria-hidden="true"></svg>`;
+const lPizzaHTML=id=>`<div class="tpzw"><img class="tpaddle" src="assets/draft2/pizza_paddle.webp" alt=""><svg class="pz" id="${id}" viewBox="0 0 600 600" aria-hidden="true"></svg></div>`;
 const lCard=(n,d,cls="",id="")=>`<div class="lf ${cls}"${id?` id="${id}"`:""}><b class="n">${n}</b><i></i><b class="d">${d}</b></div>`;
 /* draw a round pizza in d parts: cut (with edges) or whole with the cut lines ready to roll; tops = topped parts */
 function lDraw(svg,d,o={}){
@@ -2419,6 +2433,30 @@ async function runLearning(ok){
   page.classList.remove("learning"); $("tutLearn").innerHTML="";
   ttl.innerHTML="Let's learn: <b>Top and serve</b>"; ttl.classList.remove("gone"); ttl._n=0;
 }
+
+/* Tutorial 1.1: drag a topping bowl and drop it on a slice (same as picking the bowl, then tapping the slice) */
+(()=>{ let drag=null;
+  document.addEventListener("dragstart",e=>{ if(e.target.closest&&e.target.closest("#tutTray")) e.preventDefault(); });   // no browser image-drag on the bowls
+  document.addEventListener("pointerdown",e=>{ const b=e.target.closest&&e.target.closest("#tutTray .tp"); if(!b||!$("tutTray").classList.contains("in")) return;
+    const im=b.querySelector("img"), r=im.getBoundingClientRect();
+    drag={b,x0:e.clientX,y0:e.clientY,moved:false,g:null,w:r.width}; });
+  document.addEventListener("pointermove",e=>{ if(!drag) return;
+    if(!drag.moved && Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<8) return;
+    if(!drag.moved){ drag.moved=true; const g=drag.g=document.createElement("img"); g.src=drag.b.querySelector("img").src; g.className="tdrag";
+      g.style.width=drag.w*.8+"px"; document.body.appendChild(g); }
+    drag.g.style.left=e.clientX+"px"; drag.g.style.top=e.clientY+"px";
+    document.querySelectorAll("#tutPz .part.over").forEach(p=>p.classList.remove("over"));
+    drag.g.style.display="none"; const hit=document.elementFromPoint(e.clientX,e.clientY); drag.g.style.display="";
+    const p=hit&&hit.closest&&hit.closest("#tutPz .part"); if(p) p.classList.add("over"); });
+  document.addEventListener("pointerup",e=>{ if(!drag) return; const d=drag; drag=null;
+    document.querySelectorAll("#tutPz .part.over").forEach(p=>p.classList.remove("over"));
+    if(!d.moved) return;            // a plain tap: the click handler picks the bowl
+    d.g.style.display="none"; const hit=document.elementFromPoint(e.clientX,e.clientY); d.g.remove();
+    d.b.click();                    // pick this topping
+    const p=hit&&hit.closest&&hit.closest("#tutPz .part"); if(!p) return;
+    const i=+p.dataset.i; setTimeout(()=>{ if(!TUT.done.has(i)) tapPart(i); },60);   // and put it on the slice it was dropped on
+    d.b._noclick=true; setTimeout(()=>d.b._noclick=false,0); });
+})();
 /* plays Tutorial 1.1; resolves when the scroll has rolled up again */
 async function runTutorial(){
   try{ $("jump").value="T"; }catch(e){}

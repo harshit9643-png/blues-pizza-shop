@@ -1175,6 +1175,10 @@ body:has(.view.final) #app{padding-bottom:0!important}
 .tut .next svg{width:14px!important;height:14px!important}
 .tut .talk{margin-left:calc(24px - clamp(120px,11vw,190px))!important}   /* into the board's top-left corner */
 .tut .teacher{bottom:-5.2%!important}   /* Noori stands on the bottom log */
+/* tutorial board fills the height: top log at the top edge, bottom log at the bottom edge; jungle only at the sides
+   (board_only.webp is 880 tall: ropes 0-50, logs+board 50-880) */
+.tut .rig{top:0!important;bottom:0!important;background-size:100% 108.6%!important;background-position:center -6.17vh!important}
+.tut .sheet{top:8.8%!important;height:78.9%!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1465,7 +1469,7 @@ function sideHTML(sd,o,canBuild){
     <div class="who"><div class="ava"><img src="${A}${o.k}.webp" alt="${NAMES[o.k]}"></div>
       <div class="info">
         <div class="eat"><span class="ate">Ate ${frac(o.n,o.d,"num-"+sd)}</span></div></div></div>
-    <div class="plate" style="--pw:${plateWidth()}px"><img src="assets/draft2/board_round.svg" alt=""><div class="pie" id="pie-${sd}">${plateOverlay(0,o.d)}</div></div>
+    <div class="plate" style="--pw:${plateWidth()}px"><img src="assets/draft2/plate_white.svg" alt=""><div class="pie" id="pie-${sd}">${plateOverlay(0,o.d)}</div></div>
     ${canBuild?`<button class="stack" id="stack-${sd}" aria-label="Add a one ${o.d}th slice to ${NAMES[o.k]}'s plate"><span class="plus">+</span>${stackIcon(o.d)}</button>`:""}
   </section>`;
 }
@@ -2317,7 +2321,7 @@ function t2Side(sd){
   return `<section class="tsd ${sd}" id="t2-${sd}">
     <div class="who"><div class="ava"><img src="${A}${o.k}.webp" alt="${NAMES[o.k]}"></div>
       <div class="tag" id="t2tag-${sd}">Ate ${frac(o.n,o.d,"t2n-"+sd)}</div></div>
-    <div class="board2" id="t2board-${sd}"><img src="assets/draft2/board_round.svg" alt=""><div class="pie" id="t2pie-${sd}">${plateOverlay(0,o.d)}</div></div>
+    <div class="board2" id="t2board-${sd}"><img src="assets/draft2/plate_white.svg" alt=""><div class="pie" id="t2pie-${sd}">${plateOverlay(0,o.d)}</div></div>
     <button class="stack" id="t2stack-${sd}" aria-label="Add a one ${o.d}th slice to ${NAMES[o.k]}'s plate"><span class="plus">+</span>${stackIcon(o.d)}</button>
   </section>`;
 }
@@ -2448,7 +2452,7 @@ $("jump").addEventListener("change",e=>{ stopOverlays(); const v=e.target.value;
   if(v==="E"){ e.target.blur(); playEnding(); return; } go(+v); e.target.blur(); });
 let _rz; window.addEventListener("resize",()=>{ clearTimeout(_rz); _rz=setTimeout(()=>document.querySelectorAll(".plate").forEach(p=>p.style.setProperty("--pw",plateWidth()+"px")),150); });
 [...new Set(STEPS.flatMap(s=>s.a?[s.a.k,s.b.k]:[]).concat(FINALISTS.map(f=>f.k)))].map(k=>A+k+".webp")
-  .concat([A+"trophy.svg",A+"billu_happy.webp",HD+"pizza_round.webp",HD+"pizza_square_sharp.webp",HD+"pizza_rect_sharp.webp","assets/draft2/board_round.svg"])
+  .concat([A+"trophy.svg",A+"billu_happy.webp",HD+"pizza_round.webp",HD+"pizza_square_sharp.webp",HD+"pizza_rect_sharp.webp","assets/draft2/plate_white.svg"])
   .forEach(src=>{ const im=new Image(); im.src=src; });
 renderTop();
 /* arriving from the end of Level 1.2: start the Level 2 tutorial straight away */
