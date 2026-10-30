@@ -1073,6 +1073,15 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .tut .tp img{width:92%!important;aspect-ratio:auto!important;height:auto!important}
 .katori.newbowl{display:flex!important;align-items:flex-end;justify-content:center}
 .katori.newbowl img{width:100%!important;height:auto!important;max-height:100%}   /* every bowl the same width */
+/* Tutorial 1.1 toppings: just the bowls with their names (no wooden tray, no white tiles) */
+.tut .ttray{background:none!important;box-shadow:none!important;padding:0!important;gap:14px 18px!important}
+.tut .tp{background:none!important;box-shadow:none!important;padding:0!important;width:clamp(96px,12vh,124px)!important;gap:2px!important;border-radius:50%!important}
+.tut .tp img{width:100%!important;filter:drop-shadow(0 6px 6px rgba(0,0,0,.4))}
+.tut .tp>*:not(img){display:none}
+.tut .tp{font-size:0!important}
+.tut .tp::after{content:attr(data-name);font-size:12px;font-family:var(--display);font-weight:800;color:var(--indigo);background:#fff;border-radius:999px;padding:2px 10px;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.tut .tp.sel{box-shadow:none!important}
+.tut .tp.sel img{filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 14px var(--marigold))!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2242,7 +2251,7 @@ function tutBuild(){
             </div>
             <svg class="pz" id="tutPz" viewBox="0 0 600 600" role="img" aria-label="Pizza"></svg>
             <div class="tside">
-              <div class="ttray" id="tutTray">${TOPPINGS.map(t=>`<button class="tp" data-top="${t.k}"><img src="assets/draft2/topbowl_${t.k}.webp" alt="">${t.name}</button>`).join("")}</div>
+              <div class="ttray" id="tutTray">${TOPPINGS.map(t=>`<button class="tp" data-top="${t.k}" data-name="${t.name}" aria-label="${t.name}"><img src="assets/draft2/topbowl_${t.k}.webp" alt="">${t.name}</button>`).join("")}</div>
               <div class="tcount" id="tutCount"></div>
               <button class="serve" id="tutServe">SERVE</button>
             </div>
