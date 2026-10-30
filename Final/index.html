@@ -1070,6 +1070,16 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .tut{background:#7FC4E8!important}
 .tut{isolation:isolate}
 .tut::before{content:"";position:absolute;inset:-30px;z-index:-1;background:#7FC4E8 url("assets/web/backdrop.webp") center/cover!important;opacity:1!important;filter:blur(7px) brightness(.95);pointer-events:none}
+/* tutorial speaker panel: small, in the top-left corner of the board, smaller text and NEXT */
+.tut .talk{justify-self:start!important;align-self:start!important;width:fit-content!important;max-width:min(640px,100%)!important;min-height:0!important;
+  gap:10px!important;padding:6px 8px 6px 6px!important;border-radius:14px!important}
+.tut .talk .who{width:44px!important;height:44px!important}
+.tut .talk .who.billu img{height:84px!important}
+.tut .talk p{font-size:clamp(13px,1.15vw,16px)!important;line-height:1.3!important}
+.tut .talk .next,.tut .next{font-size:13px!important;padding:7px 14px!important;gap:6px!important;border-radius:999px!important}
+.tut .next svg{width:14px!important;height:14px!important}
+.tut .talk{margin-left:calc(24px - clamp(120px,11vw,190px))!important}   /* into the board's top-left corner */
+.tut .teacher{bottom:-5.2%!important}   /* Noori stands on the bottom log */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
