@@ -1289,14 +1289,14 @@ const STEPS=[
     quotes:[["bijli","Sssorry, twin!"],["badal","Next time!"]]},
   {kind:"match",set:"A",label:"Match 4",a:{k:"jhumru",n:3,d:10},b:{k:"hippo",n:7,d:10},win:"b",intro:"Match 4: the two biggest eaters, Jhumru and the hippo!",
     quotes:[["hippo","Hip hip hooray!"],["jhumru","Well eaten, hippo!"]]},
-  {kind:"intro",set:"B",label:"Set B",text:"Now the pizzas are cut into different numbers of parts. Watch the size of the slices!",rules:["n"]},
+  {kind:"intro",set:"B",label:"Set B",text:"Now the pizzas are cut into different numbers of parts. Same numerator? The smaller denominator means bigger parts.",rules:["n"]},
   {kind:"match",set:"B",label:"Match 5",a:{k:"ant",n:1,d:3},b:{k:"madhu",n:1,d:10},win:"a",intro:"Match 5: the ant and Madhu!",quotes:[["ant","One big slice for me!"]]},
   {kind:"match",set:"B",label:"Match 6",a:{k:"monty",n:2,d:9},b:{k:"tez",n:2,d:5},win:"b",intro:"Match 6: Monty and Tez!",quotes:[["tez","Slow… but steady!"]]},
   {kind:"match",set:"B",label:"Match 7",a:{k:"squirrel",n:3,d:4},b:{k:"mouse",n:3,d:8},win:"a",intro:"Match 7: the squirrel and the mouse!",
     quotes:[["squirrel","Quick, quick, I win!"],["mouse","Squeak! Good match!"]]},
   {kind:"match",set:"B",label:"Match 8",a:{k:"peacock",n:5,d:12},b:{k:"bijli",n:5,d:6},win:"b",intro:"Match 8: the peacock and Bijli!",
     quotes:[["bijli","Hisss-tory made!"],["peacock","Hmph! Well done."]]},
-  {kind:"intro",set:"C",label:"Set C",text:"Now just the fractions, no pizza! Use the rules to find who ate more.",rules:["d","n"]},
+  {kind:"intro",set:"C",label:"Set C",text:"Now just the fractions, no pizza! Same denominator? Compare the numerators. Same numerator? The smaller denominator means bigger parts.",rules:["d","n"]},
   {kind:"cards",set:"C",label:"Round 9",shape:"round",a:{k:"monty",n:4,d:7},b:{k:"peacock",n:6,d:7},win:"b",intro:"Monty or the peacock: who ate more?",
     yes:"Yes! Same denominator, and 6 is more than 4."},
   {kind:"cards",set:"C",label:"Round 10",shape:"square",a:{k:"mouse",n:1,d:6},b:{k:"ant",n:1,d:4},win:"b",intro:"The mouse or the ant: who ate more?",
@@ -1472,7 +1472,7 @@ function award(i){ if(S.done[i]) return; S.done[i]=true; if(S.tries===0) S.stars
 
 /* ---------- intro screens (Set B, Set C) ---------- */
 function showIntro(st){
-  setView("intro",`<div class="big">${st.rules.map(k=>ruleCard(k,"on")).join("")}</div>`);
+  setView("intro",``);   // the rule is said in the dialogue box only, no picture cards
   say(st.text,"","noori"); speak(st.text); button("next",true,true,next);
 }
 
