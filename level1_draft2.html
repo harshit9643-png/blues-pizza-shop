@@ -1925,7 +1925,15 @@ function endDrag(e){
   if(d.ghost) d.ghost.remove(); if(d.over) d.over.classList.remove("hov");
   if(!d.moved){ pickTopping(d.kind); say(`Now tap the ${pieceName(cur()).toLowerCase()} to add ${TOPPINGS.find(t=>t.k===d.kind).name.toLowerCase()}.`); return; }
   const h=d.over||hitAt(e.clientX,e.clientY);
-  if(h) cover(+h.dataset.i,d.kind,toSvg(e.clientX,e.clientY));
+  if(!h) return;
+  if(S.covered.has(+h.dataset.i)){ slotTaken(+h.dataset.i); return; }   // a topped slice keeps its topping
+  cover(+h.dataset.i,d.kind,toSvg(e.clientX,e.clientY));
+}
+/* dropped on a slice that already has a topping: it stays, the slice flashes red, and Noori points to an empty slice */
+function slotTaken(i){
+  Sound.bad&&Sound.bad();
+  partEl(i).animate([{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935) brightness(1.08)"},{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935) brightness(1.08)"},{filter:"none"}],{duration:900});
+  say("That slice already has a topping. Put it on a slice with no topping.","bad");
 }
 function toSvg(x,y){ const m=PZ.getScreenCTM(); return m ? new DOMPoint(x,y).matrixTransform(m.inverse()) : null; }
 
@@ -1959,7 +1967,7 @@ function uncover(i){
 }
 function afterChange(){
   const o=cur(); setCount(); setDone("done",S.covered.size>0,S.covered.size===o.n);
-  if(/^(Is that|Pick a topping|Now tap)/.test(S.sayPlain)) say(`Cover ${o.n}/${o.d} of the pizza with the topping.`);
+  if(/^(Is that|Pick a topping|Now tap|That slice)/.test(S.sayPlain)) say(`Cover ${o.n}/${o.d} of the pizza with the topping.`);
 }
 PZ.addEventListener("click",e=>{
   const h=e.target.closest&&e.target.closest(".hit");
@@ -2452,8 +2460,12 @@ async function runLearning(ok){
     document.querySelectorAll("#tutPz .part.over").forEach(p=>p.classList.remove("over"));
     if(!d.moved) return;            // a plain tap: the click handler picks the bowl
     d.g.style.display="none"; const hit=document.elementFromPoint(e.clientX,e.clientY); d.g.remove();
+    const p=hit&&hit.closest&&hit.closest("#tutPz .part");
+    if(p&&TUT.done.has(+p.dataset.i)){   // a topped slice keeps its topping
+      Sound.bad&&Sound.bad(); p.animate([{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935)"},{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935)"},{filter:"none"}],{duration:900});
+      tutSay("noori","That slice already has a topping. Put it on a slice with no topping.",{wait:true,bad:true}); return; }
     d.b.click();                    // pick this topping
-    const p=hit&&hit.closest&&hit.closest("#tutPz .part"); if(!p) return;
+    if(!p) return;
     const i=+p.dataset.i; setTimeout(()=>{ if(!TUT.done.has(i)) tapPart(i); },60);   // and put it on the slice it was dropped on
     d.b._noclick=true; setTimeout(()=>d.b._noclick=false,0); });
 })();
