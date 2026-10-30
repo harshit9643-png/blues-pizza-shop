@@ -1437,9 +1437,11 @@ function sayRule(k){
 function guideMood(c){ const g=$("guide"); g.classList.remove("cheer","hmm"); void g.offsetWidth; g.classList.add(c); }
 function button(label,enabled,ready,fn){ const b=$("done");
   b.innerHTML = label==="next" ? `NEXT ${ARROW}` : label==="check" ? `CHECK PLATES ${CHECK}` : label==="order" ? `CHECK ORDER ${CHECK}` : label;
-  b.disabled=!enabled; b.classList.toggle("ready",!!ready); onDone=fn||null; b._auto=(b._auto||0)+1;
+  const act=/^(next|check|order)$/.test(label); b.disabled=act?false:!enabled; b._en=!!enabled; b.classList.toggle("ready",!!ready); onDone=fn||null; b._auto=(b._auto||0)+1;   // DONE-type buttons always look active
   if(label==="next"&&enabled) autoClick(b,S.sayPlain,2200); }
-$("done").addEventListener("click",()=>{ if(onDone && !$("done").disabled) onDone(); });
+$("done").addEventListener("click",()=>{ const b=$("done"); if(b.disabled) return;
+  if(!b._en){ Sound.bad&&Sound.bad(); if(S.phase==="build") say("Add the slices to both plates first, then check.","bad"); return; }   // tapped too early: a hint
+  if(onDone) onDone(); });
 function confetti(){ const fx=$("fx"), cols=["#F2A62C","#FBD584","#C8402E","#3A55A0","#3F8A3C","#FFF2C8"];
   for(let i=0;i<60;i++){ const s=document.createElement("i"); s.style.left=Math.random()*100+"%"; s.style.background=cols[i%cols.length];
     s.style.clipPath=i%3?"polygon(50% 0,100% 100%,0 100%)":"circle(50%)"; s.style.animationDelay=(Math.random()*.35)+"s";

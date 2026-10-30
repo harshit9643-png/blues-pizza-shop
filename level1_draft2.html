@@ -1135,6 +1135,14 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 /* receipt: no topping row now, so the fraction badge sits centred in the paper under the name */
 .rc-rays,.rc-badge{top:calc(var(--u)*860)!important}
 .rc-of{top:calc(var(--u)*1012)!important}
+/* mould board: smaller, moulds a little bigger, less empty wood */
+.tray.mouldboard,.tray:not(.coco){--tsz:min(24vw,calc(100vh - 330px),380px)!important}
+.slot.mould{width:30%!important}
+/* pointing hand on the right mould */
+.mhand{position:fixed;z-index:120;width:clamp(56px,6vw,84px);height:auto;pointer-events:none;transform:translate(-72%,0);
+  filter:drop-shadow(0 8px 8px rgba(0,0,0,.35));animation:mtap 1s ease-in-out infinite}
+@keyframes mtap{0%,100%{translate:0 10px}50%{translate:0 -6px}}
+.mould.pointed{animation:ready 1s ease-in-out infinite}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1250,7 +1258,7 @@ const LEVELS = {
 const TOPPINGS = [{k:"tomato",name:"Tomato"},{k:"mushroom",name:"Mushroom"},{k:"corn",name:"Sweet corn"},{k:"onion",name:"Onion"}];
 /* slots sit inside the thali's well (centre 50%,49.7%, well radius 42%) */
 const KATORI_POS = [[31.5,32.5],[68.5,32.5],[31.5,63.5],[68.5,63.5]];   // around the walnut tray's well (50%, 48%)
-const MOULD_POS  = [[55,27.9],[41,58.4],[69,58.4]];  // even triangle centred on the chopping board's round part (55%,46%), every corner inside it
+const MOULD_POS  = [[55,25.5],[39,59],[71,59]];  // even triangle centred on the chopping board's round part (55%,46%), every corner inside it
 
 /* ============================================================
    GEOMETRY (viewBox 600) — exact equal parts over the painted pizza
@@ -1434,7 +1442,7 @@ function mouldInner(shape,k,pfx,tray){
     ${ring(RIM-12,'stroke="#6E7682" stroke-opacity=".65" stroke-width="2.5"')}
     ${ring(RIM+12,'stroke="#5C6470" stroke-opacity=".75" stroke-width="2.5"')}
     <path d="${edgeArc(shape,RIM-3,136,168)}" fill="none" stroke="#FFFFFF" stroke-opacity=".45" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-    ${k>1 ? knob : ""}`;
+    `;   // no number badge on the moulds: the child counts the parts
 }
 
 /* ============================================================
@@ -1488,7 +1496,7 @@ const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 function setDone(kind,enabled,ready){ const b=$("done");
   b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `DONE ${CHECK}`;
-  b.disabled=!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;
+  b.disabled=false; b._en=!!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;   // always active-looking
   if(kind==="next"&&enabled) autoClick(b,S.sayPlain,2200); }
 function setCount(){ const o=cur(), c=$("count");
   if(S.phase==="top"){ c.hidden=false; c.textContent=`${S.covered.size}/${o.d}`; } else c.hidden=true; }
@@ -1802,7 +1810,7 @@ async function loadOrder(){
   document.querySelectorAll(".flyer").forEach(f=>f.remove());
   hideHint(); S.tries=0; S.covered=new Map(); S.topping=null; S.busy=true; S.skip=false;
   setDock(false,false);
-  $("boardwrap").classList.toggle("onpaddle",!LEVELS[S.lv].cut);
+  $("boardwrap").classList.add("onpaddle");   // every pizza sits on the dark wooden paddle (Level 1.1 and 1.2)
   $("boardwrap").dataset.shape=o.shape;   // Level 1.1: the pizza sits on a wooden pizza board
   renderTop(); showCustomer(); boardFx("in");
   if(!LEVELS[S.lv].cut){
@@ -1874,6 +1882,7 @@ async function useMould(k,btn){
   fly.remove(); btn.classList.remove("using");
   if(!live(gen)) return;
   await split(gen); if(!live(gen)) return;
+  mouldHand(false);
   if(k===o.d){
     say(`${o.d} equal ${pieceName(o,k).toLowerCase()}!`,"good"); Sound.good(); guideMood("cheer");
     await countParts(gen); if(!live(gen)) return;
@@ -1882,14 +1891,28 @@ async function useMould(k,btn){
   } else {
     S.tries++; Sound.bad(); btn.classList.add("wrong"); custMood("sad"); guideMood("hmm");
     PZ.classList.add("bad"); boardFx("wiggle");
-    say("Hmm, is that how many parts the order needs? Try again.","bad");
+    // wrong moulds for this order: 1st try again, 2nd a hint, 3rd the hand points at the right mould
+    const key=S.lv+":"+S.i; if(S.mwKey!==key){ S.mwKey=key; S.mw=0; } S.mw++;
+    say(S.mw===1 ? "Hmm, is that how many parts the order needs? Try again."
+      : S.mw===2 ? `Look at the bottom number of the order: ${o.d}. Pick the mould with ${o.d} parts.`
+      : `Tap this mould: it cuts the pizza into ${o.d} equal parts.`,"bad");
     await wait(1600); if(!live(gen)) return;
     btn.classList.remove("wrong"); PZ.classList.remove("bad");
     PZ.querySelectorAll(".part").forEach(p=>p.style.transform="none");      // the pieces close up again
     await wait(700); if(!live(gen)) return;
     S.k=1; G=geom(o.shape,1); renderWhole(true); boardFx("in");               // a fresh whole pizza
-    say("Pick the mould that cuts this pizza for the order."); S.busy=false;
+    if(S.mw>=3) mouldHand(true); else say("Pick the mould that cuts this pizza for the order.");
+    S.busy=false;
   }
+}
+/* the pointing hand over the right mould (after the third wrong pick) */
+function mouldHand(on){
+  let h=$("mhand"); if(h) h.remove(); if(!on) return;
+  const m=document.querySelector(`.mould[data-m="${cur().d}"]`); if(!m) return;
+  const r=m.getBoundingClientRect();
+  h=document.createElement("img"); h.id="mhand"; h.className="mhand"; h.src="assets/draft2/hand_point.svg"; h.alt="";
+  h.style.left=(r.left+r.width/2)+"px"; h.style.top=(r.top+r.height*.55)+"px";
+  document.body.appendChild(h); m.classList.add("pointed");
 }
 
 /* ---------- toppings: drag a katori onto a slice, or pick one and tap slices ---------- */
@@ -1967,7 +1990,7 @@ function uncover(i){
 }
 function afterChange(){
   const o=cur(); setCount(); setDone("done",S.covered.size>0,S.covered.size===o.n);
-  if(/^(Is that|Pick a topping|Now tap|That slice)/.test(S.sayPlain)) say(`Cover ${o.n}/${o.d} of the pizza with the topping.`);
+  if(/^(Is that|Pick a topping|Now tap|That slice|Put the topping)/.test(S.sayPlain)) say(`Cover ${o.n}/${o.d} of the pizza with the topping.`);
 }
 PZ.addEventListener("click",e=>{
   const h=e.target.closest&&e.target.closest(".hit");
@@ -1983,7 +2006,11 @@ PZ.addEventListener("pointerdown",()=>{ if(S.phase==="cutting") S.skip=true; });
 /* ---------- serve or try again ---------- */
 $("done").addEventListener("click",()=>{
   if(S.phase==="served"){ if(!S.busy) next(); return; }
-  if(S.phase!=="top"||S.busy||!S.covered.size) return;
+  if(S.busy) return;
+  if(S.phase==="mould"){ say("First pick the mould that cuts the pizza for the order.","bad"); Sound.bad&&Sound.bad(); return; }
+  if(S.phase!=="top") return;
+  if(!S.covered.size){ say("Put the topping on the slices first, then tap DONE.","bad"); Sound.bad&&Sound.bad();
+    document.querySelectorAll(".katori").forEach(b=>{ b.classList.remove("ask"); void b.offsetWidth; b.classList.add("ask"); }); return; }
   S.covered.size===cur().n ? serve() : miss();
 });
 async function miss(){
