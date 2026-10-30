@@ -1221,6 +1221,11 @@ body:has(.view.final) #app{padding-bottom:0!important}
 .final .slot .splate{width:min(96%,calc(var(--h) + 40px))!important;bottom:0!important}
 .final .slot.over .splate{filter:drop-shadow(0 0 18px rgba(242,166,44,1))!important}
 .view.cardsv::before{background:rgba(30,14,6,.7)!important}   /* darker dim behind the two characters */
+/* champion podium: steps down to the screen bottom, characters standing on the step tops */
+.stage:has(.podium),.view.podium{overflow:visible!important}
+.podium .step img.a{margin-bottom:-14px;position:relative;z-index:1}
+.podium .step .blk{position:relative;z-index:0}
+html,body{overflow:hidden}   /* the podium runs past the bottom edge; the page never scrolls */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1780,7 +1785,14 @@ function showChampion(){
       <div class="blk" style="height:${H[p]}"><span>${p}</span></div></div>`).join("")}</div>`);
   Sound.win(); confetti(); say("The ant is our Big Eater Champion!  Monty (from the crowd): “Beaten by an ant… again!”","good","noori"); speak("The ant is our Big Eater Champion!");
   button("next",false,false); $("done").style.visibility="hidden";   // the champion podium is the last screen: nothing comes after it
+  pinPodium(); [80,300,700].forEach(t=>setTimeout(pinPodium,t));
 }
+/* the podium steps reach the bottom edge of the screen (taller by the gap, pulled down by it) */
+function pinPodium(){ const st=document.querySelector(".podium .steps"); if(!st) return;
+  st.querySelectorAll(".blk").forEach(b=>{ b.style.marginBottom="0px"; b.style.height=b.dataset.h||(b.dataset.h=b.style.height); });
+  const gap=Math.max(0,innerHeight-st.getBoundingClientRect().bottom)+16;   // a little past the edge, so no strip shows
+  st.querySelectorAll(".blk").forEach(b=>{ b.style.height=`calc(${b.dataset.h} + ${gap}px)`; b.style.marginBottom=-gap+"px"; }); }
+addEventListener("resize",()=>pinPodium());
 function showEnd(){
   const winners=["peacock","tez","ant","bijli","hippo","squirrel","badal"];
   $("endcard").innerHTML=`<h2>What a contest! You found every winner!</h2>
