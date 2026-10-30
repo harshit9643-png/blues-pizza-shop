@@ -1196,6 +1196,26 @@ body:has(.view.final) #app{padding-bottom:0!important}
 .view.cardsv .eat>span.ate{font-size:clamp(30px,5.4vh,52px)!important;padding:8px 26px!important;border-radius:20px!important}
 .view.cardsv .eat>span.ate .fr{font-size:1.1em}
 .view.cardsv .side.pick:hover{transform:translateY(-4px)}
+/* Final columns: just the numbers, no "smallest" / "greatest" words */
+.final .slot:nth-child(1)::after,.final .slot:has(.fin):nth-child(1)::after{content:"1"!important}
+.final .slot:nth-child(5)::after,.final .slot:has(.fin):nth-child(5)::after{content:"5"!important}
+.final .scale{display:none!important}
+/* Final cards: the same brown fraction plate as the matches, no names */
+.final .fin .mini{background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A)!important;box-shadow:0 0 0 3px var(--wood-dark),inset 0 3px 0 rgba(255,220,170,.35),0 4px 8px rgba(0,0,0,.28)!important}
+.final .fin .mini .fr{color:#FFE08A!important}
+.final .fin .mini .fr b:first-child{border-bottom-color:#FFE08A!important}
+.final .fin .nm{display:none!important}
+/* Set C choosing: a soft warm dim over the tablecloth, the two characters lit */
+.view.cardsv::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:rgba(58,28,14,.42);opacity:0;transition:opacity .5s ease}
+.view.cardsv.focus::before{opacity:1}
+.view.cardsv .side{z-index:1}
+.view.cardsv .side::before{content:"";position:absolute;inset:-14% -22%;z-index:-1;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,244,214,.95),rgba(255,236,190,.55) 55%,rgba(255,230,180,0));opacity:0;transition:opacity .5s ease}
+.view.cardsv.focus .side::before{opacity:1}
+/* Set C focus covers the whole screen; no names on placed Final cards */
+.view.cardsv::before{position:absolute!important;inset:-100vh -100vw!important}
+.final .slot>.fin .nm,.final .fin .nm{display:none!important}
+#app>.card{position:relative;z-index:6}   /* the dialogue box stays bright above the focus dim */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1598,6 +1618,7 @@ function showCards(st){
   setView("match cardsv",cardSide("a",st.a,st.shape)+cardSide("b",st.b,st.shape));   // Set C: two big contestants, centred
   S.phase="winner"; S.wTries=0;
   say(st.intro,"","billu"); speak(st.intro); button("Tap who ate more",false,false);
+  $("view").classList.add("focus");   // only the two characters are lit while choosing
   ["a","b"].forEach(sd=>{ const s=$("side-"+sd); s.classList.add("pick"); s.tabIndex=0; s.setAttribute("role","button");
     s.onclick=()=>pickCard(st,sd); s.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickCard(st,sd); } }; });
 }
@@ -1607,6 +1628,7 @@ function pickCard(st,sd){
   if(sd===st.win){
     S.phase="won"; award(S.i);
     ["a","b"].forEach(x=>{ const s=$("side-"+x); s.classList.remove("pick","glow"); s.onclick=null; });
+    $("view").classList.remove("focus");
     const s=$("side-"+sd); s.classList.add("ok","win","spot"); hangMedal(s,st[sd].k);
     Sound.win(); confetti(); guideMood("cheer"); say(st.yes,"good","noori"); speak(st.yes);
     if(st.quotes) setTimeout(()=>{ if(live(g)) say(st.quotes.map(([k,q])=>`${NAMES[k]}: “${q}”`).join("  ")+"  "+st.yes,"good","billu"); },2400);
@@ -1629,10 +1651,11 @@ function eatenPlate(n,d){
   const C=100,R=74, step=2*Math.PI/d, a0=-Math.PI/2, a1=a0+n*step, big=n*step>Math.PI?1:0;
   const p=(a)=>`${(C+R*Math.cos(a)).toFixed(1)} ${(C+R*Math.sin(a)).toFixed(1)}`, q=(a)=>`${(C+(R+7)*Math.cos(a)).toFixed(1)} ${(C+(R+7)*Math.sin(a)).toFixed(1)}`;
   const cuts=[...Array(d)].map((_,i)=>{ const a=a0+i*step; return `<path d="M${C} ${C}L${p(a)}" stroke="#7A3A14" stroke-width="2.6" opacity=".7"/>`; }).join("");
+  const id=uid("ep"), rest=(d-n)*step>Math.PI?1:0;
   return `<svg class="eplate" viewBox="0 0 200 200" aria-hidden="true">
-    <ellipse cx="100" cy="106" rx="96" ry="96" fill="#C9C5BE"/><circle cx="100" cy="100" r="95" fill="#FFFFFF"/><circle cx="100" cy="100" r="84" fill="#F1EFEB"/>
-    <image href="${HD}pizza_round.webp" x="${C-R-4}" y="${C-R-4}" width="${2*R+8}" height="${2*R+8}"/>${cuts}
-    <path d="M${C} ${C}L${q(a0)}A${R+7} ${R+7} 0 ${big} 1 ${q(a1)}Z" fill="#F1EFEB"/>
+    <defs><clipPath id="${id}"><path d="M${C} ${C}L${q(a1)}A${R+7} ${R+7} 0 ${rest} 1 ${q(a0)}Z"/></clipPath></defs>
+    <g clip-path="url(#${id})" style="filter:drop-shadow(0 4px 4px rgba(40,20,5,.35))"><image href="${HD}pizza_round.webp" x="${C-R-4}" y="${C-R-4}" width="${2*R+8}" height="${2*R+8}"/>${cuts}</g>
+    <path d="M${C} ${C}L${p(a0)}A${R} ${R} 0 ${big} 1 ${p(a1)}Z" fill="rgba(255,240,215,.16)"/>
     <path d="M${C} ${C}L${p(a0)}A${R} ${R} 0 ${big} 1 ${p(a1)}Z" fill="none" stroke="#C8402E" stroke-width="4" stroke-dasharray="9 7" stroke-linejoin="round"/></svg>`;
 }
 const finCard=(f,i)=>`<div class="fin" id="fin-${i}" data-i="${i}" tabindex="0" role="button" aria-label="${NAMES[f.k]} ate ${f.n} out of ${f.d}">
@@ -1751,7 +1774,7 @@ function showChampion(){
       <img class="a" src="${A}${k}${p===1?"_trophy":""}.webp" alt="${NAMES[k]}">
       <div class="blk" style="height:${H[p]}"><span>${p}</span></div></div>`).join("")}</div>`);
   Sound.win(); confetti(); say("The ant is our Big Eater Champion!  Monty (from the crowd): “Beaten by an ant… again!”","good","noori"); speak("The ant is our Big Eater Champion!");
-  button("next",true,true,playEnding);
+  button("next",false,false); $("done").style.visibility="hidden";   // the champion podium is the last screen: nothing comes after it
 }
 function showEnd(){
   const winners=["peacock","tez","ant","bijli","hippo","squirrel","badal"];
