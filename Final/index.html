@@ -1156,6 +1156,7 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
   filter:drop-shadow(0 8px 8px rgba(0,0,0,.35));animation:mtap 1s ease-in-out infinite}
 @keyframes mtap{0%,100%{translate:0 10px}50%{translate:0 -6px}}
 .mould.pointed{animation:ready 1s ease-in-out infinite}
+.tut .tpzw>.tpaddle{display:none!important}   /* no paddle under the pizza in the tutorial */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1745,9 +1746,9 @@ function showKatoris(){
   const pct=(v,of)=>(v/of*100).toFixed(3)+"%";
   $("slots").innerHTML = TOPPINGS.map((t,i)=>{
     const b=COCO.bowls[i], box={x:b.cx-b.ix-30, y:b.cy-b.iy*1.35, w:b.ix*2+60, h:b.iy*2.6};
-    const [rx,ry,rw,rh]=[[216,172,332,309],[656,172,332,309],[206,498,340,320],[648,498,348,320]][i];   // the bowl spots on the table
+    const [rx,ry,rw,rh]=[[216,120,332,300],[656,120,332,300],[216,520,332,300],[656,520,332,300]][i];   // two rows with room for the names between them   // the bowl spots on the table
     return `<div class="bowl katori newbowl${S.topping===t.k?' sel':''}" data-top="${t.k}" role="button" tabindex="0" aria-label="${t.name}"
-        style="left:${pct(rx+rw/2-170,COCO.W)};top:${pct(ry+rh-300,COCO.H)};width:${pct(340,COCO.W)};height:${pct(300,COCO.H)}">
+        style="left:${pct(rx+rw/2-150,COCO.W)};top:${pct(ry+rh-265,COCO.H)};width:${pct(300,COCO.W)};height:${pct(265,COCO.H)}">
         <img src="assets/draft2/topbowl_${t.k}.webp" alt=""></div>
       <span class="bowl-label" style="left:${pct(rx+rw/2,COCO.W)};top:${pct(ry+rh+4,COCO.H)}">${t.name}</span>`;
   }).join("");
@@ -1960,8 +1961,8 @@ function endDrag(e){
   if(!drag) return; const d=drag; drag=null;
   if(d.ghost) d.ghost.remove(); if(d.over) d.over.classList.remove("hov");
   if(!d.moved){ pickTopping(d.kind); say(`Now tap the ${pieceName(cur()).toLowerCase()} to add ${TOPPINGS.find(t=>t.k===d.kind).name.toLowerCase()}.`); return; }
-  const h=d.over||hitAt(e.clientX,e.clientY);
-  if(!h) return;
+  let h=d.over||hitAt(e.clientX,e.clientY);
+  if(!h){ const i=nearFree(e.clientX,e.clientY); if(i<0) return; h={dataset:{i}}; }   // dropped near the pizza: the nearest empty slice
   if(S.covered.has(+h.dataset.i)){ slotTaken(+h.dataset.i); return; }   // a topped slice keeps its topping
   cover(+h.dataset.i,d.kind,toSvg(e.clientX,e.clientY));
 }
@@ -1970,6 +1971,15 @@ function slotTaken(i){
   Sound.bad&&Sound.bad();
   partEl(i).animate([{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935) brightness(1.08)"},{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935) brightness(1.08)"},{filter:"none"}],{duration:900});
   say("That slice already has a topping. Put it on a slice with no topping.","bad");
+}
+/* a drop inside the board (the paddle, plus a margin) lands on the nearest slice with no topping; -1 if too far away */
+function nearFree(x,y){
+  const r=$("boardwrap").getBoundingClientRect(), pad=Math.max(40,r.width*.12);
+  if(x<r.left-pad||x>r.right+pad||y<r.top-pad||y>r.bottom+pad) return -1;
+  const q=toSvg(x,y); if(!q) return -1;
+  let best=-1, bd=1e9;
+  G.parts.forEach((p,i)=>{ if(S.covered.has(i)) return; const o=S.off[i]||{x:0,y:0}, dd=Math.hypot(p.cx+o.x-q.x,p.cy+o.y-q.y); if(dd<bd){ bd=dd; best=i; } });
+  return best;
 }
 function toSvg(x,y){ const m=PZ.getScreenCTM(); return m ? new DOMPoint(x,y).matrixTransform(m.inverse()) : null; }
 
@@ -2500,7 +2510,12 @@ async function runLearning(ok){
     document.querySelectorAll("#tutPz .part.over").forEach(p=>p.classList.remove("over"));
     if(!d.moved) return;            // a plain tap: the click handler picks the bowl
     d.g.style.display="none"; const hit=document.elementFromPoint(e.clientX,e.clientY); d.g.remove();
-    const p=hit&&hit.closest&&hit.closest("#tutPz .part");
+    let p=hit&&hit.closest&&hit.closest("#tutPz .part");
+    if(!p){   // dropped near the pizza: the nearest slice with no topping
+      const r=$("tutPz").getBoundingClientRect(), pad=Math.max(40,r.width*.15), u=r.width/600;
+      if(e.clientX>r.left-pad&&e.clientX<r.right+pad&&e.clientY>r.top-pad&&e.clientY<r.bottom+pad&&TUT.g){
+        let bd=1e9; TUT.g.parts.forEach((q,i)=>{ if(TUT.done.has(i)) return; const dd=Math.hypot(r.left+q.cx*u-e.clientX,r.top+q.cy*u-e.clientY);
+          if(dd<bd){ bd=dd; p=$("tutPz").querySelector(`.part[data-i="${i}"]`); } }); } }
     if(p&&TUT.done.has(+p.dataset.i)){   // a topped slice keeps its topping
       Sound.bad&&Sound.bad(); p.animate([{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935)"},{filter:"none"},{filter:"drop-shadow(0 0 14px #E53935)"},{filter:"none"}],{duration:900});
       tutSay("noori","That slice already has a topping. Put it on a slice with no topping.",{wait:true,bad:true}); return; }
