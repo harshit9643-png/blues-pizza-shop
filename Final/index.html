@@ -1084,6 +1084,8 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .katori.newbowl{display:grid;place-items:center}
 .katori.newbowl img{width:100%;height:100%;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 6px 6px rgba(60,30,10,.35))}
 .tut .tp img{width:92%!important;aspect-ratio:auto!important;height:auto!important}
+.katori.newbowl{display:flex!important;align-items:flex-end;justify-content:center}
+.katori.newbowl img{width:100%!important;height:auto!important;max-height:100%}   /* every bowl the same width */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1675,9 +1677,9 @@ function showKatoris(){
     const b=COCO.bowls[i], box={x:b.cx-b.ix-30, y:b.cy-b.iy*1.35, w:b.ix*2+60, h:b.iy*2.6};
     const [rx,ry,rw,rh]=[[216,172,332,309],[656,172,332,309],[206,498,340,320],[648,498,348,320]][i];   // the bowl spots on the table
     return `<div class="bowl katori newbowl${S.topping===t.k?' sel':''}" data-top="${t.k}" role="button" tabindex="0" aria-label="${t.name}"
-        style="left:${pct(rx-14,COCO.W)};top:${pct(ry-6,COCO.H)};width:${pct(rw+28,COCO.W)};height:${pct(rh+12,COCO.H)}">
+        style="left:${pct(rx+rw/2-170,COCO.W)};top:${pct(ry+rh-300,COCO.H)};width:${pct(340,COCO.W)};height:${pct(300,COCO.H)}">
         <img src="assets/draft2/topbowl_${t.k}.webp" alt=""></div>
-      <span class="bowl-label" style="left:${pct(rx+rw/2,COCO.W)};top:${pct(ry+rh-10,COCO.H)}">${t.name}</span>`;
+      <span class="bowl-label" style="left:${pct(rx+rw/2,COCO.W)};top:${pct(ry+rh+4,COCO.H)}">${t.name}</span>`;
   }).join("");
   $("tray").querySelectorAll("img.cbowl").forEach(e=>e.remove());   // the filled bowls replace the empty ones
   $("slots").querySelectorAll(".katori").forEach(b=>{
