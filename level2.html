@@ -1187,6 +1187,15 @@ body:has(.view.final) #app{padding-bottom:0!important}
 .tut .check2{position:absolute!important;left:50%;bottom:clamp(14px,3vh,34px);translate:-50% 0;z-index:5}
 /* Tutorial 2 centred on the board: the page is as wide on the left as on the right */
 .tut #t2duel{padding-left:0!important;justify-content:center!important;grid-template-columns:auto minmax(120px,22vw) auto!important}
+/* Set C (fractions only): the two contestants big and centred, picture with its brown fraction plate underneath */
+.view.cardsv{display:flex!important;align-items:center;justify-content:center;gap:clamp(60px,14vw,260px)}
+.view.cardsv .side{position:relative!important;inset:auto!important;display:grid;justify-items:center;padding:clamp(10px,2vh,24px);border-radius:40px;cursor:pointer}
+.view.cardsv .side .who{position:relative!important;left:auto!important;right:auto!important;top:auto!important;display:grid!important;justify-items:center;gap:clamp(12px,2.4vh,26px)}
+.view.cardsv .side .ava{width:clamp(180px,34vh,320px)!important}
+.view.cardsv .side .info{justify-items:center!important}
+.view.cardsv .eat>span.ate{font-size:clamp(30px,5.4vh,52px)!important;padding:8px 26px!important;border-radius:20px!important}
+.view.cardsv .eat>span.ate .fr{font-size:1.1em}
+.view.cardsv .side.pick:hover{transform:translateY(-4px)}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1434,7 +1443,7 @@ function sayRule(k){
 function guideMood(c){ const g=$("guide"); g.classList.remove("cheer","hmm"); void g.offsetWidth; g.classList.add(c); }
 function button(label,enabled,ready,fn){ const b=$("done");
   b.innerHTML = label==="next" ? `NEXT ${ARROW}` : label==="check" ? `CHECK PLATES ${CHECK}` : label==="order" ? `CHECK ORDER ${CHECK}` : label;
-  const act=/^(next|check|order)$/.test(label); b.disabled=act?false:!enabled; b._en=!!enabled; b.classList.toggle("ready",!!ready); onDone=fn||null; b._auto=(b._auto||0)+1;   // DONE-type buttons always look active
+  const act=/^(next|check|order)$/.test(label); b.disabled=act?false:!enabled; b.style.visibility=(!act&&!enabled)?"hidden":"";   /* an instruction-only bar ("Tap who ate more") is not shown: the dialogue box says it */ b._en=!!enabled; b.classList.toggle("ready",!!ready); onDone=fn||null; b._auto=(b._auto||0)+1;   // DONE-type buttons always look active
   if(label==="next"&&enabled) autoClick(b,S.sayPlain,2200); }
 $("done").addEventListener("click",()=>{ const b=$("done"); if(b.disabled) return;
   if(!b._en){ Sound.bad&&Sound.bad(); if(S.phase==="build") say("Add the slices to both plates first, then check.","bad"); return; }   // tapped too early: a hint
@@ -1581,11 +1590,12 @@ async function pickWinner(st,sd){
 /* ---------- Set C: fraction cards only ---------- */
 function cardSide(sd,o,shape){
   return `<section class="side ${sd}" id="side-${sd}">
-    <div class="who"><div class="ava"><img src="${A}${o.k}.webp" alt="${NAMES[o.k]}"></div><div class="tag">${NAMES[o.k]}</div></div>
-    <div class="fcard">${frac(o.n,o.d)}</div>${diagram(shape,o.n,o.d)}</section>`;
+    <div class="who"><div class="ava"><img src="${A}${o.k}.webp" alt="${NAMES[o.k]}"></div>
+      <div class="info"><div class="eat"><span class="ate">${frac(o.n,o.d)}</span></div></div></div>
+    ${diagram(shape,o.n,o.d)}</section>`;   // same as the matches: picture and the brown fraction plate, no name
 }
 function showCards(st){
-  setView("match",cardSide("a",st.a,st.shape)+`<section class="mid"><div class="ask">Who ate more?</div></section>`+cardSide("b",st.b,st.shape));
+  setView("match cardsv",cardSide("a",st.a,st.shape)+cardSide("b",st.b,st.shape));   // Set C: two big contestants, centred
   S.phase="winner"; S.wTries=0;
   say(st.intro,"","billu"); speak(st.intro); button("Tap who ate more",false,false);
   ["a","b"].forEach(sd=>{ const s=$("side-"+sd); s.classList.add("pick"); s.tabIndex=0; s.setAttribute("role","button");
