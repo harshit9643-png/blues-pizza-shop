@@ -1243,6 +1243,36 @@ html,body{overflow:hidden}   /* the podium runs past the bottom edge; the page n
 #app>.card{transition:opacity .6s ease,transform .6s ease}
 #app>.card.gone{opacity:0;transform:translateY(-20px);pointer-events:none}
 .guide .spk{display:none!important}   /* no speaker icon on the badge: just the character */
+/* ===== Final ordering v6: cards on top, square pizza tiles below; a right drop swaps the pizza for the card ===== */
+.view.ford{--sq:clamp(118px,min(13.5vw,22vh),190px);display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:1vh 0 2vh}
+.view.ford .frow{display:flex;justify-content:center;gap:clamp(14px,2.4vw,40px)}
+.view.ford .cell{width:var(--sq);height:var(--sq);display:grid;place-items:center}
+.view.ford .fdiag{display:none}
+.view.ford .fdiag.show{display:flex}
+.view.ford .fdiag .cell{height:auto}
+.view.ford .fin{width:var(--sq);height:var(--sq);padding:8px;grid-template-columns:52% 40%;grid-template-rows:1fr;column-gap:6%;align-items:center;justify-content:center;align-content:center}
+.view.ford .fin .ava{width:100%;height:100%;display:grid;place-items:center;overflow:visible}
+.view.ford .fin .ava img{width:100%;height:auto;max-height:100%;object-fit:contain}
+.view.ford .fin .eplate,.view.ford .fin .nm{display:none}
+.view.ford .fin .mini{width:100%;aspect-ratio:auto;border-radius:12px;padding:4px 0;background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A);box-shadow:0 0 0 3px var(--wood-dark),inset 0 3px 0 rgba(255,220,170,.35),0 4px 8px rgba(0,0,0,.28)}
+.view.ford .fin .mini .fr{font-size:clamp(18px,2.8vh,28px);color:#FFE08A}
+.view.ford .fin .mini .fr b:first-child{border-bottom-color:#FFE08A}
+.view.ford .slot{width:var(--sq);height:auto;border:0;background:none;border-radius:0;display:grid;justify-items:center;gap:8px;padding:0}
+.view.ford .slot .sno{font-family:var(--display);font-weight:800;font-size:clamp(22px,3.4vh,34px);line-height:1;color:#5A3214;text-shadow:0 2px 0 rgba(255,255,255,.7)}
+.view.ford .slot .tile{position:relative;width:var(--sq);height:var(--sq);display:grid;place-items:center}
+.view.ford .slot .spz{position:absolute;inset:0;transition:transform .5s cubic-bezier(.5,0,.7,.4),opacity .45s}
+.view.ford .slot .spz svg{width:100%;height:100%;display:block}
+.view.ford .slot .spz.out{transform:scale(.2) rotate(-20deg);opacity:0}
+.view.ford .slot.over .tile{filter:drop-shadow(0 0 16px rgba(242,166,44,1))}
+.view.ford .slot .fin.fitin{animation:fitIn .5s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes fitIn{from{transform:scale(1.25);opacity:.4}}
+body:has(.view.ford) header.top{top:12px!important;bottom:auto!important}
+body:has(.view.ford) #done{display:none!important}
+body:has(.view.ford) .qap{padding-top:78px!important}
+.view.ford .fin .ava{background:none!important;box-shadow:none!important;border-radius:0!important}   /* the character straight on the card */
+body:has(.view.ford) .stage::after{position:fixed!important;inset:0!important;border-radius:0!important;background:rgba(30,14,6,.55)!important}   /* the champion-pick dim covers the whole screen */
+body:has(.view.ford) .stage.dim .view{position:relative;z-index:3}
+.stage.dim .view.ford .slot .sno{color:#FFFFFF!important;text-shadow:0 2px 0 rgba(0,0,0,.5)!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1675,6 +1705,13 @@ function showFinalIntro(){
   button("next",true,true,next);
 }
 /* a plate with the finalist's pizza: the piece that was eaten is shown empty (dashed), so its size can be seen */
+function squarePizza(n,d){
+  const id=uid("sq"), x0=10, W=180, w=W/d, ex=x0+W-n*w;    // the eaten strips are on the right
+  const cuts=[...Array(d-1)].map((_,i)=>`<line x1="${(x0+(i+1)*w).toFixed(1)}" y1="${x0}" x2="${(x0+(i+1)*w).toFixed(1)}" y2="${x0+W}" stroke="#7A3A14" stroke-width="2.6" opacity=".75"/>`).join("");
+  return `<svg viewBox="0 0 200 200" aria-hidden="true"><defs><clipPath id="${id}"><rect x="${x0}" y="${x0}" width="${(ex-x0).toFixed(1)}" height="${W}"/></clipPath></defs>
+    <rect x="${ex.toFixed(1)}" y="${x0}" width="${(n*w).toFixed(1)}" height="${W}" rx="6" fill="rgba(255,240,215,.35)" stroke="#C8402E" stroke-width="3.5" stroke-dasharray="9 7"/>
+    <g clip-path="url(#${id})" style="filter:drop-shadow(0 4px 4px rgba(40,20,5,.35))"><image href="${HD}pizza_square_sharp.webp" x="${x0}" y="${x0}" width="${W}" height="${W}" preserveAspectRatio="none"/>${cuts}</g></svg>`;
+}
 function eatenPlate(n,d){
   const C=100,R=74, step=2*Math.PI/d, a0=-Math.PI/2, a1=a0+n*step, big=n*step>Math.PI?1:0;
   const p=(a)=>`${(C+R*Math.cos(a)).toFixed(1)} ${(C+R*Math.sin(a)).toFixed(1)}`, q=(a)=>`${(C+(R+7)*Math.cos(a)).toFixed(1)} ${(C+(R+7)*Math.sin(a)).toFixed(1)}`;
@@ -1694,15 +1731,12 @@ function pinColumns(){ const c=document.querySelector(".final>div:last-child"); 
   c.style.transform="none"; const sl=c.querySelector(".slot")||c, gap=innerHeight-sl.getBoundingClientRect().bottom; c.style.transform=`translateY(${Math.max(0,gap)}px)`; }
 addEventListener("resize",()=>pinColumns());
 function showFinal(){
-  setView("final",`
-    <div class="row5 home5">${FINALISTS.map((f,i)=>`<div class="cell" id="home-${i}">${finCard(f,i)}</div>`).join("")}</div>
-    <div class="row5 diags5" id="diags">${FINALISTS.map((_,i)=>`<div class="cell" id="dg-${i}"></div>`).join("")}</div>
-    <div>
-      <div class="row5">${(()=>{ const up=[...FINALISTS].sort((x,y)=>x.n/x.d-y.n/y.d);   // each column's plate shows how much was eaten
-        return [0,1,2,3,4].map(i=>`<div class="slot" id="slot-${i}" data-s="${i}"><div class="splate">${eatenPlate(up[i].n,up[i].d)}</div></div>`).join(""); })()}</div>
-      <div class="scale" style="justify-content:center"><span>smallest</span><span class="line"></span><span>greatest</span></div>
-    </div>`);
-  pinColumns(); [60,250,600,1200].forEach(t=>setTimeout(pinColumns,t));
+  const up=[...FINALISTS].sort((x,y)=>x.n/x.d-y.n/y.d);   // tile s shows the pizza for the s-th smallest piece
+  setView("ford",`
+    <div class="frow" id="homes">${FINALISTS.map((f,i)=>`<div class="cell" id="home-${i}">${finCard(f,i)}</div>`).join("")}</div>
+    <div class="frow fdiag" id="diags">${FINALISTS.map((_,i)=>`<div class="cell" id="dg-${i}"></div>`).join("")}</div>
+    <div class="frow">${[0,1,2,3,4].map(i=>`<div class="slot" id="slot-${i}" data-s="${i}"><div class="sno">${i+1}</div>
+      <div class="tile"><div class="spz">${squarePizza(up[i].n,up[i].d)}</div></div></div>`).join("")}</div>`);
   S.phase="order"; S.sel=null; S.oTries=0;
   say("They each ate one piece, but from pizzas cut differently. Put them in order, from smallest to greatest!","","noori"); speak(S.sayPlain);
   button("order",false,false,checkOrder);
@@ -1710,6 +1744,7 @@ function showFinal(){
 }
 function placed(){ return [0,1,2,3,4].map(s=>{ const c=$("slot-"+s).querySelector(".fin"); return c?+c.dataset.i:null; }); }
 function putIn(card,slot){
+  if(slot&&document.querySelector(".view.ford")) return fordDrop(card,slot);
   const home=$("home-"+card.dataset.i);
   if(slot){ const prev=slot.querySelector(".fin"); if(prev&&prev!==card) $("home-"+prev.dataset.i).appendChild(prev); slot.appendChild(card); }
   else home.appendChild(card);
@@ -1748,6 +1783,25 @@ function wireFinal(){
   });
   view.querySelectorAll(".slot").forEach(sl=>sl.addEventListener("click",e=>{
     if(S.phase!=="order"||!S.sel||e.target.closest(".fin")) return; putIn(S.sel,sl); }));
+}
+function fordDrop(card,slot){
+  if(S.phase!=="order") return;
+  const i=+card.dataset.i, s=+slot.dataset.s, g=S.gen;
+  const want=[...FINALISTS.keys()].sort((x,y)=>FINALISTS[x].n/FINALISTS[x].d-FINALISTS[y].n/FINALISTS[y].d);
+  card.classList.remove("sel","bad"); S.sel=null;
+  if(slot.querySelector(".fin")) return;
+  if(want[s]===i){
+    const pz=slot.querySelector(".spz"); pz.classList.add("out");                  // the pizza goes away...
+    slot.querySelector(".tile").appendChild(card); card.classList.add("lock","fitin");  // ...and the card fits in its place
+    Sound.good&&Sound.good();
+    if(placed().every(x=>x!==null)) setTimeout(()=>{ if(live(g)&&S.phase==="order") checkOrder(); },900);
+    return;
+  }
+  S.oTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump(card,"bad",600);
+  if(S.oTries===1) say("Oops! Try again.","bad","noori");
+  else { say("Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.","bad","noori");
+    FINALISTS.forEach((f,k)=>{ $("dg-"+k).innerHTML=finDiag(f); }); $("diags").classList.add("show"); }
+  $("home-"+i).appendChild(card);
 }
 async function checkOrder(){
   if(S.phase!=="order") return;
