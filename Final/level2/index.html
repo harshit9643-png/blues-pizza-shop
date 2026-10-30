@@ -1240,6 +1240,8 @@ body:has(.view.final) #app{padding-bottom:0!important}
 .podium .step img.a{margin-bottom:-14px;position:relative;z-index:1}
 .podium .step .blk{position:relative;z-index:0}
 html,body{overflow:hidden}   /* the podium runs past the bottom edge; the page never scrolls */
+#app>.card{transition:opacity .6s ease,transform .6s ease}
+#app>.card.gone{opacity:0;transform:translateY(-20px);pointer-events:none}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1475,6 +1477,7 @@ const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 let onDone=null;
 function say(text,tone,speaker){
+  const cd=document.querySelector("#app>.card"); if(cd) cd.classList.remove("gone");
   nooriTalk(speaker==="billu"?null:text); S.sayPlain=text; $("say").innerHTML=fracify(text); $("say").className="say"+(tone?" "+tone:"");
   $("guideImg").src = speaker==="billu" ? A+"billu_idle.webp" : A+"noori.webp";
   $("guide").classList.toggle("billu",speaker==="billu");
@@ -1800,6 +1803,11 @@ function showChampion(){
   Sound.win(); confetti(); say("The ant is our Big Eater Champion!  Monty (from the crowd): “Beaten by an ant… again!”","good","noori"); speak("The ant is our Big Eater Champion!");
   button("next",false,false); $("done").style.visibility="hidden";   // the champion podium is the last screen: nothing comes after it
   pinPodium(); [80,300,700].forEach(t=>setTimeout(pinPodium,t));
+  // once the line has been said, the dialogue box goes away and only the podium stays
+  const g=S.gen, t0=performance.now();
+  (function fade(){ if(!live(g)) return; const talking=window.speechSynthesis&&speechSynthesis.speaking;
+    if(talking||performance.now()-t0<4500){ setTimeout(fade,300); return; }
+    setTimeout(()=>{ if(live(g)) document.querySelector("#app>.card").classList.add("gone"); },2000); })();
 }
 /* the podium steps reach the bottom edge of the screen (taller by the gap, pulled down by it) */
 function pinPodium(){ const st=document.querySelector(".podium .steps"); if(!st) return;
