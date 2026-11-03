@@ -1177,6 +1177,11 @@ body.tutoring .trail{display:none!important}
   background:radial-gradient(circle at var(--sx) var(--sy),rgba(8,14,30,0) 0,rgba(8,14,30,0) var(--sr),rgba(8,14,30,.62) calc(var(--sr) + 70px))}
 .story .sspot.on{opacity:1}
 .story .sbub{z-index:30!important}
+/* story pictures: shown whole, a soft blurred copy fills any space around them */
+.story .sshot img:not(.blur){position:absolute;inset:0;object-fit:contain!important}
+.story .sshot img.blur{position:absolute;inset:0;object-fit:cover;filter:blur(18px) brightness(.8);transform:scale(1.08)}
+.story .sspot{transition:opacity .45s ease,--sr 1.1s cubic-bezier(.3,.7,.3,1)!important}
+.tut .lbillu{display:none!important}   /* no standing Billu in the lessons */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2832,15 +2837,32 @@ function sTalk(e,text){
   setTimeout(off,est);
 }
 
-function anchor(l,t,w,h,key){ const d=document.createElement("div"); d.className="anch"; d._key=key; Object.assign(d.style,{position:"absolute",left:l+"%",top:t+"%",width:w+"%",height:h+"%",pointerEvents:"none",zIndex:26});
+/* story pictures always show whole (no cropping on narrow or tall windows); boxes on them are given in % of the picture */
+const SHOT_AR=1672/941;
+function fitBox(l,t,w,h){ const q=$("sworld").getBoundingClientRect(), W=innerWidth, H=innerHeight;   // the picture fits the window
+  let fw=W, fh=H; if(W/H>SHOT_AR) fw=H*SHOT_AR; else fh=W/SHOT_AR;
+  const x0=(W-fw)/2-q.left, y0=(H-fh)/2-q.top;   // in the story world's own box (it may be wider than the window)
+  return [(x0+l/100*fw)/q.width*100, (y0+t/100*fh)/q.height*100, w/100*fw/q.width*100, h/100*fh/q.height*100]; }
+/* pictures and the focus layer cover exactly the window (the story world itself can be wider than it) */
+function toWindow(el){ const sw=$("sworld"), q=sw.getBoundingClientRect(), k=q.width/(sw.offsetWidth||q.width)||1;
+  Object.assign(el.style,{left:(-q.left/k)+"px",top:(-q.top/k)+"px",width:(innerWidth/k)+"px",height:(innerHeight/k)+"px",right:"auto",bottom:"auto"}); }
+addEventListener("resize",()=>document.querySelectorAll("#sworld>.sshot,#sworld>.sspot").forEach(toWindow));
+new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(n=>{ if(n.classList&&(n.classList.contains("sshot")||n.classList.contains("sspot"))) toWindow(n);
+  if(n.classList&&n.classList.contains("sshot")&&!n.querySelector("img.blur")){ const i=n.querySelector("img"); if(i) n.insertAdjacentHTML("afterbegin",`<img class="blur" src="${i.getAttribute("src")}" alt="">`); } })))
+  .observe(document.getElementById("sworld")||document.body,{childList:true});
+function anchor(l,t,w,h,key){ [l,t,w,h]=fitBox(l,t,w,h); const d=document.createElement("div"); d.className="anch"; d._key=key; Object.assign(d.style,{position:"absolute",left:l+"%",top:t+"%",width:w+"%",height:h+"%",pointerEvents:"none",zIndex:26});
   d.innerHTML='<div class="rig" style="width:100%;height:100%"></div>'; $("sworld").appendChild(d); return d; }
 /* speech bubble over the speaker's head (the supplied bubble art; its tail points at the speaker) */
 /* focus on whoever is speaking: the scene dims around a bright circle on their face */
 function sSpot(face){ let s=$("sspot");
-  if(!face){ if(s) s.classList.remove("on"); return; }
+  if(!face||STORY.noSpot){ if(s) s.classList.remove("on"); return; }
   if(!s){ s=document.createElement("div"); s.id="sspot"; s.className="sspot"; $("sworld").appendChild(s); }
   const cx=(face.l+face.r)/2, cy=(face.t+face.b)/2, r=Math.max(face.r-face.l,face.b-face.t)*.95+40;
-  s.style.setProperty("--sx",cx+"px"); s.style.setProperty("--sy",cy+"px"); s.style.setProperty("--sr",r+"px"); s.classList.add("on"); }
+  // it appears right on the new speaker (no sliding across), wide, then closes in slowly on them
+  s.style.transition="none"; s.style.setProperty("--sx",cx+"px"); s.style.setProperty("--sy",cy+"px"); s.style.setProperty("--sr",Math.max(innerWidth,innerHeight)+"px");
+  void s.offsetWidth; s.style.transition=""; s.classList.add("on"); s.style.setProperty("--sr",r+"px"); }
+/* focus on a thing in the picture (the narrator has no bubble) */
+function sLook(el){ if(!el) return; const q=el.getBoundingClientRect(), dx=q.width*.2, dy=q.height*.2; sSpot({l:q.left+dx,t:q.top,r:q.right-dx,b:q.bottom-dy*2}); }
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
@@ -2986,7 +3008,7 @@ function sShot(src){
 }
 /* plays one story; resolves when it ends or is skipped */
 async function playStory(script){
-  const gen=++STORY.gen; STORY.run=gen; STORY.cast={};
+  const gen=++STORY.gen; STORY.run=gen; STORY.cast={}; STORY.noSpot=false;
   const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub,#sworld>.sspot,#sworld>.anch").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
   clear(); st.classList.remove("dusk"); $("scam").style.transition="none"; $("scam").style.transform="none";
   $("sLine").innerHTML=""; $("sWho").innerHTML=""; $("sNext").classList.add("wait");
@@ -3032,7 +3054,8 @@ async function storyContext1(){
   const aN=anchor(41.9,45.2,6.5,16.5,"noori"), aB=anchor(54.5,34.8,12.5,24.5,"billu");
   STORY.cast.noori=aN; STORY.cast.billu=aB;
   await sLine("narr","Billu’s Pizza Kitchen is open!");
-  await sLine("narr","Here, you need not order a whole pizza. You can order as many pizza slices as you want to eat!");
+  const board=anchor(23.6,50,14,32); setTimeout(()=>sLook(board),350);   // the "Order a whole pizza, or just a part!" chalkboard
+  await sLine("narr","Here, you need not order a whole pizza. You can order as many pizza slices as you want to eat!"); board.remove();
   await sLine("noori","I am here to help Billu!");
   await sLine("billu","I’m ready to cook!");
   await sLine("noori","See, Chintu is here for the first order.");
@@ -3047,7 +3070,7 @@ async function storyContext1(){
   // ...then the same picture with the pizza cut into one big and one tiny piece
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
   $("sworld").appendChild(cut2); void cut2.offsetWidth; cut2.classList.add("in"); await W(sleep(450)); open2.remove(); open2=cut2;
-  SFX.roll(); await sLine("billu","Ta-da! Two pieces!");
+  STORY.noSpot=true; SFX.roll(); await sLine("billu","Ta-da! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
   $("sworld").appendChild(open3); void open3.offsetWidth; open3.classList.add("in"); SFX.whoosh();
