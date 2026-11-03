@@ -1229,6 +1229,21 @@ html,body{overflow:hidden}   /* the podium runs past the bottom edge; the page n
 #app>.card{transition:opacity .6s ease,transform .6s ease}
 #app>.card.gone{opacity:0;transform:translateY(-20px);pointer-events:none}
 .guide .spk{display:none!important}   /* no speaker icon on the badge: just the character */
+/* the star counter (in place of the progress dots) */
+.trail{display:none!important}
+.starbox{position:fixed;left:10px;top:50%;translate:0 -50%;z-index:200;display:grid;justify-items:center;gap:2px;padding:10px 8px 8px;border-radius:999px;
+  background:rgba(43,35,82,.92);box-shadow:0 0 0 2px rgba(246,195,74,.55),0 6px 14px rgba(0,0,0,.3);pointer-events:none}
+.starbox svg{width:clamp(30px,4vh,40px);height:auto;fill:#F6C34A;stroke:#B97410;stroke-width:1.2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.starbox b{font-family:var(--display);font-weight:800;font-size:clamp(18px,2.6vh,24px);line-height:1;color:#FFFFFF;min-width:1.4em;text-align:center}
+.starbox.up{animation:starUp .6s cubic-bezier(.3,1.6,.5,1)}
+.starbox.down{animation:starDown .5s}
+@keyframes starUp{40%{transform:scale(1.25)}}
+@keyframes starDown{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.starbox .starfly{position:absolute;left:100%;top:30%;margin-left:6px;font-family:var(--display);font-weight:800;font-size:22px;white-space:nowrap;animation:starFly 1.1s ease-out forwards}
+.starbox .starfly.up{color:#F6C34A;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.starbox .starfly.down{color:#FF6B5B;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+@keyframes starFly{from{opacity:0;transform:translateY(8px)}20%{opacity:1}to{opacity:0;transform:translateY(-26px)}}
+body.tutoring .starbox{display:none}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1305,7 +1320,7 @@ const MEDAL=`<svg class="medal" viewBox="0 0 80 110" role="img" aria-label="Meda
 /* where each animal's neck is in its own picture: [x, y] as fractions of the image, and how wide
    its chest is (fraction of the image width) so the medal is sized to the animal */
 const NECK={tez:[.55,.45,.42],monty:[.5,.42,.36],ant:[.52,.46,.3],squirrel:[.34,.33,.34],bijli:[.55,.44,.32],badal:[.47,.44,.32],
-  madhu:[.45,.55,.4],peacock:[.5,.4,.34],hippo:[.5,.41,.42],jhumru:[.5,.47,.36],mouse:[.5,.48,.32]};
+  madhu:[.45,.55,.4],peacock:[.5,.4,.34],hippo:[.5,.41,.42],jhumru:[.5,.37,.4],mouse:[.5,.48,.32]};
 const MEDAL_PIC={peacock:"peacock_medal.webp",tez:"tez_medal.webp",ant:"ant_medal.webp",bijli:"bijli_medal.webp",hippo:"hippo_medal.webp",squirrel:"squirrel_medal.webp",badal:"badal_medal.webp"};
 function hangMedal(side,k){
   const who=side.querySelector(".who"), ava=who&&who.querySelector(".ava"), img=ava&&ava.querySelector("img");
@@ -1511,7 +1526,7 @@ function go(i){
   ({match:showMatch,cards:showCards,intro:showIntro,finalIntro:showFinalIntro,final:showFinal,champion:showChampion})[st.kind](st);
 }
 function next(){ if(S.i+1<STEPS.length) go(S.i+1); else showEnd(); }
-function award(i){ if(S.done[i]) return; S.done[i]=true; if(S.tries===0) S.stars++; renderTop(); }
+function award(i){ if(S.done[i]) return; S.done[i]=true; STARS.add(1); if(S.tries===0) S.stars++; renderTop(); }
 
 /* ---------- intro screens (Set B, Set C) ---------- */
 function showIntro(st){
@@ -2560,5 +2575,23 @@ if(location.hash==="#play") startLevel2();
   pan.addEventListener("click",e=>{ if(e.target.closest(".x")){ open(false); return; }
     const c=e.target.closest(".chip2"); if(!c) return; open(false);
     sel.value=c.dataset.v; sel.dispatchEvent(new Event("change")); });
+})();
+</script>
+<script>
+/* stars instead of the progress dots: +1 for each order/match done right, -1 for each wrong try (never below 0).
+   The count carries from Level 1 into Level 2 (sessionStorage; works without it too). */
+const STARS=(()=>{ let n=0; try{ n=+(sessionStorage.getItem("bpk_stars")||0)||0; }catch(e){}
+  const box=document.createElement("div"); box.className="starbox"; box.setAttribute("aria-label","Stars");
+  box.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.5.9-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.1 1.1-6.5L2.6 9.5l6.5-.9z"/></svg><b>0</b>`;
+  document.body.appendChild(box);
+  const show=()=>{ box.querySelector("b").textContent=n; try{ sessionStorage.setItem("bpk_stars",n); }catch(e){} };
+  const add=d=>{ const was=n; n=Math.max(0,n+d); show(); if(n===was) return;
+    box.classList.remove("up","down"); void box.offsetWidth; box.classList.add(d>0?"up":"down");
+    const f=document.createElement("span"); f.className="starfly "+(d>0?"up":"down"); f.textContent=d>0?"+1":"−1";
+    box.appendChild(f); setTimeout(()=>f.remove(),1100); };
+  show();
+  // every wrong try (S.tries going up anywhere in the game) costs a star
+  if(typeof S!=="undefined"){ let t=S.tries||0; Object.defineProperty(S,"tries",{configurable:true,get(){return t;},set(v){ if(v>t) add(-1); t=v; }}); }
+  return {add,reset(){ n=0; show(); }};
 })();
 </script>

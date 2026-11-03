@@ -1158,6 +1158,21 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .mould.pointed{animation:ready 1s ease-in-out infinite}
 .tut .tpzw>.tpaddle{display:none!important}   /* no paddle under the pizza in the tutorial */
 .guide .spk{display:none!important}   /* no speaker icon on the badge: just the character */
+/* the star counter (in place of the progress dots) */
+.trail{display:none!important}
+.starbox{position:fixed;left:10px;top:50%;translate:0 -50%;z-index:200;display:grid;justify-items:center;gap:2px;padding:10px 8px 8px;border-radius:999px;
+  background:rgba(43,35,82,.92);box-shadow:0 0 0 2px rgba(246,195,74,.55),0 6px 14px rgba(0,0,0,.3);pointer-events:none}
+.starbox svg{width:clamp(30px,4vh,40px);height:auto;fill:#F6C34A;stroke:#B97410;stroke-width:1.2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.starbox b{font-family:var(--display);font-weight:800;font-size:clamp(18px,2.6vh,24px);line-height:1;color:#FFFFFF;min-width:1.4em;text-align:center}
+.starbox.up{animation:starUp .6s cubic-bezier(.3,1.6,.5,1)}
+.starbox.down{animation:starDown .5s}
+@keyframes starUp{40%{transform:scale(1.25)}}
+@keyframes starDown{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+.starbox .starfly{position:absolute;left:100%;top:30%;margin-left:6px;font-family:var(--display);font-weight:800;font-size:22px;white-space:nowrap;animation:starFly 1.1s ease-out forwards}
+.starbox .starfly.up{color:#F6C34A;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.starbox .starfly.down{color:#FF6B5B;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+@keyframes starFly{from{opacity:0;transform:translateY(8px)}20%{opacity:1}to{opacity:0;transform:translateY(-26px)}}
+body.tutoring .starbox{display:none}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2054,7 +2069,7 @@ async function miss(){
 }
 async function serve(){
   const o=cur(), gen=S.gen, first=S.tries===0;
-  S.phase="served"; S.busy=true; S.done[S.i]=true; if(first) S.stars++;
+  S.phase="served"; S.busy=true; S.done[S.i]=true; if(first) S.stars++; STARS.add(1);
   const t=TOPPINGS.find(x=>x.k===[...S.covered.values()][0]).name.toLowerCase();
   Sound.good(); guideMood("cheer"); setDone("next",false); $("count").hidden=true;
   say(`${custName(o)}: “${o.ok.replace("{t}",t)}”${first?" ⭐":""}`,"good");
@@ -3148,6 +3163,25 @@ if(location.hash==="#story") startLevel("1.1",true);
     sel.value=c.dataset.v; sel.dispatchEvent(new Event("change")); });
 })();
 </script>
+<script>
+/* stars instead of the progress dots: +1 for each order/match done right, -1 for each wrong try (never below 0).
+   The count carries from Level 1 into Level 2 (sessionStorage; works without it too). */
+const STARS=(()=>{ let n=0; try{ n=+(sessionStorage.getItem("bpk_stars")||0)||0; }catch(e){}
+  const box=document.createElement("div"); box.className="starbox"; box.setAttribute("aria-label","Stars");
+  box.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.5.9-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.1 1.1-6.5L2.6 9.5l6.5-.9z"/></svg><b>0</b>`;
+  document.body.appendChild(box);
+  const show=()=>{ box.querySelector("b").textContent=n; try{ sessionStorage.setItem("bpk_stars",n); }catch(e){} };
+  const add=d=>{ const was=n; n=Math.max(0,n+d); show(); if(n===was) return;
+    box.classList.remove("up","down"); void box.offsetWidth; box.classList.add(d>0?"up":"down");
+    const f=document.createElement("span"); f.className="starfly "+(d>0?"up":"down"); f.textContent=d>0?"+1":"−1";
+    box.appendChild(f); setTimeout(()=>f.remove(),1100); };
+  show();
+  // every wrong try (S.tries going up anywhere in the game) costs a star
+  if(typeof S!=="undefined"){ let t=S.tries||0; Object.defineProperty(S,"tries",{configurable:true,get(){return t;},set(v){ if(v>t) add(-1); t=v; }}); }
+  return {add,reset(){ n=0; show(); }};
+})();
+</script>
+<script>/* a new game from the main PLAY starts the stars at 0 */ document.getElementById("mainPlay").addEventListener("click",()=>STARS.reset(),true);</script>
 
 </body>
 </html>
