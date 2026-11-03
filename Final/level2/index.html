@@ -1322,6 +1322,10 @@ body.tutoring .trail{display:none!important}
 .fline .slot .phm,.fline .slot>.fin .mini{position:absolute!important;left:50%!important;bottom:calc(var(--bw) * .06)!important;top:auto!important;right:auto!important;translate:-50% 0!important;width:calc(var(--bw) * .24)!important;height:calc(var(--bw) * .24)!important;aspect-ratio:auto!important;padding:0!important;border-radius:50%!important}
 .fline .slot>.fin .mini .fr{font-size:calc(var(--bw) * .085)!important}
 .fline .slot>.fin .face img{height:84%!important;top:52%!important}
+/* the characters stand in their cards from the start; a dropped card fills only the fraction circle */
+.fline .slot>.fin .face{display:none!important}
+.fline .slot .sface{position:absolute;right:calc(var(--bw) * .06);top:calc(var(--bw) * .06);width:calc(var(--bw) * .3);height:calc(var(--bw) * .3);border-radius:50%;overflow:hidden;background:#FFF4E0;box-shadow:0 0 0 3px #C99A62,0 4px 8px rgba(60,30,8,.3)}
+.fline .slot .sface img{position:absolute;max-width:none;left:50%!important;top:52%!important;width:auto!important;height:84%!important;translate:-50% -50%}
 @keyframes faceIn{from{transform:scale(.4);opacity:0}}
 </style>
 
@@ -1792,7 +1796,7 @@ function showFinal(){
     <div class="row5 diags5" id="diags">${FINALISTS.map((_,i)=>`<div class="cell" id="dg-${i}"></div>`).join("")}</div>
     <div>
       <div class="row5">${(()=>{ const up=[...FINALISTS].sort((x,y)=>x.n/x.d-y.n/y.d);   // each column's plate shows how much was eaten
-        return [0,1,2,3,4].map(i=>`<div class="slot" id="slot-${i}" data-s="${i}"><b class="no">${i+1}</b><i class="ph phf"></i><div class="splate">${eatenPlate(up[i].n,up[i].d)}</div><i class="ph phm"></i></div>`).join(""); })()}</div>
+        return [0,1,2,3,4].map(i=>`<div class="slot" id="slot-${i}" data-s="${i}"><b class="no">${i+1}</b><div class="sface">${faceImg(up[i].k)}</div><div class="splate">${eatenPlate(up[i].n,up[i].d)}</div><i class="ph phm"></i></div>`).join(""); })()}</div>
     </div>`);
   pinColumns(); [60,250,600,1200].forEach(t=>setTimeout(pinColumns,t));
   S.phase="order"; S.sel=null; S.oTries=0;

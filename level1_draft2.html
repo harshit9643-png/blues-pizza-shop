@@ -3021,14 +3021,17 @@ async function storyContext1(){
   await sLine("noori","I am here to help Billu!");
   await sLine("billu","I’m ready to cook!");
   await sLine("noori","See, Chintu is here for the first order.");
-  // scene 2 (picture): Chintu with his 1/2 card, Billu with the cutter, the pizza cut into one big and one tiny piece
-  const open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
+  // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
+  let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
   $("sworld").appendChild(open2); void open2.offsetWidth; open2.classList.add("in"); SFX.whoosh();
   aN.remove(); aB.remove(); await W(sleep(450)); open1.remove();
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   await sLine("chintu","Half a pizza, please!");
   await sLine("billu","Half? Easy! I’ll cut it into two pieces!");
+  // ...then the same picture with the pizza cut into one big and one tiny piece
+  const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
+  $("sworld").appendChild(cut2); void cut2.offsetWidth; cut2.classList.add("in"); await W(sleep(450)); open2.remove(); open2=cut2;
   SFX.roll(); await sLine("billu","Ta-da! Two pieces!");
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
