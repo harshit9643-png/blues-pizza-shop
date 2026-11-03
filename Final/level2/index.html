@@ -2182,7 +2182,7 @@ function sTalk(e,text){
 /* speech bubble over the speaker's head (the supplied bubble art; its tail points at the speaker) */
 /* focus on whoever is speaking: the scene dims around a bright circle on their face */
 function sSpot(face,rr){ let s=$("sspot");
-  if(true||!face||STORY.noSpot){   // Level 2 story: no dark focus at all if(s) s.classList.remove("on"); return; }
+  if(true||!face||STORY.noSpot){ if(s) s.classList.remove("on"); return; }   // Level 2 story: no dark focus at all
   if(!s){ s=document.createElement("div"); s.id="sspot"; s.className="sspot"; $("sworld").appendChild(s); }
   const cx=(face.l+face.r)/2, cy=(face.t+face.b)/2, r=rr||Math.max(face.r-face.l,face.b-face.t)*.95+40;
   // it appears right on the new speaker (no sliding across), wide, then closes in slowly on them
