@@ -1326,6 +1326,21 @@ body.tutoring .trail{display:none!important}
 .fline .slot>.fin .face{display:none!important}
 .fline .slot .sface{position:absolute;right:calc(var(--bw) * .06);top:calc(var(--bw) * .06);width:calc(var(--bw) * .3);height:calc(var(--bw) * .3);border-radius:50%;overflow:hidden;background:#FFF4E0;box-shadow:0 0 0 3px #C99A62,0 4px 8px rgba(60,30,8,.3)}
 .fline .slot .sface img{position:absolute;max-width:none;left:50%!important;top:52%!important;width:auto!important;height:84%!important;translate:-50% -50%}
+/* the supplied card design: cream card, thick glossy gold rim, a dashed orange line just inside it */
+.fline .home5 .fin,.fline .slot{border:6px solid transparent!important;
+  background:linear-gradient(180deg,#FFFDF3,#FFF7E0) padding-box,linear-gradient(180deg,#FFE066,#FFC21A 35%,#F5A300 75%,#E08A00) border-box!important;
+  box-shadow:0 0 0 1.5px #D98A00,0 5px 0 #C27600,0 10px 18px rgba(90,50,0,.28)!important}
+.fline .home5 .fin{border-radius:18px!important}
+.fline .slot{border-radius:24px!important}
+.fline .home5 .fin::after,.fline .slot::after{content:""!important;position:absolute;inset:4px;border:2.5px dashed #F2A322;pointer-events:none;background:none!important;height:auto!important;
+  border-radius:12px;padding:0!important;font-size:0!important;box-shadow:none!important}
+.fline .slot::after{border-radius:17px}
+.fline .slot::before{display:none!important}
+.fline .home5 .fin.sel{box-shadow:0 0 0 4px var(--marigold),0 0 0 1.5px #D98A00,0 10px 22px rgba(242,166,44,.7)!important;transform:translateY(-3px)}
+.fline .home5 .fin.dragging{box-shadow:0 0 0 1.5px #D98A00,0 18px 26px rgba(40,20,5,.4)!important}
+.fline .slot.over{box-shadow:0 0 0 5px #FFFFFF,0 0 0 1.5px #D98A00,0 0 30px rgba(255,200,40,.95)!important;transform:translateY(-4px)}
+.fline .slot.glow{box-shadow:0 0 0 5px #FFFFFF,0 0 30px rgba(255,200,40,.95)!important}
+.fline .slot>.fin{inset:-6px!important;border-radius:24px!important}
 @keyframes faceIn{from{transform:scale(.4);opacity:0}}
 </style>
 
