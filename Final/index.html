@@ -1182,6 +1182,14 @@ body.tutoring .starbox{display:none}
 .trail .tok.qs.got{animation:qsGot .6s cubic-bezier(.3,1.6,.5,1)}
 @keyframes qsGot{40%{transform:scale(1.5) rotate(20deg)}}
 body.tutoring .trail{display:none!important}
+/* story focus: the scene dims around a bright circle on whoever is speaking, for that line only */
+@property --sx{syntax:"<length>";inherits:false;initial-value:50vw}
+@property --sy{syntax:"<length>";inherits:false;initial-value:50vh}
+@property --sr{syntax:"<length>";inherits:false;initial-value:200px}
+.story .sspot{position:absolute;inset:0;z-index:28;pointer-events:none;opacity:0;transition:opacity .45s ease,--sx .55s ease,--sy .55s ease,--sr .55s ease;
+  background:radial-gradient(circle at var(--sx) var(--sy),rgba(8,14,30,0) 0,rgba(8,14,30,0) var(--sr),rgba(8,14,30,.62) calc(var(--sr) + 70px))}
+.story .sspot.on{opacity:1}
+.story .sbub{z-index:30!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2840,9 +2848,15 @@ function sTalk(e,text){
 function anchor(l,t,w,h,key){ const d=document.createElement("div"); d.className="anch"; d._key=key; Object.assign(d.style,{position:"absolute",left:l+"%",top:t+"%",width:w+"%",height:h+"%",pointerEvents:"none",zIndex:26});
   d.innerHTML='<div class="rig" style="width:100%;height:100%"></div>'; $("sworld").appendChild(d); return d; }
 /* speech bubble over the speaker's head (the supplied bubble art; its tail points at the speaker) */
+/* focus on whoever is speaking: the scene dims around a bright circle on their face */
+function sSpot(face){ let s=$("sspot");
+  if(!face){ if(s) s.classList.remove("on"); return; }
+  if(!s){ s=document.createElement("div"); s.id="sspot"; s.className="sspot"; $("sworld").appendChild(s); }
+  const cx=(face.l+face.r)/2, cy=(face.t+face.b)/2, r=Math.max(face.r-face.l,face.b-face.t)*.95+40;
+  s.style.setProperty("--sx",cx+"px"); s.style.setProperty("--sy",cy+"px"); s.style.setProperty("--sr",r+"px"); s.classList.add("on"); }
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
-  if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
+  if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(19,6+len*.25))+"%";
@@ -2871,6 +2885,7 @@ function sBubbleSay(e,name,text){
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
     (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
+    sSpot(me);
     };   // placed once per line, so the bubble stays put while the speaker moves
   // wait until the speaker has arrived (entering, walking or flying in), then place the bubble and pop it in
   const tok=(STORY.bubTok=(STORY.bubTok||0)+1), moving=e.getAnimations().filter(a=>a.playState==="running");
@@ -2886,7 +2901,7 @@ function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   sBubbleSay(STORY.cast[who],name,text);
   if(STORY.talkOff) STORY.talkOff();
   sTalk(STORY.cast[who],text); $("sNext").classList.remove("wait"); autoClick($("sNext"),text);
-  return W(new Promise(r=>{ STORY.next=r; }));
+  return W(new Promise(r=>{ STORY.next=r; })).finally(()=>sSpot(null));
 }
 
 /* ---------- props ---------- */
@@ -2985,7 +3000,7 @@ function sShot(src){
 /* plays one story; resolves when it ends or is skipped */
 async function playStory(script){
   const gen=++STORY.gen; STORY.run=gen; STORY.cast={};
-  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub,#sworld>.anch").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
+  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub,#sworld>.sspot,#sworld>.anch").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
   clear(); st.classList.remove("dusk"); $("scam").style.transition="none"; $("scam").style.transform="none";
   $("sLine").innerHTML=""; $("sWho").innerHTML=""; $("sNext").classList.add("wait");
   document.body.classList.add("tutoring"); st.hidden=false; void st.offsetWidth; st.classList.add("on");
