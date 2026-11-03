@@ -2419,11 +2419,9 @@ async function storyContext2(){
   keep=[anchor(42,20,10,33),anchor(2,30,21,45)];   // the trophy and the scoreboard stay clear
   await say("billu",[55,18,16,28],"8 is bigger than 4, so Monty wins!"); keep.forEach(a=>a.remove());
   // 4. the ant points at the plates (the empty space on hers is bigger); Noori beside the scoreboard
-  // shown a little smaller (less zoomed in): the picture at 84% over a soft blurred copy of itself
-  sc=await next(sc,"assets/story/l2_scene4.webp"); sc.classList.add("far");
-  const far=b=>[8+b[0]*.84,8+b[1]*.84,b[2]*.84,b[3]*.84];
-  await say("ant",far([45,18,17,36]),"Wait! Look at our plates!");
-  await say("noori",far([77,6,13,28]),"Let’s find out who really ate more!");
+  sc=await next(sc,"assets/story/l2_scene4.webp");
+  await say("ant",[45,18,17,36],"Wait! Look at our plates!");
+  await say("noori",[77,6,13,28],"Let’s find out who really ate more!");
 }
 /* ---------- wiring ---------- */
 $("guide").addEventListener("click",()=>speak(S.sayPlain));
