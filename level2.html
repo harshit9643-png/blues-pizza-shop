@@ -1344,6 +1344,7 @@ body.tutoring .trail{display:none!important}
 .story .sshot img:not(.blur){position:absolute;inset:0;object-fit:contain!important}
 .story .sshot img.blur{position:absolute;inset:0;object-fit:cover;filter:blur(18px) brightness(.8);transform:scale(1.08)}
 .story .sspot{transition:opacity .45s ease,--sr 1.1s cubic-bezier(.3,.7,.3,1)!important}
+.story .ssub:has(#sLine:empty){visibility:hidden}   /* no empty box before the first line */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1593,7 +1594,7 @@ function guideMood(c){ const g=$("guide"); g.classList.remove("cheer","hmm"); vo
 function button(label,enabled,ready,fn){ const b=$("done");
   b.innerHTML = label==="next" ? `NEXT ${ARROW}` : label==="check" ? `CHECK PLATES ${CHECK}` : label==="order" ? `CHECK ORDER ${CHECK}` : label;
   const act=/^(next|check|order)$/.test(label); b.disabled=act?false:!enabled; b.style.visibility=(!act&&!enabled)?"hidden":"";   /* an instruction-only bar ("Tap who ate more") is not shown: the dialogue box says it */ b._en=!!enabled; b.classList.toggle("ready",!!ready); onDone=fn||null; b._auto=(b._auto||0)+1;   // DONE-type buttons always look active
-  if(label==="next"&&enabled) autoClick(b,S.sayPlain,800); }
+  if(label==="next"&&enabled) autoClick(b,S.sayPlain,1000); }
 $("done").addEventListener("click",()=>{ const b=$("done"); if(b.disabled) return;
   if(!b._en){ Sound.bad&&Sound.bad(); if(S.phase==="build") say("Add the slices to both plates first, then check.","bad"); return; }   // tapped too early: a hint
   if(onDone) onDone(); });
@@ -1897,11 +1898,11 @@ function pickChampion(i){
     c.insertAdjacentHTML("beforeend",`<img class="medal" src="${A}trophy.svg" alt="Golden trophy" style="right:-14px;top:-30px">`);
     Sound.win(); confetti(); say("Ant: “One big piece, one golden trophy!”","good","billu"); speak(S.sayPlain);
     button("next",true,true,next);
-    // the button is hidden on this screen: move on by itself 0.8 s after the line has been spoken
+    // the button is hidden on this screen: move on by itself 1 s after the line has been spoken
     const g=S.gen, t0=performance.now();
     (function go(){ if(!live(g)||S.phase!=="champ") return;
       if(performance.now()-t0<1200 || (window.speechSynthesis&&speechSynthesis.speaking)){ setTimeout(go,250); return; }
-      setTimeout(()=>{ if(live(g)&&S.phase==="champ") next(); },800); })();
+      setTimeout(()=>{ if(live(g)&&S.phase==="champ") next(); },1000); })();
     return;
   }
   S.wTries++; Sound.bad(); guideMood("hmm"); bump($("fin-"+i),"bad",600);
@@ -1949,14 +1950,14 @@ let FLOW=0;   // bumped when the menu takes over, so a running story -> tutorial
 
 const STOP={stop:true};
 /* auto-advance: a NEXT that is not tapped presses itself once the line has been read out, plus a short pause */
-function autoClick(el,text,extra=800){
+function autoClick(el,text,extra=1000){
   if(!el) return; const tok=(el._auto||0)+1; el._auto=tok; const html=el.innerHTML;
   const words=String(text||"").replace(/<[^>]+>/g," ").split(/\s+/).filter(Boolean).length;
   const est=Math.max(1400,words*240+300), t0=performance.now(); let spoke=false;
-  // move on 0.8 s after the voice finishes; without a voice, after a reading-time estimate
+  // move on 1 s after the voice finishes; without a voice, after a reading-time estimate
   (function tick(){
     if(el._auto!==tok) return;
-    const talking=!!(window.speechSynthesis&&speechSynthesis.speaking), t=performance.now()-t0; if(talking) spoke=true;
+    const talking=!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)), t=performance.now()-t0; if(talking) spoke=true;
     const ready=spoke ? !talking : t>=1200 && t>=est;
     if(!ready){ setTimeout(tick,100); return; }
     setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.getClientRects().length) return; el.click(); },extra);
@@ -2384,7 +2385,6 @@ function wheelPt(e){ const w=e.querySelector(".hold .whl"); if(!w) return null; 
 
 /* Context 2 (before Level 2): the Big Eater Contest, and Billu picks the wrong winner */
 async function storyContext2(){
-  await sTitle("CHAPTER 2","The Big Eater Contest");
   // the story plays on the supplied pictures (sheet: Context 2); each bubble points at the speaker painted in the picture
   const shot=(src)=>{ const el=document.createElement("div"); el.className="sshot"; el.innerHTML=`<img src="${src}" alt="">`;
     $("sworld").appendChild(el); SFX.whoosh(); void el.offsetWidth; el.classList.add("in"); return el; };
