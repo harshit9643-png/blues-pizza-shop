@@ -1536,7 +1536,7 @@ const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-w
 function setDone(kind,enabled,ready){ const b=$("done");
   b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `DONE ${CHECK}`;
   b.disabled=false; b._en=!!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;   // always active-looking
-  if(kind==="next"&&enabled) autoClick(b,S.sayPlain,2200); }
+  if(kind==="next"&&enabled) autoClick(b,S.sayPlain,800); }
 function setCount(){ const o=cur(), c=$("count");
   if(S.phase==="top"){ c.hidden=false; c.textContent=`${S.covered.size}/${o.d}`; } else c.hidden=true; }
 /* one star per question: dark until it is answered right, then gold */
@@ -2252,7 +2252,7 @@ function showEnd(){
   $("end").hidden=false; S.gen++; Sound.win(); speak(L.end.join(" "));
   const n=$("goNext"), g=$("goOther"), l2=$("goL2"); if(n) n.onclick=()=>startLevel("1.2"); if(g) g.onclick=()=>startLevel("1.1");
   if(l2) l2.onclick=()=>goLevel2();
-  autoClick(n||l2,L.end.join(" "),2500);   // carry on to the next level by itself
+  autoClick(n||l2,L.end.join(" "),800);   // carry on to the next level by itself
   $("again").onclick=()=>startLevel(S.lv);
 }
 
@@ -2621,16 +2621,16 @@ let FLOW=0;   // bumped when the menu takes over, so a running story -> tutorial
 
 const STOP={stop:true};
 /* auto-advance: a NEXT that is not tapped presses itself once the line has been read out, plus a short pause */
-function autoClick(el,text,extra=2000){
+function autoClick(el,text,extra=800){
   if(!el) return; const tok=(el._auto||0)+1; el._auto=tok; const html=el.innerHTML;
   const words=String(text||"").replace(/<[^>]+>/g," ").split(/\s+/).filter(Boolean).length;
   const est=Math.max(1400,words*240+300), t0=performance.now(); let spoke=false;
-  // move on 2 s after the voice finishes; without a voice, after a reading-time estimate
+  // move on 0.8 s after the voice finishes; without a voice, after a reading-time estimate
   (function tick(){
     if(el._auto!==tok) return;
     const talking=!!(window.speechSynthesis&&speechSynthesis.speaking), t=performance.now()-t0; if(talking) spoke=true;
     const ready=spoke ? !talking : t>=1200 && t>=est;
-    if(!ready){ setTimeout(tick,250); return; }
+    if(!ready){ setTimeout(tick,100); return; }
     setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.getClientRects().length) return; el.click(); },extra);
   })();
 }
