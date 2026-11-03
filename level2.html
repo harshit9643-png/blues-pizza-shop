@@ -2344,56 +2344,31 @@ function showHoles(pz){ pz.querySelectorAll(".holep").forEach(h=>{ h.setAttribut
 function wheelPt(e){ const w=e.querySelector(".hold .whl"); if(!w) return null; return worldPt(w,.5,.95); }
 
 /* Context 2 (before Level 2): the Big Eater Contest, and Billu picks the wrong winner */
+const L2SC2={billu:[47,24,10,26]}, L2SC3={billu:[49,25.5,10,25]};   // Billu's face box in scenes 2 and 3
 async function storyContext2(){
   await sTitle("CHAPTER 2","The Big Eater Contest");
-  // 1. evening: the orders are done, customers at their tables, Billu hangs the banner
-  P.counter(); P.ambient();
-  
-  const crowd=[];
-  const billu=actor("billu",50,22,40,{z:3,as:"billu",img:"billu_idle"}); setArm(billu,-30,0);
-  await sCam(50,50,1,0);   // the whole shop, wide (the camera zooms only once in this story: on Billu)
-  const ban=P.banner(); await W(sleep(500)); setArm(billu,-50,300); ban.classList.add("in"); SFX.whoosh(); setImg(billu,"billu_happy"); sHop(billu,1,6);
-  await W(sleep(400)); setArm(billu,0,500);
-  await sCam(50,44,1.7,1100);   // the one close-up: Billu announces the contest
-  await sLine("billu","Everyone loves our pizza! Let’s have a Big Eater Contest!");
-  setImg(billu,"billu_idle");
-  // 2. close-up of the shiny golden trophy (shaped like a pizza cutter); the customers cheer
-  const tro={remove(){},classList:{remove(){}}};   // no trophy on the counter (the contest pictures show it)
-  const noori=actor("noori",40,39.6,19,{cls:"still",z:5,as:"noori"});
-  await sCam(50,50,1,1100);   // zoom back out to the main screen; it stays wide from here on
-  SFX.cheer(); crowd.forEach((c,i)=>setTimeout(()=>sHop(c,2,8),i*120));
-  const l2=sLine("noori","Whoever eats more pizza wins the golden trophy!");
-  await W(sleep(1600));
-  crowd.forEach((c,i)=>setTimeout(()=>sHop(c,2,8),i*120));
-  await l2;
-  // 3-5. the contest is told with the supplied pictures; each line's bubble points at the character painted
-  // in the picture and goes away when the line is done. The pizzas are whole at "Ready… eat!" and show the
-  // eaten slices (1/8 and 1/4) from "Munch, munch" on.
-  const real={...STORY.cast};
-  const startShot=sShot("assets/story/contest_start.webp"), sImg=()=>[...document.querySelectorAll("#sworld>.sshot img")].pop();
-  let anc=[anchor(47,24,10,26),anchor(19.5,35.5,13,20),anchor(68.5,47.5,6.5,14)];   // the faces in the picture
-  Object.assign(STORY.cast,{billu:anc[0],monty:anc[1],ant:anc[2]});
-  await sLine("billu","First up, Monty and the ant! Ready… eat!");
-  SFX.ding(); SFX.chomp(); sImg().src="assets/story/contest_start_eaten.webp";
-  await sLine("ant","Munch, munch, munch…");
-  SFX.ding();
-  await sLine("billu","Time’s up! Monty ate 1/8. The ant ate 1/4.");
-  // 6-9. Billu gives Monty the trophy (the second picture, with the eaten slices)
-  const winShot=sShot("assets/story/contest_win_eaten.webp"); setTimeout(()=>startShot(),450);
-  anc.forEach(a=>a.remove()); anc=[anchor(49,25.5,10,25),anchor(21,37,10,18),anchor(68,47,7,15),anchor(16,24,9,25)];   // faces, and the trophy kept clear
-  Object.assign(STORY.cast,{billu:anc[0],monty:anc[1],ant:anc[2]});
-  SFX.cheer();
-  await sLine("billu","8 is bigger than 4. So Monty wins!");
-  await sLine("ant","Wait! Look at our plates!");
-  await sLine("monty","Uh-oh…");
-  await sLine("billu","Oh yes, you ate a bigger piece!");
-  const bb=$("sbub"); if(bb) bb.classList.remove("on");
-  anc.forEach(a=>a.remove()); Object.assign(STORY.cast,real);
-  // 10. back at the shop: Noori steps in
-  await winShot(); tro.remove();
-  await sLine("noori","Let’s find out who really ate more!");
+  // the story plays on the supplied pictures (sheet: Context 2); each bubble points at the speaker painted in the picture
+  const shot=(src)=>{ const el=document.createElement("div"); el.className="sshot"; el.innerHTML=`<img src="${src}" alt="">`;
+    $("sworld").appendChild(el); SFX.whoosh(); void el.offsetWidth; el.classList.add("in"); return el; };
+  const say=async(who,box,text)=>{ const a=anchor(...box); a._key=who; STORY.cast[who]=a; await sLine(who,text); a.remove(); };
+  const next=async(prev,src)=>{ const el=shot(src); await W(sleep(450)); prev.remove(); return el; };
+  // 1. evening at the kitchen: the "Big Eater Contest!" banner and the golden trophy; the customers cheer
+  let sc=shot("assets/story/l2_scene1.webp"); SFX.cheer();
+  const keep=[anchor(31,25,36,15),anchor(48,41,10,26)];   // the banner and the trophy stay clear of the bubble
+  await say("billu",[62,35,14,40],"We have the Big Eater Contest! Whoever eats more wins the golden trophy!");
+  keep.forEach(a=>a.remove());
+  // 2. Monty and the ant, the same size pizza in 8 and in 4 slices; the bell rings
+  sc=await next(sc,"assets/story/l2_scene2.webp"); SFX.ding();
+  await say("billu",L2SC2.billu,"Ready… eat!");
+  SFX.chomp();
+  // 3. the scoreboard: Monty 1/8, Ant 1/4; Billu hands Monty the trophy
+  sc=await next(sc,"assets/story/l2_scene3.webp"); SFX.cheer();
+  await say("billu",L2SC3.billu,"8 is bigger than 4, so Monty wins!");
+  // 4. the ant points at the plates (the empty space on hers is bigger); Noori beside the scoreboard
+  sc=await next(sc,"assets/story/l2_scene4.webp");
+  await say("ant",[45,18,17,36],"Wait! Look at our plates!");
+  await say("noori",[77,6,13,28],"Let’s find out who really ate more!");
 }
-
 /* Ending (after the Golden Trophy Final): back in the decorated kitchen */
 async function storyEnding(){
   await sTitle("THE END","A Busy, Happy Day");
