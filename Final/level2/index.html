@@ -1051,6 +1051,8 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.08);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.9,.3,1)}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
+.story .sshot.far img:not(.blur){position:absolute;left:8%;top:8%;width:84%;height:84%;border-radius:22px;box-shadow:0 14px 40px rgba(40,15,5,.45)}
+.story .sshot.far img.blur{position:absolute;inset:0;filter:blur(18px) brightness(.8);transform:scale(1.08)}
 .tut .skip{top:auto!important;bottom:13.5%!important;right:13.6%!important}   /* the line box is at the top now */
 .story .sshot .banner.onshot{position:absolute;transform:none;z-index:2}
 .tut .board2{width:min(calc(100vh - 500px),20vw)!important;min-width:150px!important}
@@ -2381,9 +2383,12 @@ async function storyContext2(){
   keep=[anchor(42,20,10,33),anchor(2,30,21,45)];   // the trophy and the scoreboard stay clear
   await say("billu",[55,18,16,28],"8 is bigger than 4, so Monty wins!"); keep.forEach(a=>a.remove());
   // 4. the ant points at the plates (the empty space on hers is bigger); Noori beside the scoreboard
-  sc=await next(sc,"assets/story/l2_scene4.webp");
-  await say("ant",[45,18,17,36],"Wait! Look at our plates!");
-  await say("noori",[77,6,13,28],"Let’s find out who really ate more!");
+  // shown a little smaller (less zoomed in): the picture at 84% over a soft blurred copy of itself
+  sc=await next(sc,"assets/story/l2_scene4.webp"); sc.classList.add("far");
+  sc.insertAdjacentHTML("afterbegin",`<img class="blur" src="assets/story/l2_scene4.webp" alt="">`);
+  const far=b=>[8+b[0]*.84,8+b[1]*.84,b[2]*.84,b[3]*.84];
+  await say("ant",far([45,18,17,36]),"Wait! Look at our plates!");
+  await say("noori",far([77,6,13,28]),"Let’s find out who really ate more!");
 }
 /* ---------- wiring ---------- */
 $("guide").addEventListener("click",()=>speak(S.sayPlain));
