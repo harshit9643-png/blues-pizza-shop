@@ -2383,33 +2383,6 @@ async function storyContext2(){
   await say("ant",[45,18,17,36],"Wait! Look at our plates!");
   await say("noori",[77,6,13,28],"Let’s find out who really ate more!");
 }
-/* Ending (after the Golden Trophy Final): back in the decorated kitchen */
-async function storyEnding(){
-  await sTitle("THE END","A Busy, Happy Day");
-  P.counter(); P.ambient(); P.bunting(13); P.ordersDone();
-  
-  const noori=actor("noori",42,39.6,20,{cls:"still",z:5,as:"noori"}), billu=actor("billu",58,22,40,{z:3,as:"billu",img:"billu_idle"});
-  const pz=pizzaFlat(50,37.6,13,1,{z:5}), cut=P.cutter(62,40.2,2.6,-80);
-  await sCam(50,50,1,0); await sCam(51,44,1.7,1600);
-  // 1. Noori looks happily at Billu
-  sHop(noori,1,6);
-  await sLine("noori","What a day! We sliced, served, and compared so many fractions!");
-  // 2. Billu rubs his tummy and looks longingly at a fresh pizza
-  setImg(billu,"billu_idle"); billu.classList.add("rub");
-  pz.classList.add("glowpc");
-  await sLine("billu","All these fractions have made me hungry!");
-  billu.classList.remove("rub"); pz.classList.remove("glowpc");
-  // 3. Noori laughs and points at the pizza; Billu picks up the cutter; both laugh
-  setImg(noori,"noori_point"); noori.classList.add("laugh");
-  const l3=sLine("noori","Then slice yourself some pizza, Chef!");
-  await W(sleep(900));
-  setImg(billu,"billu_happy");
-  setArm(billu,-6,500); sStars(63,58); billu.classList.add("laugh");
-  SFX.cheer(); confetti();
-  await sCam(50,50,1,1400);
-  sAdd(`<div class="sprop theend">The End</div>`,9);
-  await l3;
-}
 /* ---------- wiring ---------- */
 $("guide").addEventListener("click",()=>speak(S.sayPlain));
 $("home").addEventListener("click",()=>{ S.gen++; $("end").hidden=true; $("start").hidden=false; });
@@ -2604,7 +2577,6 @@ async function runTutorial2(){
 }
 function startLevel2(story=true){ $("start").hidden=true; $("end").hidden=true; S.gen++; $("jump").value=story?"S":"T";
   const fl=FLOW; (story?playStory(storyContext2):Promise.resolve()).then(()=>fl===FLOW&&runTutorial2()).then(()=>{ if(fl===FLOW) go(0); }); }
-function playEnding(){ S.gen++; $("end").hidden=true; $("start").hidden=true; $("jump").value="E"; const fl=FLOW; playStory(storyEnding).then(()=>{ if(fl===FLOW) showEnd(); }); }
 $("play").addEventListener("click",startLevel2);
 /* Level 1 is the previous page of the same game: the folder above this one */
 function goLevel1(lv){ location.href=new URL("../index.html#"+lv,location.href).href; }
@@ -2622,7 +2594,7 @@ function stopOverlays(){
 $("jump").addEventListener("change",e=>{ stopOverlays(); const v=e.target.value; if(v.startsWith("L1:")){ goLevel1(v.slice(3)); return; }
   if(v==="T"){ e.target.blur(); startLevel2(false); return; }
   if(v==="S"){ e.target.blur(); startLevel2(); return; }
-  if(v==="E"){ e.target.blur(); playEnding(); return; } go(+v); e.target.blur(); });
+  go(+v); e.target.blur(); });
 let _rz; window.addEventListener("resize",()=>{ clearTimeout(_rz); _rz=setTimeout(()=>document.querySelectorAll(".plate").forEach(p=>p.style.setProperty("--pw",plateWidth()+"px")),150); });
 [...new Set(STEPS.flatMap(s=>s.a?[s.a.k,s.b.k]:[]).concat(FINALISTS.map(f=>f.k)))].map(k=>A+k+".webp")
   .concat([A+"trophy.svg",A+"billu_happy.webp",HD+"pizza_round.webp",HD+"pizza_square_sharp.webp",HD+"pizza_rect_sharp.webp","assets/draft2/plate_white.svg"])
