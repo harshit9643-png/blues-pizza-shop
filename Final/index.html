@@ -3024,59 +3024,26 @@ async function storyContext1(){
   await sLine("narr","Here, you need not order a whole pizza. You can order as many pizza slices as you want to eat!");
   await sLine("noori","I am here to help Billu!");
   await sLine("billu","I’m ready to cook!");
-  // back to the animated shop for the first order
+  await sLine("noori","See, Chintu is here for the first order.");
+  // scene 2 (picture): Chintu with his 1/2 card, Billu with the cutter, the pizza cut into one big and one tiny piece
+  const open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
+  $("sworld").appendChild(open2); void open2.offsetWidth; open2.classList.add("in"); SFX.whoosh();
+  aN.remove(); aB.remove(); await W(sleep(450)); open1.remove();
+  const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
+  STORY.cast.chintu=aC; STORY.cast.billu=aB2;
+  await sLine("chintu","Half a pizza, please!");
+  await sLine("billu","Half? Easy! I’ll cut it into two pieces!");
+  SFX.roll(); await sLine("billu","Ta-da! Two pieces!");
+  await sLine("chintu","Oh wow! I want the bigger half!");
+  // back to the animated shop: the pizza in one big and one tiny piece on the counter
   const noori=actor("noori",42,39.6,20,{cls:"still",z:5,as:"noori"});
   const billu=actor("billu",58,22,40,{z:3,as:"billu",img:"billu_idle"}); setArm(billu,0,0);
-  aN.remove(); aB.remove(); open1.classList.remove("in"); SFX.whoosh(); await W(sleep(450)); open1.remove();
-  // 5. the bell at the shop door; Noori points to the dining area, where Chintu walks in
-  setArm(billu,0,500);
-  let laid=P.cutter(63,40.2,2.6,-80);   // the cutter lies on the counter
-  await sCam(50,50,1,1100);   // zoom back out to the main screen; it stays wide from here on
-  SFX.jingle();   // the shop bell is heard, not shown
-  setImg(noori,"noori_point"); noori.classList.add("flip");
-  const chintu=actor("monty",-8,6,28,{z:5,as:"chintu"});
-  const l5=sLine("noori","See, Chintu is here for the first order.");
-  await sMove(chintu,44,6,6200);   // all the way to the counter, past the SLICES board
-  await l5;
-  // 6. at the table, Chintu waves and places his order: the ticket goes on the table, the order card pops up
-  setImg(noori,"noori"); noori.classList.remove("flip");
-  const tk=P.ticket(1,2,0,0); tk.style.visibility="hidden";
-  const l6=sLine("chintu","Half a pizza, please!");
-  await sWave(chintu,3);
-  sPos(tk,chintu._x+9,16); tk.style.visibility=""; SFX.paper();   // held up beside him, clear of his speech bubble
-  tk.animate([{transform:"scale(.4)"},{transform:"scale(1.1)",offset:.6},{transform:"none"}],{duration:420,easing:"ease-out"});
-  await W(sleep(1100));   // Chintu holds the order board up for a moment
-  await sArc(tk,47,40.6,700,8,{face:false});   // onto the counter sHop(tk,1,8);
-  await W(sleep(300)); P.orderCard(1,2,"pizza"); SFX.pop();
-  await l6;
-  sFade(tk,400);   // Billu has the order now: the slip goes away
-  // 7. Billu reads the order and confidently picks up his cutter
-  setImg(billu,"billu_idle");
-  const pz=pizzaFlat(50,37.6,15,"unequal",{z:5}); pz.classList.add("uncut","pop");
-  sQM(64,30,"!"); await W(sleep(500));
-  sStars(63,58,4);
-  // a full-screen shot of Billu bringing the pizza out, with a quick flash in and out
-  const shot=document.createElement("div"); shot.className="sshot"; shot.innerHTML=`<img src="assets/story/serve_scene.webp" alt="">`;
-  $("sworld").appendChild(shot); SFX.whoosh(); void shot.offsetWidth; shot.classList.add("in");
-  await sLine("billu","Half? Easy! I’ll cut it into two pieces!");
-  // straight on to a second shot: Billu cutting the pizza the wrong way (off-centre), Chintu holding up his 1/2 card
-  const shot2=document.createElement("div"); shot2.className="sshot"; shot2.innerHTML=`<img src="assets/story/cut_scene.webp" alt="">`;
-  $("sworld").appendChild(shot2); void shot2.offsetWidth; shot2.classList.add("in"); SFX.roll();
-  await W(sleep(450)); shot.remove();
-  await W(sleep(2400)); SFX.roll();
-  // the cut is done: back to the shop, where the pizza now lies in one big and one tiny piece
-  laid.remove(); pz.classList.remove("uncut");
+  const chintu=actor("monty",44,6,28,{z:5,as:"chintu"});
+  P.orderCard(1,2,"pizza");
+  const pz=pizzaFlat(50,37.6,15,"unequal",{z:5});
   pcOf(pz,0).style.transform="translate(-6px,-20px)"; pcOf(pz,1).style.transform="translate(24px,70px) rotate(4deg)";
-  laid=P.cutter(63,40.2,2.6,-80);
-  shot2.classList.remove("in"); SFX.whoosh(); await W(sleep(450)); shot2.remove();
-  // 8. Billu raises his cutter proudly
-  sStars(63,58); SFX.boing(); sHop(billu,2,6);
-  await sLine("billu","Ta-da! Two pieces!");
-  setImg(billu,"billu_idle");
-  // 9. Chintu points eagerly at the bigger one
-  pcOf(pz,0).classList.add("glowpc"); sHop(chintu,2,8); sWave(chintu,2); sBubble("The big one!",44,44,1800);
-  await sLine("chintu","Oh wow! I want the bigger half!");
-  pcOf(pz,0).classList.remove("glowpc");
+  P.cutter(63,40.2,2.6,-80);
+  aC.remove(); aB2.remove(); open2.classList.remove("in"); SFX.whoosh(); await W(sleep(450)); open2.remove();
   // 10. Noori flies to the counter and looks at the two pieces
   await sArc(noori,40,41,800,10);
   pcOf(pz,0).classList.add("redpc"); pcOf(pz,1).classList.add("redpc"); sShake(noori);
