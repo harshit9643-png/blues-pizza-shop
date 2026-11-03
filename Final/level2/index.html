@@ -1342,6 +1342,7 @@ body.tutoring .trail{display:none!important}
 .fline .slot.glow{box-shadow:0 0 0 5px #FFFFFF,0 0 30px rgba(255,200,40,.95)!important}
 .fline .slot>.fin{inset:-6px!important;border-radius:24px!important}
 .fline .home5 .fin::after,.fline .slot::after{display:none!important}   /* no dashed line inside the cards */
+.view.fline{gap:clamp(60px,19vh,200px)!important;padding-top:clamp(20px,4vh,40px)!important}   /* more room between the small and the big cards */
 @keyframes faceIn{from{transform:scale(.4);opacity:0}}
 </style>
 
@@ -2358,7 +2359,6 @@ function showHoles(pz){ pz.querySelectorAll(".holep").forEach(h=>{ h.setAttribut
 function wheelPt(e){ const w=e.querySelector(".hold .whl"); if(!w) return null; return worldPt(w,.5,.95); }
 
 /* Context 2 (before Level 2): the Big Eater Contest, and Billu picks the wrong winner */
-const L2SC2={billu:[47,24,10,26]}, L2SC3={billu:[49,25.5,10,25]};   // Billu's face box in scenes 2 and 3
 async function storyContext2(){
   await sTitle("CHAPTER 2","The Big Eater Contest");
   // the story plays on the supplied pictures (sheet: Context 2); each bubble points at the speaker painted in the picture
@@ -2368,16 +2368,18 @@ async function storyContext2(){
   const next=async(prev,src)=>{ const el=shot(src); await W(sleep(450)); prev.remove(); return el; };
   // 1. evening at the kitchen: the "Big Eater Contest!" banner and the golden trophy; the customers cheer
   let sc=shot("assets/story/l2_scene1.webp"); SFX.cheer();
-  const keep=[anchor(31,25,36,15),anchor(48,41,10,26)];   // the banner and the trophy stay clear of the bubble
+  let keep=[anchor(31,25,36,15),anchor(48,41,10,26)];   // the banner and the trophy stay clear of the bubble
   await say("billu",[62,35,14,40],"We have the Big Eater Contest! Whoever eats more wins the golden trophy!");
   keep.forEach(a=>a.remove());
   // 2. Monty and the ant, the same size pizza in 8 and in 4 slices; the bell rings
   sc=await next(sc,"assets/story/l2_scene2.webp"); SFX.ding();
-  await say("billu",L2SC2.billu,"Ready… eat!");
+  keep=[anchor(61,22,8,24)];   // the bell stays clear of the bubble
+  await say("billu",[47,17,15,32],"Ready… eat!"); keep.forEach(a=>a.remove());
   SFX.chomp();
   // 3. the scoreboard: Monty 1/8, Ant 1/4; Billu hands Monty the trophy
   sc=await next(sc,"assets/story/l2_scene3.webp"); SFX.cheer();
-  await say("billu",L2SC3.billu,"8 is bigger than 4, so Monty wins!");
+  keep=[anchor(42,20,10,33),anchor(2,30,21,45)];   // the trophy and the scoreboard stay clear
+  await say("billu",[55,18,16,28],"8 is bigger than 4, so Monty wins!"); keep.forEach(a=>a.remove());
   // 4. the ant points at the plates (the empty space on hers is bigger); Noori beside the scoreboard
   sc=await next(sc,"assets/story/l2_scene4.webp");
   await say("ant",[45,18,17,36],"Wait! Look at our plates!");
