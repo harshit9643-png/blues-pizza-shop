@@ -3030,30 +3030,15 @@ async function storyContext1(){
   await sLine("chintu","Half a pizza, please!");
   await sLine("billu","Half? Easy! I’ll cut it into two pieces!");
   SFX.roll(); await sLine("billu","Ta-da! Two pieces!");
+  // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
+  const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
+  $("sworld").appendChild(open3); void open3.offsetWidth; open3.classList.add("in"); SFX.whoosh();
+  aC.remove(); aB2.remove(); await W(sleep(450)); open2.remove();
+  const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(39,30.8,18,37,"noori"), b3=anchor(68.8,24,21,52,"billu");
+  Object.assign(STORY.cast,{chintu:c3,noori:n3,billu:b3});
   await sLine("chintu","Oh wow! I want the bigger half!");
-  // back to the animated shop: the pizza in one big and one tiny piece on the counter
-  const noori=actor("noori",42,39.6,20,{cls:"still",z:5,as:"noori"});
-  const billu=actor("billu",58,22,40,{z:3,as:"billu",img:"billu_idle"}); setArm(billu,0,0);
-  const chintu=actor("monty",44,6,28,{z:5,as:"chintu"});
-  P.orderCard(1,2,"pizza");
-  const pz=pizzaFlat(50,37.6,15,"unequal",{z:5});
-  pcOf(pz,0).style.transform="translate(-6px,-20px)"; pcOf(pz,1).style.transform="translate(24px,70px) rotate(4deg)";
-  P.cutter(63,40.2,2.6,-80);
-  aC.remove(); aB2.remove(); open2.classList.remove("in"); SFX.whoosh(); await W(sleep(450)); open2.remove();
-  // 10. Noori flies to the counter and looks at the two pieces
-  await sArc(noori,40,41,800,10);
-  pcOf(pz,0).classList.add("redpc"); pcOf(pz,1).classList.add("redpc"); sShake(noori);
   await sLine("noori","No, no, Billu… these two pieces are not equal, so this cannot be half.");
-  pcOf(pz,0).classList.remove("redpc"); pcOf(pz,1).classList.remove("redpc");
-  // 11. close-up of Billu scratching his head with the cutter, looking from the pieces to the order card and back
-  setImg(billu,"billu_puzzled");
-  sScratch(billu); sQM(59,24);
-  const l11=sLine("billu","Oh, Noori, what is a half? And how will I know how much to serve to the customers?");
-  await W(sleep(2500)); sScratch(billu); sQM(59,26);
-  await l11;
-  // 12. Noori turns towards the learner while Billu waits with his cutter
-  billu.querySelectorAll(".hold.pzl").forEach(h=>h.remove()); setImg(billu,"billu_idle");
-  setImg(noori,"noori_point"); sHop(noori,1,6);
+  await sLine("billu","Oh, Noori, what is a half? And how will I know how much to serve to the customers?");
   await sLine("noori","Billu, you’ll need to understand fractions now.");
 }
 $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });
