@@ -1313,6 +1313,15 @@ body.tutoring .trail{display:none!important}
 /* the whole character, shrunk to fit inside the circle (not just the face) */
 .fline .slot>.fin .face{width:36%!important}
 .fline .slot>.fin .face img{left:50%!important;top:53%!important;width:auto!important;height:82%!important;translate:-50% -50%}
+/* card layout, everything inside the card: number (top left) and character circle (top right),
+   the pizza in the middle, the fraction badge at the bottom; empty circles sit exactly where these appear */
+.fline .slot{height:calc(var(--bw) * 1.36)!important;display:block!important}
+.fline .slot .no{left:calc(var(--bw) * .07)!important;top:calc(var(--bw) * .1)!important}
+.fline .slot .phf,.fline .slot>.fin .face{position:absolute!important;right:calc(var(--bw) * .06)!important;top:calc(var(--bw) * .06)!important;left:auto!important;bottom:auto!important;width:calc(var(--bw) * .3)!important;height:calc(var(--bw) * .3)!important;translate:none!important}
+.fline .slot .splate{position:absolute!important;left:50%;top:calc(var(--bw) * .4);translate:-50% 0;width:calc(var(--bw) * .66)!important}
+.fline .slot .phm,.fline .slot>.fin .mini{position:absolute!important;left:50%!important;bottom:calc(var(--bw) * .06)!important;top:auto!important;right:auto!important;translate:-50% 0!important;width:calc(var(--bw) * .24)!important;height:calc(var(--bw) * .24)!important;aspect-ratio:auto!important;padding:0!important;border-radius:50%!important}
+.fline .slot>.fin .mini .fr{font-size:calc(var(--bw) * .085)!important}
+.fline .slot>.fin .face img{height:84%!important;top:52%!important}
 @keyframes faceIn{from{transform:scale(.4);opacity:0}}
 </style>
 
