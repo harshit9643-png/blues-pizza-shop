@@ -1173,6 +1173,7 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .starbox .starfly.down{color:#FF6B5B;text-shadow:0 2px 0 rgba(0,0,0,.4)}
 @keyframes starFly{from{opacity:0;transform:translateY(8px)}20%{opacity:1}to{opacity:0;transform:translateY(-26px)}}
 body.tutoring .starbox{display:none}
+.story .sbub{z-index:30!important}   /* speech bubbles above full-screen pictures */
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2827,10 +2828,12 @@ function sTalk(e,text){
   setTimeout(off,est);
 }
 
+function anchor(l,t,w,h,key){ const d=document.createElement("div"); d.className="anch"; d._key=key; Object.assign(d.style,{position:"absolute",left:l+"%",top:t+"%",width:w+"%",height:h+"%",pointerEvents:"none",zIndex:26});
+  d.innerHTML='<div class="rig" style="width:100%;height:100%"></div>'; $("sworld").appendChild(d); return d; }
 /* speech bubble over the speaker's head (the supplied bubble art; its tail points at the speaker) */
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
-  if(!e||!e.isConnected||document.querySelector("#sworld>.sshot")){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
+  if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(19,6+len*.25))+"%";
@@ -2973,7 +2976,7 @@ function sShot(src){
 /* plays one story; resolves when it ends or is skipped */
 async function playStory(script){
   const gen=++STORY.gen; STORY.run=gen; STORY.cast={};
-  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
+  const st=$("story"), clear=()=>{ sLay().innerHTML=""; document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub,#sworld>.anch").forEach(e=>e.remove()); $("ssub").classList.remove("bub"); };
   clear(); st.classList.remove("dusk"); $("scam").style.transition="none"; $("scam").style.transform="none";
   $("sLine").innerHTML=""; $("sWho").innerHTML=""; $("sNext").classList.add("wait");
   document.body.classList.add("tutoring"); st.hidden=false; void st.offsetWidth; st.classList.add("on");
@@ -3012,31 +3015,19 @@ async function storyContext1(){
   P.counter(); P.ambient();
   P.menuBoard();   // the shop's SLICES! board stands beside the stall the whole time
   
-  await sCam(50,50,1,0);   // the whole shop, wide (the camera zooms only once in this story: on Noori and Billu)
+  // 1-4. the shop picture (sheet: Context_Final): Noori by the oven, Billu behind the counter
+  const open1=document.createElement("div"); open1.className="sshot"; open1.innerHTML=`<img src="assets/story/scene1_shop.webp" alt="">`;
+  $("sworld").appendChild(open1); void open1.offsetWidth; open1.classList.add("in");
+  const aN=anchor(41.3,43.6,7.9,18.5,"noori"), aB=anchor(52.6,33.5,13.2,26,"billu");
+  STORY.cast.noori=aN; STORY.cast.billu=aB;
   await sLine("narr","Billu’s Pizza Kitchen is open!");
-  // 2. the board under the sign; a customer walks away happily with a few slices on a plate
-  const l2=sLine("narr","Here, you need not order a whole pizza. You can order as many pizza slices as you want to eat!");
-  await W(sleep(3300));
-  await W(sleep(1200));
-  await l2;
-  // 3. inside the kitchen: Noori near the counter (the one close-up: Noori, then Billu)
-  await sCam(50,46,1.9,1100);
-  const noori=actor("noori",42,39.6,20,{cls:"still",z:5,as:"noori"});
-  noori.animate([{opacity:0,transform:"translateY(-30%)"},{opacity:1,transform:"none"}],{duration:600,easing:"ease-out"});
+  await sLine("narr","Here, you need not order a whole pizza. You can order as many pizza slices as you want to eat!");
   await sLine("noori","I am here to help Billu!");
-  // 4. Chef Billu bounds in from the kitchen behind the counter, cutter held high
-  // Billu was sitting down behind the counter (only his hat shows) and simply stands up
-  // (everything of him below the counter's bottom edge is hidden, so his legs never show under the counter)
-  const billu=actor("billu",58,11,40,{z:3,as:"billu",img:"billu_happy"}); setArm(billu,0,0);
-  const cutB=b=>`inset(-50% -50% ${Math.max(0,(22.3-b)/40*100).toFixed(2)}% -50%)`;
-  billu.style.clipPath=cutB(11);
-  await W(sleep(700));
-  await W(billu.animate([{bottom:"11%",clipPath:cutB(11)},{bottom:"22%",clipPath:cutB(22)}],{duration:900,easing:"cubic-bezier(.35,0,.25,1)",fill:"forwards"}).finished);
-  sPos(billu,58,22); billu.getAnimations().forEach(x=>x.cancel()); billu.style.clipPath="";
-  setArm(billu,-6,420); sStars(63,58);
-  await sHop(billu,1,5);
   await sLine("billu","I’m ready to cook!");
-  setImg(billu,"billu_idle");
+  // back to the animated shop for the first order
+  const noori=actor("noori",42,39.6,20,{cls:"still",z:5,as:"noori"});
+  const billu=actor("billu",58,22,40,{z:3,as:"billu",img:"billu_idle"}); setArm(billu,0,0);
+  aN.remove(); aB.remove(); open1.classList.remove("in"); SFX.whoosh(); await W(sleep(450)); open1.remove();
   // 5. the bell at the shop door; Noori points to the dining area, where Chintu walks in
   setArm(billu,0,500);
   let laid=P.cutter(63,40.2,2.6,-80);   // the cutter lies on the counter
