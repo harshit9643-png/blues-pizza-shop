@@ -1230,7 +1230,7 @@ html,body{overflow:hidden}   /* the podium runs past the bottom edge; the page n
 #app>.card.gone{opacity:0;transform:translateY(-20px);pointer-events:none}
 .guide .spk{display:none!important}   /* no speaker icon on the badge: just the character */
 /* the star counter (in place of the progress dots) */
-.trail{display:none!important}
+
 .starbox{position:fixed;left:10px;top:50%;translate:0 -50%;z-index:200;display:grid;justify-items:center;gap:2px;padding:10px 8px 8px;border-radius:999px;
   background:rgba(43,35,82,.92);box-shadow:0 0 0 2px rgba(246,195,74,.55),0 6px 14px rgba(0,0,0,.3);pointer-events:none}
 .starbox svg{width:clamp(30px,4vh,40px);height:auto;fill:#F6C34A;stroke:#B97410;stroke-width:1.2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
@@ -1244,6 +1244,14 @@ html,body{overflow:hidden}   /* the podium runs past the bottom edge; the page n
 .starbox .starfly.down{color:#FF6B5B;text-shadow:0 2px 0 rgba(0,0,0,.4)}
 @keyframes starFly{from{opacity:0;transform:translateY(8px)}20%{opacity:1}to{opacity:0;transform:translateY(-26px)}}
 body.tutoring .starbox{display:none}
+/* question stars in place of the dots */
+.trail:not(:empty){display:flex!important}
+.starbox{display:none!important}
+.trail .tok.qs{width:26px!important;height:26px!important;transition:transform .3s}
+.trail .tok.qs.now{transform:scale(1.25)}
+.trail .tok.qs.got{animation:qsGot .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes qsGot{40%{transform:scale(1.5) rotate(20deg)}}
+body.tutoring .trail{display:none!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1502,10 +1510,12 @@ function confetti(){ const fx=$("fx"), cols=["#F2A62C","#FBD584","#C8402E","#3A5
     s.style.clipPath=i%3?"polygon(50% 0,100% 100%,0 100%)":"circle(50%)"; s.style.animationDelay=(Math.random()*.35)+"s";
     s.style.animationDuration=(1.3+Math.random()*.9)+"s"; fx.appendChild(s); setTimeout(()=>s.remove(),2600); } }
 function bump(el,cls,ms){ if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); if(ms) setTimeout(()=>el.classList.remove(cls),ms); }
+/* one star per question: dark until it is answered right, then gold */
+const QSTAR=(done,now)=>`<svg class="tok qs ${now?'now':''} ${done?'got':''}" viewBox="0 0 32 32" aria-hidden="true">
+  <path d="M16 3.2l3.9 8 8.8 1.3-6.4 6.2 1.5 8.7L16 23.3l-7.8 4.1 1.5-8.7-6.4-6.2 8.8-1.3z" fill="${done?'#F6C34A':'#2E2848'}" stroke="${done?'#B97410':(now?'#F6C34A':'#6E6890')}" stroke-width="${now?2.4:1.8}" stroke-linejoin="round"/>
+  ${done?'<path d="M11.5 11.5l2.4-.4" stroke="#FFF4CC" stroke-width="1.8" stroke-linecap="round"/>':''}</svg>`;
 function renderTop(){
-  $("trail").innerHTML=SCORED.map(i=>`<svg class="tok ${i===S.i?'now':''}" viewBox="0 0 32 32">
-    <circle cx="16" cy="16" r="13" fill="${S.done[i]?'#F6C34A':'#FFFDF6'}" stroke="${i===S.i?'#F2A62C':'#23356F'}" stroke-width="${i===S.i?3.4:2.2}" opacity="${S.done[i]||i===S.i?1:.6}"/>
-    ${S.done[i]?'<path d="M10 16.5l4 4 8-9" fill="none" stroke="#8A5508" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>':''}</svg>`).join("");
+  $("trail").innerHTML=SCORED.map(i=>QSTAR(!!S.done[i],i===S.i)).join("");
   $("stars").textContent="⭐ "+S.stars; $("jump").value=String(S.i);
 }
 function setView(cls,html){ const v=$("view"); v.className="view "+cls+" enter"; v.innerHTML=html; $("stage").classList.remove("dim"); }
@@ -1526,7 +1536,7 @@ function go(i){
   ({match:showMatch,cards:showCards,intro:showIntro,finalIntro:showFinalIntro,final:showFinal,champion:showChampion})[st.kind](st);
 }
 function next(){ if(S.i+1<STEPS.length) go(S.i+1); else showEnd(); }
-function award(i){ if(S.done[i]) return; S.done[i]=true; STARS.add(1); if(S.tries===0) S.stars++; renderTop(); }
+function award(i){ if(S.done[i]) return; S.done[i]=true; if(S.tries===0) S.stars++; renderTop(); }
 
 /* ---------- intro screens (Set B, Set C) ---------- */
 function showIntro(st){
@@ -2575,23 +2585,5 @@ if(location.hash==="#play") startLevel2();
   pan.addEventListener("click",e=>{ if(e.target.closest(".x")){ open(false); return; }
     const c=e.target.closest(".chip2"); if(!c) return; open(false);
     sel.value=c.dataset.v; sel.dispatchEvent(new Event("change")); });
-})();
-</script>
-<script>
-/* stars instead of the progress dots: +1 for each order/match done right, -1 for each wrong try (never below 0).
-   The count carries from Level 1 into Level 2 (sessionStorage; works without it too). */
-const STARS=(()=>{ let n=0; try{ n=+(sessionStorage.getItem("bpk_stars")||0)||0; }catch(e){}
-  const box=document.createElement("div"); box.className="starbox"; box.setAttribute("aria-label","Stars");
-  box.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.5.9-4.7 4.6 1.1 6.5L12 17.5l-5.8 3.1 1.1-6.5L2.6 9.5l6.5-.9z"/></svg><b>0</b>`;
-  document.body.appendChild(box);
-  const show=()=>{ box.querySelector("b").textContent=n; try{ sessionStorage.setItem("bpk_stars",n); }catch(e){} };
-  const add=d=>{ const was=n; n=Math.max(0,n+d); show(); if(n===was) return;
-    box.classList.remove("up","down"); void box.offsetWidth; box.classList.add(d>0?"up":"down");
-    const f=document.createElement("span"); f.className="starfly "+(d>0?"up":"down"); f.textContent=d>0?"+1":"−1";
-    box.appendChild(f); setTimeout(()=>f.remove(),1100); };
-  show();
-  // every wrong try (S.tries going up anywhere in the game) costs a star
-  if(typeof S!=="undefined"){ let t=S.tries||0; Object.defineProperty(S,"tries",{configurable:true,get(){return t;},set(v){ if(v>t) add(-1); t=v; }}); }
-  return {add,reset(){ n=0; show(); }};
 })();
 </script>
