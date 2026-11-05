@@ -1242,6 +1242,11 @@ body.tutoring .trail{display:none!important}
 .story .sspot{transition:opacity .45s ease,--sr 1.1s cubic-bezier(.3,.7,.3,1)!important}
 .tut .lbillu{display:none!important}   /* no standing Billu in the lessons */
 .story .ssub:has(#sLine:empty){visibility:hidden}   /* no empty box before the first line */
+/* wrong-attempt hints: a number on the receipt blinks; the right mould pulses */
+.rc-frac b.blinknum{animation:blinkNum .5s ease-in-out var(--blinks,2);color:#E0402E!important;text-shadow:0 0 12px rgba(255,200,60,.95)}
+@keyframes blinkNum{50%{transform:scale(1.35);opacity:.35}}
+.mould.pulseok{animation:mouldOk .8s ease-in-out 4!important;filter:drop-shadow(0 0 14px rgba(255,210,60,.95))}
+@keyframes mouldOk{50%{transform:scale(1.12)}}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1891,6 +1896,10 @@ function showCustomer(){
       </div>
     </article>`;
 }
+/* blink the numerator ("n") or the denominator ("d") on the order receipt, a number of times */
+function blinkNum(which,times){ const f=document.querySelector("#slip .rc-frac"); if(!f) return; const b=f.querySelectorAll("b")[which==="n"?0:1]; if(!b) return;
+  b.classList.remove("blinknum"); void b.offsetWidth; b.style.setProperty("--blinks",Math.max(1,Math.min(times,12))); b.classList.add("blinknum");
+  clearTimeout(b._bt); b._bt=setTimeout(()=>b.classList.remove("blinknum"),Math.max(1,Math.min(times,12))*500+200); }
 function custMood(cls){
   const w=$("who"); if(w){ w.classList.remove("enter","happy","sad"); void w.offsetWidth; w.classList.add(cls); }
   const sl=$("slip"); if(sl&&cls==="sad"){ sl.classList.remove("enter","shake"); void sl.offsetWidth; sl.classList.add("shake"); }
@@ -1994,14 +2003,14 @@ async function useMould(k,btn){
     // wrong moulds for this order: 1st try again, 2nd a hint, 3rd the hand points at the right mould
     const key=S.lv+":"+S.i; if(S.mwKey!==key){ S.mwKey=key; S.mw=0; } S.mw++;
     say(S.mw===1 ? "Hmm, is that how many parts the order needs? Try again."
-      : S.mw===2 ? `Look at the bottom number of the order: ${o.d}. Pick the mould with ${o.d} parts.`
-      : `Tap this mould: it cuts the pizza into ${o.d} equal parts.`,"bad");
+      : "Check the denominator and pick the correct mould.","bad");
+    if(S.mw>=2){ blinkNum("d",3); const rm=document.querySelector(`.mould[data-m="${o.d}"]`); if(rm){ rm.classList.remove("pulseok"); void rm.offsetWidth; rm.classList.add("pulseok"); setTimeout(()=>rm.classList.remove("pulseok"),3200); } }
     await wait(1600); if(!live(gen)) return;
     btn.classList.remove("wrong"); PZ.classList.remove("bad");
     PZ.querySelectorAll(".part").forEach(p=>p.style.transform="none");      // the pieces close up again
     await wait(700); if(!live(gen)) return;
     S.k=1; G=geom(o.shape,1); renderWhole(true); boardFx("in");               // a fresh whole pizza
-    if(S.mw>=3) mouldHand(true); else say("Pick the mould that cuts this pizza for the order.");
+    if(S.mw>=3) mouldHand(true); else if(S.mw===1) say("Pick the mould that cuts this pizza for the order.");
     S.busy=false;
   }
 }
@@ -2125,7 +2134,10 @@ $("done").addEventListener("click",()=>{
 async function miss(){
   const o=cur(), gen=S.gen;
   S.tries++; S.busy=true; Sound.bad(); guideMood("hmm"); custMood("sad");
-  say(`Is that how much ${custWho(o)} ${o.who?"want":"wants"}? Try again.`,"bad");
+  // the sheet: 1st wrong attempt "Try again" (red glow and wiggle); 2nd and later the hint, and the numerator blinks
+  const key=S.lv+":"+S.i; if(S.twKey!==key){ S.twKey=key; S.tw=0; } S.tw++;
+  if(S.tw===1) say(`Is that how much ${custWho(o)} ${o.who?"want":"wants"}? Try again.`,"bad");
+  else { say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.who?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
   S.covered.forEach((_,i)=>partEl(i).querySelector(".hit").classList.add("bad"));
   boardFx("wiggle"); setDone("done",false);
   await wait(1000); if(!live(gen)) return;

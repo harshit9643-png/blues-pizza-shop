@@ -1772,8 +1772,9 @@ async function checkPlates(st){
   S.tries++; Sound.bad(); guideMood("hmm");
   const bad=!okA?"a":"b", o=st[bad], first=S.tries===1;
   const side=$("side-"+bad); bump(side,"bad",600);
-  if(first) say(st.label==="Match 1"?"Oops! Try again.":`Is that how much ${who(o.k)} ate? Try again.`,"bad","noori");
-  else { say(st.label==="Match 1"?"Check the numerator. How many slices did each one eat?":`Check the numerator. That's how many slices ${who(o.k)} ate.`,"bad","noori");
+  // the sheet: 1st wrong attempt "Oops! Try again."; 2nd and later the numerator hint (the numerator blinks, the plate clears)
+  if(first) say("Oops! Try again.","bad","noori");
+  else { say("Check the numerator. How many slices did each one eat?","bad","noori");
     bump($("num-"+bad),"blink",2800); }
   await wait(650); if(!live(g)) return;
   S.cnt[bad]=0; drawPie(st,bad,false); S.keepMsg=true; afterChange(st); S.keepMsg=false;
@@ -1835,7 +1836,7 @@ function pickCard(st,sd){
   }
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump($("side-"+sd),"bad",600);
   document.querySelectorAll(".diag").forEach(d=>d.classList.add("show"));
-  if(S.wTries===1) say("Oops! Try again. Look at the pictures.","bad","noori");
+  if(S.wTries===1) say("Oops! Try again.","bad","noori");   // the diagrams fade in
   else { sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
 }
 
