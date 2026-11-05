@@ -36,6 +36,9 @@
   fit(); addEventListener("resize",fit,true); addEventListener("orientationchange",()=>setTimeout(()=>{ fit(); dispatchEvent(new Event("resize")); },300));
   const css=document.createElement("style");
   css.textContent=`html.turnme body>*:not(#turnme){visibility:hidden!important}
+#curtain{position:fixed;inset:0;z-index:2147483000;background:radial-gradient(ellipse at 50% 45%,#3A3160,#231D3B);opacity:0;pointer-events:none;transition:opacity .42s ease}
+#curtain.on{opacity:1;pointer-events:auto}
+
 #turnme{display:none}
 html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place-items:center;align-content:center;gap:22px;background:#2B2546;color:#FFF4D6;font:800 26px/1.3 "Baloo 2",system-ui,sans-serif;text-align:center;padding:24px}
 #turnme svg{width:110px;height:110px;animation:turnme 1.8s ease-in-out infinite}
@@ -44,6 +47,14 @@ html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place
   const t=document.createElement("div"); t.id="turnme";
   t.innerHTML=`<svg viewBox="0 0 64 64" fill="none" stroke="#F6C34A" stroke-width="4" stroke-linecap="round"><rect x="20" y="6" width="24" height="52" rx="5"/><path d="M29 50h6"/></svg><div>Please turn your phone sideways<br>to play Billu’s Pizza Kitchen</div>`;
   (document.body||d).appendChild(t); t.style.zoom=String(1/Z);
+  /* the curtain: a soft fade through the game's deep plum between big scenes (and over the page load) */
+  const cu=document.createElement("div"); cu.id="curtain"; cu.className="on"; (document.body||d).appendChild(cu);
+  window.CURTAIN={ cover(){ cu.classList.add("on"); return new Promise(r=>setTimeout(r,420)); },
+    reveal(){ cu.classList.remove("on"); } };
+  const lift=()=>setTimeout(()=>CURTAIN.reveal(),180);
+  if(document.readyState==="complete") lift(); else addEventListener("load",lift);
+  setTimeout(()=>CURTAIN.reveal(),4000);   // never stays up
+  addEventListener("pageshow",e=>{ if(e.persisted) CURTAIN.reveal(); });   // back button from the next page
 })();
 </script>
 <title>Billu’s Pizza Kitchen</title>
@@ -962,11 +973,11 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .tray.coco>img.thali{visibility:hidden}
 .tray>img.cbowl{position:absolute;filter:drop-shadow(0 10px 8px rgba(60,25,10,.35));pointer-events:none}
 /* full-screen story shot that flashes in over the scene */
-.story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.08);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.9,.3,1)}
+.story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.03);transition:opacity .75s ease,transform 1.2s cubic-bezier(.2,.8,.3,1)}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
 .story .sshot::after{content:"";position:absolute;inset:0;background:#FFFFFF;opacity:0;pointer-events:none}
-.story .sshot.in::after{animation:shotFlash .45s ease-out}
+.story .sshot.in::after{animation:none}
 @keyframes shotFlash{0%{opacity:.85}100%{opacity:0}}
 
 /* the story fills the whole screen; the subtitles sit over the bottom of the scene */
@@ -996,7 +1007,7 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .tut .page{grid-template-rows:auto auto minmax(0,1fr)!important}
 .tut .talk{order:-1}
 /* full-screen story shots (Level 2 uses them too) */
-.story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.08);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.9,.3,1)}
+.story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.03);transition:opacity .75s ease,transform 1.2s cubic-bezier(.2,.8,.3,1)}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
 .tut .skip{top:auto!important;bottom:13.5%!important;right:13.6%!important}   /* the line box is at the top now */
@@ -2404,17 +2415,15 @@ async function rollScroll(open,gen){
   const t=$("tut"), rig=t.querySelector(".rig");
   if(open){
     t.hidden=false; t.style.setProperty("--u",0); void t.offsetWidth; t.classList.add("on");
-    await tw(900,k=>{ rig.style.transform=`translateY(${(-110*(1-k)).toFixed(2)}vh)`; },easeOutBack);
+    await tw(900,k=>{ rig.style.transform=`translateY(calc(${(-110*(1-k)).toFixed(2)}*var(--vh)))`; },easeOutBack);
     if(gen!==TUT.gen) return;
     Sound.plop&&Sound.plop();
     await tw(1100,k=>t.style.setProperty("--u",k.toFixed(4)),easeInOut);
     t.classList.add("open");
   } else {
-    t.classList.remove("open","taps");
-    await tw(800,k=>t.style.setProperty("--u",(1-k).toFixed(4)),easeInOut);
-    t.classList.remove("on");
-    await tw(650,k=>{ rig.style.transform=`translateY(${(-115*k).toFixed(2)}vh)`; },t=>t*t);
-    t.hidden=true;
+    await CURTAIN.cover();
+    t.classList.remove("open","taps","on"); t.style.setProperty("--u",0); t.hidden=true;
+    setTimeout(()=>CURTAIN.reveal(),140);
   }
 }
 function tutBuild(){
@@ -3065,8 +3074,9 @@ async function playStory(script){
   try{ await script(); }catch(e){ if(e!==STOP) console.error(e); }
   if(STORY.talkOff) STORY.talkOff();
   if(window.speechSynthesis) speechSynthesis.cancel();
-  st.classList.remove("on"); await sleep(500);
-  if(STORY.run===gen){ st.hidden=true; clear(); }
+  await CURTAIN.cover();
+  if(STORY.run===gen){ st.classList.remove("on"); st.hidden=true; clear(); }
+  setTimeout(()=>CURTAIN.reveal(),140);
   document.body.classList.remove("tutoring");
 }
 $("sNext").addEventListener("click",()=>{ const f=STORY.next; STORY.next=null; $("sNext").classList.add("wait"); if(f) f(); });
@@ -3110,19 +3120,19 @@ async function storyContext1(){
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
   $("sworld").appendChild(open2); void open2.offsetWidth; open2.classList.add("in"); SFX.whoosh();
-  aN.remove(); aB.remove(); await W(sleep(450)); open1.remove();
+  aN.remove(); aB.remove(); await W(sleep(800)); open1.remove();
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   await sLine("chintu","Half a pizza, please!");
   await sLine("billu","Half? Easy! I’ll cut it into two pieces!");
   // ...then the same picture with the pizza cut into one big and one tiny piece
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
-  $("sworld").appendChild(cut2); void cut2.offsetWidth; cut2.classList.add("in"); await W(sleep(450)); open2.remove(); open2=cut2;
+  $("sworld").appendChild(cut2); void cut2.offsetWidth; cut2.classList.add("in"); await W(sleep(800)); open2.remove(); open2=cut2;
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Ta-da! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
   $("sworld").appendChild(open3); void open3.offsetWidth; open3.classList.add("in"); SFX.whoosh();
-  aC.remove(); aB2.remove(); await W(sleep(450)); open2.remove();
+  aC.remove(); aB2.remove(); await W(sleep(800)); open2.remove();
   const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(39,30.8,18,37,"noori"), b3=anchor(68.8,24,21,52,"billu");
   Object.assign(STORY.cast,{chintu:c3,noori:n3,billu:b3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
@@ -3134,7 +3144,7 @@ async function storyContext1(){
 }
 $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });
 /* Level 2 is the next page of the same game (online it is served at /level2) */
-function goLevel2(){ location.href=new URL((location.protocol==="file:"?"level2.html":"level2")+"#play",location.href).href; }
+function goLevel2(){ CURTAIN.cover().then(()=>{ location.href=new URL((location.protocol==="file:"?"level2.html":"level2")+"#play",location.href).href; }); }
 /* the main screen's PLAY: the story, then Tutorial 1.1, then Level 1.1 -> 1.2 -> Level 2 */
 $("mainPlay").addEventListener("click",()=>startLevel("1.1",true));
 $("jump").innerHTML=`<optgroup label="Story"><option value="S">Story · Billu’s Pizza Kitchen</option></optgroup><optgroup label="Tutorial"><option value="T">Tutorial 1.1 · Top and serve</option></optgroup>`+Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>

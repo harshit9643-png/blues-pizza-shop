@@ -36,6 +36,9 @@
   fit(); addEventListener("resize",fit,true); addEventListener("orientationchange",()=>setTimeout(()=>{ fit(); dispatchEvent(new Event("resize")); },300));
   const css=document.createElement("style");
   css.textContent=`html.turnme body>*:not(#turnme){visibility:hidden!important}
+#curtain{position:fixed;inset:0;z-index:2147483000;background:radial-gradient(ellipse at 50% 45%,#3A3160,#231D3B);opacity:0;pointer-events:none;transition:opacity .42s ease}
+#curtain.on{opacity:1;pointer-events:auto}
+
 #turnme{display:none}
 html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place-items:center;align-content:center;gap:22px;background:#2B2546;color:#FFF4D6;font:800 26px/1.3 "Baloo 2",system-ui,sans-serif;text-align:center;padding:24px}
 #turnme svg{width:110px;height:110px;animation:turnme 1.8s ease-in-out infinite}
@@ -44,6 +47,14 @@ html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place
   const t=document.createElement("div"); t.id="turnme";
   t.innerHTML=`<svg viewBox="0 0 64 64" fill="none" stroke="#F6C34A" stroke-width="4" stroke-linecap="round"><rect x="20" y="6" width="24" height="52" rx="5"/><path d="M29 50h6"/></svg><div>Please turn your phone sideways<br>to play Billu’s Pizza Kitchen</div>`;
   (document.body||d).appendChild(t); t.style.zoom=String(1/Z);
+  /* the curtain: a soft fade through the game's deep plum between big scenes (and over the page load) */
+  const cu=document.createElement("div"); cu.id="curtain"; cu.className="on"; (document.body||d).appendChild(cu);
+  window.CURTAIN={ cover(){ cu.classList.add("on"); return new Promise(r=>setTimeout(r,420)); },
+    reveal(){ cu.classList.remove("on"); } };
+  const lift=()=>setTimeout(()=>CURTAIN.reveal(),180);
+  if(document.readyState==="complete") lift(); else addEventListener("load",lift);
+  setTimeout(()=>CURTAIN.reveal(),4000);   // never stays up
+  addEventListener("pageshow",e=>{ if(e.persisted) CURTAIN.reveal(); });   // back button from the next page
 })();
 </script>
 <title>Billu’s Pizza Kitchen · Level 2</title>
@@ -1082,7 +1093,7 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .tut .page{grid-template-rows:auto auto minmax(0,1fr)!important}
 .tut .talk{order:-1}
 /* full-screen story shots (Level 2 uses them too) */
-.story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.08);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.9,.3,1)}
+.story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.03);transition:opacity .75s ease,transform 1.2s cubic-bezier(.2,.8,.3,1)}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
 .story .sshot.far img:not(.blur){position:absolute;inset:8%!important;width:84%!important;height:84%!important}
@@ -1393,6 +1404,10 @@ body.tutoring .trail{display:none!important}
 .story .sshot img.blur{position:absolute;inset:0;object-fit:cover;filter:blur(18px) brightness(.8);transform:scale(1.08)}
 .story .sspot{transition:opacity .45s ease,--sr 1.1s cubic-bezier(.3,.7,.3,1)!important}
 .story .ssub:has(#sLine:empty){visibility:hidden}   /* no empty box before the first line */
+/* the screen that is leaving fades out under the one coming in */
+.view.ghost{pointer-events:none;animation:viewOut .4s ease forwards}
+@keyframes viewOut{to{opacity:0;transform:translateY(-10px)}}
+.view.enter{animation:viewIn .6s cubic-bezier(.25,1,.4,1) .12s both!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1659,7 +1674,10 @@ function renderTop(){
   $("trail").innerHTML=SCORED.map(i=>QSTAR(!!S.done[i],i===S.i)).join("");
   $("stars").textContent="⭐ "+S.stars; $("jump").value=String(S.i);
 }
-function setView(cls,html){ const v=$("view"); v.className="view "+cls+" enter"; v.innerHTML=html; $("stage").classList.remove("dim"); }
+function setView(cls,html){ const v=$("view");
+  if(v.childElementCount&&v.getClientRects().length){ const gh=v.cloneNode(true); gh.removeAttribute("id"); gh.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));
+    gh.classList.remove("enter"); gh.classList.add("ghost"); gh.setAttribute("aria-hidden","true"); v.parentNode.insertBefore(gh,v); setTimeout(()=>gh.remove(),420); }
+  v.className="view "+cls+" enter"; v.innerHTML=html; $("stage").classList.remove("dim"); }
 function plateWidth(){ const v=$("view"), portrait=innerWidth<innerHeight*.84;
   const top=Math.min(150,Math.max(96,innerHeight*.17));              // the contestant row above (see .match --top)
   const h=v.clientHeight-(portrait?260:top)-66-30;                    // who-row, stack button, gaps
@@ -2406,8 +2424,9 @@ async function playStory(script){
   try{ await script(); }catch(e){ if(e!==STOP) console.error(e); }
   if(STORY.talkOff) STORY.talkOff();
   if(window.speechSynthesis) speechSynthesis.cancel();
-  st.classList.remove("on"); await sleep(500);
-  if(STORY.run===gen){ st.hidden=true; clear(); }
+  await CURTAIN.cover();
+  if(STORY.run===gen){ st.classList.remove("on"); st.hidden=true; clear(); }
+  setTimeout(()=>CURTAIN.reveal(),140);
   document.body.classList.remove("tutoring");
 }
 $("sNext").addEventListener("click",()=>{ const f=STORY.next; STORY.next=null; $("sNext").classList.add("wait"); if(f) f(); });
@@ -2437,7 +2456,7 @@ async function storyContext2(){
   const shot=(src)=>{ const el=document.createElement("div"); el.className="sshot"; el.innerHTML=`<img src="${src}" alt="">`;
     $("sworld").appendChild(el); SFX.whoosh(); void el.offsetWidth; el.classList.add("in"); return el; };
   const say=async(who,box,text)=>{ const a=anchor(...box); a._key=who; STORY.cast[who]=a; await sLine(who,text); a.remove(); };
-  const next=async(prev,src)=>{ const el=shot(src); await W(sleep(450)); prev.remove(); return el; };
+  const next=async(prev,src)=>{ const el=shot(src); await W(sleep(800)); prev.remove(); return el; };
   // 1. evening at the kitchen: the "Big Eater Contest!" banner and the golden trophy; the customers cheer
   let sc=shot("assets/story/l2_scene1.webp"); SFX.cheer();
   let keep=[anchor(31,25,36,15),anchor(48,41,10,26)];   // the banner and the trophy stay clear of the bubble
@@ -2522,17 +2541,15 @@ async function rollScroll(open,gen){
   const t=$("tut"), rig=t.querySelector(".rig");
   if(open){
     t.hidden=false; t.style.setProperty("--u",0); void t.offsetWidth; t.classList.add("on");
-    await tw(900,k=>{ rig.style.transform=`translateY(${(-110*(1-k)).toFixed(2)}vh)`; },easeOutBack);
+    await tw(900,k=>{ rig.style.transform=`translateY(calc(${(-110*(1-k)).toFixed(2)}*var(--vh)))`; },easeOutBack);
     if(gen!==TUT2.gen) return;
     Sound.plop();
     await tw(1100,k=>t.style.setProperty("--u",k.toFixed(4)),easeInOut);
     t.classList.add("open");
   } else {
-    t.classList.remove("open");
-    await tw(800,k=>t.style.setProperty("--u",(1-k).toFixed(4)),easeInOut);
-    t.classList.remove("on");
-    await tw(650,k=>{ rig.style.transform=`translateY(${(-115*k).toFixed(2)}vh)`; },t=>t*t);
-    t.hidden=true;
+    await CURTAIN.cover();
+    t.classList.remove("open","on"); t.style.setProperty("--u",0); t.hidden=true;
+    setTimeout(()=>CURTAIN.reveal(),140);
   }
 }
 const TUT2={a:{k:"squirrel",n:2,d:7},b:{k:"peacock",n:5,d:7},win:"b",cnt:{a:0,b:0},gen:0,open:{a:false,b:false},onCount:null};
@@ -2653,7 +2670,7 @@ function startLevel2(story=true){ $("start").hidden=true; $("end").hidden=true; 
   const fl=FLOW; (story?playStory(storyContext2):Promise.resolve()).then(()=>fl===FLOW&&runTutorial2()).then(()=>{ if(fl===FLOW) go(0); }); }
 $("play").addEventListener("click",startLevel2);
 /* Level 1 is the previous page of the same game (online it is served at /) */
-function goLevel1(lv){ location.href=new URL((location.protocol==="file:"?"index.html":"./")+"#"+lv,location.href).href; }
+function goLevel1(lv){ CURTAIN.cover().then(()=>{ location.href=new URL((location.protocol==="file:"?"index.html":"./")+"#"+lv,location.href).href; }); }
 document.querySelectorAll("[data-l1]").forEach(b=>b.addEventListener("click",()=>goLevel1(b.dataset.l1)));
 $("jump").innerHTML=`<optgroup label="Story"><option value="S">Story · Big Eater Contest</option></optgroup><optgroup label="Tutorial"><option value="T">Tutorial 2 · Who ate more?</option></optgroup><optgroup label="Level 1"><option value="L1:1.1">Level 1.1 · Top and serve ◂</option><option value="L1:1.2">Level 1.2 · Cut, top and serve ◂</option></optgroup>`+[["Set A · Same denominator",["A"]],["Set B · Same numerator",["B"]],["Set C · Fractions only",["C"]],["Golden Trophy Final",["F"]]]
   .map(([lab,sets])=>`<optgroup label="${lab}">${STEPS.map((s,i)=>sets.includes(s.set)?`<option value="${i}">${s.label}${s.a?` · ${NAMES[s.a.k]} vs ${NAMES[s.b.k]}`:""}</option>`:"").join("")}</optgroup>`).join("");
