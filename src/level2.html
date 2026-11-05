@@ -1415,6 +1415,7 @@ body.tutoring .trail{display:none!important}
 @keyframes showMe{50%{filter:drop-shadow(0 0 16px rgba(255,214,60,1)) brightness(1.15)}}
 .phand.nudge,.mhand.nudge{animation:handNudge .5s ease-in-out 2!important}
 @keyframes handNudge{25%{translate:-8px 0}75%{translate:8px 0}}
+.diag.glowd{filter:drop-shadow(0 0 14px rgba(255,214,60,1));animation:showMe 1s ease-in-out infinite}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1805,7 +1806,7 @@ async function checkPlates(st){
   const bad=!okA?"a":"b", o=st[bad], first=S.tries===1;
   const side=$("side-"+bad); bump(side,"bad",600);
   // the sheet: 1st wrong attempt "Oops! Try again."; 2nd and later the numerator hint (the numerator blinks, the plate clears)
-  if(first) say("Oops! Try again.","bad","noori");
+  if(first){}   // 1st wrong attempt: only the red glow and wiggle
   else if(S.tries===2){ say("Check the numerator. How many slices did each one eat?","bad","noori");
     bump($("num-"+bad),"blink",2800); }
   else say(`Let me show you! ${Who(o.k)} ate ${o.n}/${o.d}: that's ${o.n} ${o.n===1?"slice":"slices"} of 1/${o.d}.`,"bad","noori");
@@ -1843,7 +1844,7 @@ async function pickWinner(st,sd){ stopGuide();
   }
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm");
   bump($("side-"+sd),"bad",600);
-  if(S.wTries===1) say("Hmm, look at the plates again. Who ate more?","bad","noori");
+  if(S.wTries===1){}   // 1st wrong attempt: only the red glow and wiggle
   else if(S.wTries===2){ sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
   else showWinner(st);
 }
@@ -1881,8 +1882,8 @@ function pickCard(st,sd){ stopGuide();
   }
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump($("side-"+sd),"bad",600);
   document.querySelectorAll(".diag").forEach(d=>d.classList.add("show"));
-  if(S.wTries===1) say("Oops! Try again.","bad","noori");   // the diagrams fade in
-  else if(S.wTries===2){ sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
+  if(S.wTries===1){}   // 1st wrong attempt: only the red glow and wiggle (the diagrams fade in)
+  else if(S.wTries===2){ sayRule(activeRule(st)); const w=$("side-"+st.win); w.classList.add("glow"); const dg=w.querySelector(".diag"); if(dg) dg.classList.add("glowd"); }   // the winner's diagram glows
   else showWinner(st);
 }
 
@@ -1990,7 +1991,7 @@ async function checkOrder(){
   S.oTries++; S.tries++; Sound.bad(); guideMood("hmm");
   const wrong=p.map((v,s)=>v!==want[s]?v:null).filter(v=>v!==null);
   wrong.forEach(i=>bump($("fin-"+i),"bad",600));
-  if(S.oTries===1) say("Oops! Try again.","bad","noori");
+  if(S.oTries===1){}   // 1st wrong attempt: only the red glow and wiggle
   else { say("Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.","bad","noori");
     FINALISTS.forEach((f,i)=>{ $("dg-"+i).innerHTML=finDiag(f); }); $("diags").classList.add("show"); }
   await wait(650); if(!live(g)) return;
@@ -2026,7 +2027,7 @@ function pickChampion(i){ stopGuide();
     return;
   }
   S.wTries++; Sound.bad(); guideMood("hmm"); bump($("fin-"+i),"bad",600);
-  if(S.wTries===1) say("Hmm, look at the order again. Who ate the most?","bad","noori");
+  if(S.wTries===1){}   // 1st wrong attempt: only the red glow and wiggle
   else if(S.wTries===2){ say("The greatest fraction is at the end of the row.","bad","noori"); bump($("slot-4"),"glow",2400); bump($("fin-"+best),"sel",2400); }
   else { say(`Let me show you! The greatest fraction is at the end of the row: ${FINALISTS[best].n}/${FINALISTS[best].d}. Tap ${who(FINALISTS[best].k)}.`,"bad","noori");
     $("fin-"+best).classList.add("showme"); const g=S.gen; guide(()=>live(g)&&S.phase==="finalPick"?$("fin-"+best):null); }

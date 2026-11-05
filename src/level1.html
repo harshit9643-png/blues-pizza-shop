@@ -2032,8 +2032,7 @@ async function useMould(k,btn){
     PZ.classList.add("bad"); boardFx("wiggle");
     // wrong moulds for this order: 1st try again, 2nd a hint, 3rd the hand points at the right mould
     const key=S.lv+":"+S.i; if(S.mwKey!==key){ S.mwKey=key; S.mw=0; } S.mw++;
-    say(S.mw===1 ? "Hmm, is that how many parts the order needs? Try again."
-      : "Check the denominator and pick the correct mould.","bad");
+    if(S.mw>=2) say("Check the denominator and pick the correct mould.","bad");   // 1st wrong attempt: only the red glow and wiggle
     if(S.mw>=2){ blinkNum("d",3); const rm=document.querySelector(`.mould[data-m="${o.d}"]`); if(rm){ rm.classList.remove("pulseok"); void rm.offsetWidth; rm.classList.add("pulseok"); setTimeout(()=>rm.classList.remove("pulseok"),3200); } }
     await wait(1600); if(!live(gen)) return;
     btn.classList.remove("wrong"); PZ.classList.remove("bad");
@@ -2168,7 +2167,7 @@ async function miss(){
   S.tries++; S.busy=true; Sound.bad(); guideMood("hmm"); custMood("sad");
   // the sheet: 1st wrong attempt "Try again" (red glow and wiggle); 2nd and later the hint, and the numerator blinks
   const key=S.lv+":"+S.i; if(S.twKey!==key){ S.twKey=key; S.tw=0; } S.tw++;
-  if(S.tw===1) say(`Is that how much ${custWho(o)} ${o.who?"want":"wants"}? Try again.`,"bad");
+  if(S.tw===1){}   // 1st wrong attempt: only the red glow and wiggle
   else if(S.tw===2){ say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.who?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
   else say(`Let me show you! The numerator is ${o.n}, so ${custWho(o)} ${o.who?"want":"wants"} ${o.n} ${o.n===1?"piece":"pieces"}.`,"bad");
   S.covered.forEach((_,i)=>partEl(i).querySelector(".hit").classList.add("bad"));
