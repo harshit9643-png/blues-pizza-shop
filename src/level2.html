@@ -1408,6 +1408,11 @@ body.tutoring .trail{display:none!important}
 .view.ghost{pointer-events:none;animation:viewOut .4s ease forwards}
 @keyframes viewOut{to{opacity:0;transform:translateY(-10px)}}
 .view.enter{animation:viewIn .6s cubic-bezier(.25,1,.4,1) .12s both!important}
+/* third wrong attempt: the hand shows where to tap, and the right things glow */
+.phand{position:fixed;z-index:130;width:clamp(44px,calc(4.4*var(--vw)),66px);height:auto;pointer-events:none;transform:translate(-73%,0);filter:drop-shadow(0 8px 8px rgba(0,0,0,.35));animation:ptap 1s ease-in-out infinite}
+@keyframes ptap{0%,100%{translate:0 12px}50%{translate:0 -4px}}
+.showme{animation:showMe 1s ease-in-out infinite!important}
+@keyframes showMe{50%{filter:drop-shadow(0 0 16px rgba(255,214,60,1)) brightness(1.15)}}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1665,6 +1670,11 @@ function confetti(){ const fx=$("fx"), cols=["#F2A62C","#FBD584","#C8402E","#3A5
   for(let i=0;i<60;i++){ const s=document.createElement("i"); s.style.left=Math.random()*100+"%"; s.style.background=cols[i%cols.length];
     s.style.clipPath=i%3?"polygon(50% 0,100% 100%,0 100%)":"circle(50%)"; s.style.animationDelay=(Math.random()*.35)+"s";
     s.style.animationDuration=(1.3+Math.random()*.9)+"s"; fx.appendChild(s); setTimeout(()=>s.remove(),2600); } }
+/* the white pointing hand from the art pack, bobbing with its fingertip on an element (third wrong attempt: show how) */
+function pointAt(el){ let h=document.getElementById("phand"); if(h) h.remove(); if(!el) return;
+  const r=el.getBoundingClientRect(); h=document.createElement("img"); h.id="phand"; h.className="phand"; h.src="assets/draft2/hand_point.webp"; h.alt="";
+  h.style.left=(r.left+r.width/2)+"px"; h.style.top=(r.top+r.height*.5)+"px"; document.body.appendChild(h); }
+function unpoint(){ const h=document.getElementById("phand"); if(h) h.remove(); }
 function bump(el,cls,ms){ if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); if(ms) setTimeout(()=>el.classList.remove(cls),ms); }
 /* one star per question: dark until it is answered right, then gold */
 const QSTAR=(done,now)=>`<svg class="tok qs ${now?'now':''} ${done?'got':''}" viewBox="0 0 32 32" aria-hidden="true">
@@ -1690,7 +1700,7 @@ function activeRule(st){ return st.a.d===st.b.d ? "d" : "n"; }
    FLOW
    ============================================================ */
 function go(i){
-  S.i=i; S.gen++; S.tries=0; S.phase=""; S.g=0; renderTop();
+  S.i=i; S.gen++; S.tries=0; S.phase=""; S.g=0; renderTop(); unpoint();
   $("start").hidden=true; $("end").hidden=true;
   const st=STEPS[i];
   ({match:showMatch,cards:showCards,intro:showIntro,finalIntro:showFinalIntro,final:showFinal,champion:showChampion})[st.kind](st);
@@ -1774,10 +1784,17 @@ async function checkPlates(st){
   const side=$("side-"+bad); bump(side,"bad",600);
   // the sheet: 1st wrong attempt "Oops! Try again."; 2nd and later the numerator hint (the numerator blinks, the plate clears)
   if(first) say("Oops! Try again.","bad","noori");
-  else { say("Check the numerator. How many slices did each one eat?","bad","noori");
+  else if(S.tries===2){ say("Check the numerator. How many slices did each one eat?","bad","noori");
     bump($("num-"+bad),"blink",2800); }
+  else say(`Let me show you! ${Who(o.k)} ate ${o.n}/${o.d}: that's ${o.n} ${o.n===1?"slice":"slices"} of 1/${o.d}.`,"bad","noori");
   await wait(650); if(!live(g)) return;
   S.cnt[bad]=0; drawPie(st,bad,false); S.keepMsg=true; afterChange(st); S.keepMsg=false;
+  if(S.tries>=3){   // third wrong attempt: show how, one slice at a time onto the plate
+    const stack=$("stack-"+bad); pointAt(stack); bump($("num-"+bad),"blink",o.n*700+800);
+    for(let i=0;i<o.n;i++){ await wait(700); if(!live(g)||S.phase!=="build") return unpoint(); S.cnt[bad]++; drawPie(st,bad,true); Sound.plop&&Sound.plop(); }
+    unpoint(); S.keepMsg=true; afterChange(st); S.keepMsg=false;
+    say(`Like this: ${o.n} ${o.n===1?"slice":"slices"}! Now tap Check plates.`,"","noori");
+  }
 }
 function winnerPhase(st){
   S.phase="winner"; S.wTries=0; Sound.drum();
@@ -1788,7 +1805,7 @@ function winnerPhase(st){
     const fn=()=>pickWinner(st,sd); s.onclick=e=>{ if(e.target.closest(".stack")) return; fn(); };
     s.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fn(); } }; });
 }
-async function pickWinner(st,sd){
+async function pickWinner(st,sd){ unpoint();
   if(S.phase!=="winner") return;
   const g=S.gen;
   if(sd===st.win){
@@ -1804,8 +1821,13 @@ async function pickWinner(st,sd){
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm");
   bump($("side-"+sd),"bad",600);
   if(S.wTries===1) say("Hmm, look at the plates again. Who ate more?","bad","noori");
-  else { sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
+  else if(S.wTries===2){ sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
+  else showWinner(st);
 }
+/* third wrong attempt: show how. The hand points at the winner, who glows */
+function showWinner(st){ const w=$("side-"+st.win); w.classList.add("glow");
+  say(`Let me show you! ${Who(st[st.win].k)} ate more: ${st[st.win].n}/${st[st.win].d} is more than ${st[st.win==="a"?"b":"a"].n}/${st[st.win==="a"?"b":"a"].d}. Tap ${who(st[st.win].k)}.`,"bad","noori");
+  pointAt(w.querySelector(".ava")||w); }
 
 /* ---------- Set C: fraction cards only ---------- */
 function cardSide(sd,o,shape){
@@ -1822,7 +1844,7 @@ function showCards(st){
   ["a","b"].forEach(sd=>{ const s=$("side-"+sd); s.classList.add("pick"); s.tabIndex=0; s.setAttribute("role","button");
     s.onclick=()=>pickCard(st,sd); s.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickCard(st,sd); } }; });
 }
-function pickCard(st,sd){
+function pickCard(st,sd){ unpoint();
   if(S.phase!=="winner") return;
   const g=S.gen;
   if(sd===st.win){
@@ -1837,7 +1859,8 @@ function pickCard(st,sd){
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump($("side-"+sd),"bad",600);
   document.querySelectorAll(".diag").forEach(d=>d.classList.add("show"));
   if(S.wTries===1) say("Oops! Try again.","bad","noori");   // the diagrams fade in
-  else { sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
+  else if(S.wTries===2){ sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
+  else showWinner(st);
 }
 
 /* ---------- the Golden Trophy Final ---------- */
@@ -1950,6 +1973,11 @@ async function checkOrder(){
   await wait(650); if(!live(g)) return;
   wrong.forEach(i=>putIn($("fin-"+i),null));
   p.forEach((v,s)=>{ if(v!==null&&!wrong.includes(v)) $("fin-"+v).classList.add("lock"); });
+  if(S.oTries>=3){   // third wrong attempt: show how, smallest first
+    say("Let me show you! The biggest denominator is the smallest piece: 1/6, then 1/5, 1/4, 1/3 and 1/2.","bad","noori");
+    for(let s=0;s<5;s++){ await wait(900); if(!live(g)||S.phase!=="order") return unpoint();
+      const c=$("fin-"+want[s]); if(c.parentNode.id!=="slot-"+s){ pointAt($("slot-"+s)); putIn(c,$("slot-"+s)); } }
+    unpoint(); }
 }
 function finalWinner(){
   S.phase="finalPick"; S.wTries=0; $("stage").classList.add("dim"); Sound.drum();
@@ -1958,7 +1986,7 @@ function finalWinner(){
     c.onclick=()=>pickChampion(i); c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickChampion(i); } }; });
   document.querySelectorAll(".slot").forEach(s=>s.style.zIndex=2);
 }
-function pickChampion(i){
+function pickChampion(i){ unpoint();
   if(S.phase!=="finalPick") return;
   const best=[...FINALISTS.keys()].reduce((a,b)=>FINALISTS[b].n/FINALISTS[b].d>FINALISTS[a].n/FINALISTS[a].d?b:a,0);
   if(i===best){
@@ -1975,7 +2003,9 @@ function pickChampion(i){
   }
   S.wTries++; Sound.bad(); guideMood("hmm"); bump($("fin-"+i),"bad",600);
   if(S.wTries===1) say("Hmm, look at the order again. Who ate the most?","bad","noori");
-  else { say("The greatest fraction is at the end of the row.","bad","noori"); bump($("slot-4"),"glow",2400); bump($("fin-"+best),"sel",2400); }
+  else if(S.wTries===2){ say("The greatest fraction is at the end of the row.","bad","noori"); bump($("slot-4"),"glow",2400); bump($("fin-"+best),"sel",2400); }
+  else { say(`Let me show you! The greatest fraction is at the end of the row: ${FINALISTS[best].n}/${FINALISTS[best].d}. Tap ${who(FINALISTS[best].k)}.`,"bad","noori");
+    $("fin-"+best).classList.add("showme"); pointAt($("fin-"+best)); }
 }
 function showChampion(){
   const order=[["squirrel",4],["hippo",2],["ant",1],["tez",3],["bijli",5]];      // 1/2 > 1/3 > 1/4 > 1/5 > 1/6

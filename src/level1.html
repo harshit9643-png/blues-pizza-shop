@@ -312,7 +312,7 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 
 .ghost{position:fixed;left:0;top:0;width:90px;height:90px;pointer-events:none;z-index:70}
 .ghost img{position:absolute;width:46px;height:46px}
-.hand{position:absolute;left:0;top:0;width:60px;height:60px;pointer-events:none;z-index:30}
+.hand{position:absolute;left:0;top:0;width:46px;height:auto;pointer-events:none;z-index:30;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));transform-origin:34px 0}
 .fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 .fx i{position:absolute;top:-24px;width:16px;height:14px;animation:fall 1.8s ease-in forwards}
 @keyframes fall{to{transform:translateY(calc(105*var(--vh))) rotate(720deg)}}
@@ -1198,7 +1198,7 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .tray.mouldboard,.tray:not(.coco){--tsz:min(calc(24*var(--vw)),calc(calc(100*var(--vh)) - 330px),380px)!important}
 .slot.mould{width:30%!important}
 /* pointing hand on the right mould */
-.mhand{position:fixed;z-index:120;width:clamp(56px,calc(6*var(--vw)),84px);height:auto;pointer-events:none;transform:translate(-72%,0);
+.mhand{position:fixed;z-index:120;width:clamp(50px,calc(5*var(--vw)),72px);height:auto;pointer-events:none;transform:translate(-73%,0);
   filter:drop-shadow(0 8px 8px rgba(0,0,0,.35));animation:mtap 1s ease-in-out infinite}
 @keyframes mtap{0%,100%{translate:0 10px}50%{translate:0 -6px}}
 .mould.pointed{animation:ready 1s ease-in-out infinite}
@@ -1247,6 +1247,11 @@ body.tutoring .trail{display:none!important}
 @keyframes blinkNum{50%{transform:scale(1.35);opacity:.35}}
 .mould.pulseok{animation:mouldOk .8s ease-in-out 4!important;filter:drop-shadow(0 0 14px rgba(255,210,60,.95))}
 @keyframes mouldOk{50%{transform:scale(1.12)}}
+/* third wrong attempt: the hand shows where to tap, and the right things glow */
+.phand{position:fixed;z-index:130;width:clamp(44px,calc(4.4*var(--vw)),66px);height:auto;pointer-events:none;transform:translate(-73%,0);filter:drop-shadow(0 8px 8px rgba(0,0,0,.35));animation:ptap 1s ease-in-out infinite}
+@keyframes ptap{0%,100%{translate:0 12px}50%{translate:0 -4px}}
+.showme{animation:showMe 1s ease-in-out infinite!important}
+@keyframes showMe{50%{filter:drop-shadow(0 0 16px rgba(255,214,60,1)) brightness(1.15)}}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1296,9 +1301,7 @@ body.tutoring .trail{display:none!important}
     <section class="trayzone">
       <div class="tray" id="tray"><img class="thali" src="assets/draft2/board_paddle.svg" alt=""><div id="slots"></div></div>
     </section>
-    <svg class="hand" id="hand" viewBox="0 0 64 64" hidden aria-hidden="true">
-      <path d="M26 6c3 0 5 2 5 5v16l3-1c3-1 5 1 5 3v1l3-1c3-1 5 1 5 3v1l2-.5c3-.5 5 1.5 5 4V48c0 7-6 12-13 12h-6c-5 0-9-2-12-6L11 40c-2-3 1-6 4-5l6 3V11c0-3 2-5 5-5z" fill="#FFE1C4" stroke="#3B2A1A" stroke-width="3" stroke-linejoin="round"/>
-    </svg>
+    <img class="hand" id="hand" src="assets/draft2/hand_point.webp" alt="" hidden aria-hidden="true">
   </main>
 
 </div>
@@ -1900,6 +1903,11 @@ function showCustomer(){
 function blinkNum(which,times){ const f=document.querySelector("#slip .rc-frac"); if(!f) return; const b=f.querySelectorAll("b")[which==="n"?0:1]; if(!b) return;
   b.classList.remove("blinknum"); void b.offsetWidth; b.style.setProperty("--blinks",Math.max(1,Math.min(times,12))); b.classList.add("blinknum");
   clearTimeout(b._bt); b._bt=setTimeout(()=>b.classList.remove("blinknum"),Math.max(1,Math.min(times,12))*500+200); }
+/* the white pointing hand from the art pack, bobbing with its fingertip on an element (third wrong attempt: show how) */
+function pointAt(el){ let h=document.getElementById("phand"); if(h) h.remove(); if(!el) return;
+  const r=el.getBoundingClientRect(); h=document.createElement("img"); h.id="phand"; h.className="phand"; h.src="assets/draft2/hand_point.webp"; h.alt="";
+  h.style.left=(r.left+r.width/2)+"px"; h.style.top=(r.top+r.height*.5)+"px"; document.body.appendChild(h); }
+function unpoint(){ const h=document.getElementById("phand"); if(h) h.remove(); }
 function custMood(cls){
   const w=$("who"); if(w){ w.classList.remove("enter","happy","sad"); void w.offsetWidth; w.classList.add(cls); }
   const sl=$("slip"); if(sl&&cls==="sad"){ sl.classList.remove("enter","shake"); void sl.offsetWidth; sl.classList.add("shake"); }
@@ -1914,7 +1922,7 @@ function startLevel(lv,tutorial){ S.lv=lv; S.i=0; S.stars=0; S.done=[]; S.hinted
 function jumpTo(lv,i){ if(lv!==S.lv){ S.lv=lv; S.stars=0; S.done=[]; } S.i=i; $("start").hidden=true; $("end").hidden=true; loadOrder(); }
 
 async function loadOrder(){
-  const o=cur(), gen=++S.gen;
+  const o=cur(), gen=++S.gen; unpoint();
   clearPlateScene();
   document.querySelectorAll(".flyer").forEach(f=>f.remove());
   hideHint(); S.tries=0; S.covered=new Map(); S.topping=null; S.busy=true; S.skip=false;
@@ -2010,7 +2018,8 @@ async function useMould(k,btn){
     PZ.querySelectorAll(".part").forEach(p=>p.style.transform="none");      // the pieces close up again
     await wait(700); if(!live(gen)) return;
     S.k=1; G=geom(o.shape,1); renderWhole(true); boardFx("in");               // a fresh whole pizza
-    if(S.mw>=3) mouldHand(true); else if(S.mw===1) say("Pick the mould that cuts this pizza for the order.");
+    if(S.mw>=3){ mouldHand(true); say(`Let me show you! The denominator is ${o.d}. Tap this mould: it cuts ${o.d} equal parts.`); }
+    else if(S.mw===1) say("Pick the mould that cuts this pizza for the order.");
     S.busy=false;
   }
 }
@@ -2019,7 +2028,7 @@ function mouldHand(on){
   let h=$("mhand"); if(h) h.remove(); if(!on) return;
   const m=document.querySelector(`.mould[data-m="${cur().d}"]`); if(!m) return;
   const r=m.getBoundingClientRect();
-  h=document.createElement("img"); h.id="mhand"; h.className="mhand"; h.src="assets/draft2/hand_point.svg"; h.alt="";
+  h=document.createElement("img"); h.id="mhand"; h.className="mhand"; h.src="assets/draft2/hand_point.webp"; h.alt="";
   h.style.left=(r.left+r.width/2)+"px"; h.style.top=(r.top+r.height*.55)+"px";
   document.body.appendChild(h); m.classList.add("pointed");
 }
@@ -2081,6 +2090,7 @@ function toSvg(x,y){ const m=PZ.getScreenCTM(); return m ? new DOMPoint(x,y).mat
 /* toppings spread out from where they were dropped, one piece after another */
 function cover(i,kind,drop){
   if(S.phase!=="top"||S.busy) return;
+  unpoint(); const sh=partEl(i)&&partEl(i).querySelector(".hit.showme"); if(sh) sh.classList.remove("showme");
   const p=G.parts[i], off=S.off[i]||{x:0,y:0};
   const from = drop ? {x:drop.x-off.x, y:drop.y-off.y} : {x:p.cx, y:p.cy};
   S.covered.set(i,kind);
@@ -2137,7 +2147,8 @@ async function miss(){
   // the sheet: 1st wrong attempt "Try again" (red glow and wiggle); 2nd and later the hint, and the numerator blinks
   const key=S.lv+":"+S.i; if(S.twKey!==key){ S.twKey=key; S.tw=0; } S.tw++;
   if(S.tw===1) say(`Is that how much ${custWho(o)} ${o.who?"want":"wants"}? Try again.`,"bad");
-  else { say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.who?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
+  else if(S.tw===2){ say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.who?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
+  else say(`Let me show you! The numerator is ${o.n}, so ${custWho(o)} ${o.who?"want":"wants"} ${o.n} ${o.n===1?"piece":"pieces"}.`,"bad");
   S.covered.forEach((_,i)=>partEl(i).querySelector(".hit").classList.add("bad"));
   boardFx("wiggle"); setDone("done",false);
   await wait(1000); if(!live(gen)) return;
@@ -2148,6 +2159,14 @@ async function miss(){
   await Promise.all(anims); if(!live(gen)) return;
   S.covered.forEach((_,i)=>{ const p=partEl(i); p.querySelector(".tops").innerHTML=""; p.querySelector(".hit").classList.remove("bad"); });
   S.covered.clear(); S.busy=false; setCount();
+  if(S.tw>=3) showSlices(o.n);   // third wrong attempt: show how
+}
+/* show how: the n slices to top glow one by one and the hand points at the first one */
+function showSlices(n){
+  blinkNum("n",n);
+  for(let i=0;i<n&&i<G.parts.length;i++) setTimeout(()=>{ const h=partEl(i)&&partEl(i).querySelector(".hit"); if(h&&S.phase==="top") h.classList.add("showme"); },i*260);
+  setTimeout(()=>{ const h=partEl(0)&&partEl(0).querySelector(".hit"); if(h&&S.phase==="top") pointAt(h); },200);
+  say(`Tap ${n} ${n===1?"slice":"slices"} like the glowing ${n===1?"one":"ones"}, then tap DONE.`);
 }
 async function serve(){
   const o=cur(), gen=S.gen, first=S.tries===0;
@@ -2297,7 +2316,7 @@ function showHint(){
   const hand=$("hand"), st=$("stage").getBoundingClientRect(), k=$("slots").querySelector(".katori"); if(!k) return;
   const b=k.getBoundingClientRect(), m=PZ.getScreenCTM(); if(!m) return;
   const p=G.parts[0], off=S.off[0]||{x:0,y:0}, pt=new DOMPoint(p.cx+off.x,p.cy+off.y).matrixTransform(m);
-  const f=[b.left+b.width/2-st.left-14,b.top+b.height/2-st.top-6], t=[pt.x-st.left-14,pt.y-st.top-6];
+  const f=[b.left+b.width/2-st.left-34,b.top+b.height/2-st.top-2], t=[pt.x-st.left-34,pt.y-st.top-2];   // fingertip at (34,0) of the hand picture
   hand.hidden=false;
   hintAnim=hand.animate([{transform:`translate(${f[0]}px,${f[1]}px)`,opacity:0},{transform:`translate(${f[0]}px,${f[1]}px) scale(.88)`,opacity:1,offset:.15},
     {transform:`translate(${t[0]}px,${t[1]}px) scale(.88)`,opacity:1,offset:.7},{transform:`translate(${t[0]}px,${t[1]}px)`,opacity:0}],
