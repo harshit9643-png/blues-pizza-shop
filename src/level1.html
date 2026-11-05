@@ -1252,6 +1252,8 @@ body.tutoring .trail{display:none!important}
 @keyframes ptap{0%,100%{translate:0 12px}50%{translate:0 -4px}}
 .showme{animation:showMe 1s ease-in-out infinite!important}
 @keyframes showMe{50%{filter:drop-shadow(0 0 16px rgba(255,214,60,1)) brightness(1.15)}}
+.phand.nudge,.mhand.nudge{animation:handNudge .5s ease-in-out 2!important}
+@keyframes handNudge{25%{translate:-8px 0}75%{translate:8px 0}}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1906,8 +1908,28 @@ function blinkNum(which,times){ const f=document.querySelector("#slip .rc-frac")
 /* the white pointing hand from the art pack, bobbing with its fingertip on an element (third wrong attempt: show how) */
 function pointAt(el){ let h=document.getElementById("phand"); if(h) h.remove(); if(!el) return;
   const r=el.getBoundingClientRect(); h=document.createElement("img"); h.id="phand"; h.className="phand"; h.src="assets/draft2/hand_point.webp"; h.alt="";
-  h.style.left=(r.left+r.width/2)+"px"; h.style.top=(r.top+r.height*.5)+"px"; document.body.appendChild(h); }
-function unpoint(){ const h=document.getElementById("phand"); if(h) h.remove(); }
+  h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; document.body.appendChild(h); }
+/* show how, step by step: every 300 ms the hand moves to the next thing the child must tap,
+   until the step is done (the target function returns null) */
+/* while the hand is showing how, only the place it points at can be tapped (plus Home, QA and Skip) */
+let LOCK=null, MLOCK=null;
+["pointerdown","mousedown","touchstart","click"].forEach(t=>document.addEventListener(t,e=>{
+  const L=(LOCK&&LOCK.isConnected)?LOCK:(MLOCK&&MLOCK.isConnected)?MLOCK:null; if(!L) return;
+  const tg=e.target; if(!(tg instanceof Element)) return;
+  if(L.contains(tg)||tg.closest("#home,#qa,.qa,.qabtn,.qap,#jump,header.top,.skip,#sSkip,#tutSkip")) return;
+  e.stopPropagation(); e.preventDefault();
+  const h=document.getElementById("phand")||document.getElementById("mhand"); if(h){ h.classList.remove("nudge"); void h.offsetWidth; h.classList.add("nudge"); }
+},{capture:true,passive:false}));
+let GUIDE=0;
+function guide(target){ const id=++GUIDE; let last=null;
+  (function tick(){ if(id!==GUIDE) return; let el=null; try{ el=target(); }catch(e){}
+    if(!el){ unpoint(); return; }
+    LOCK=el;
+    const r=el.getBoundingClientRect(), key=el; if(key!==last||!document.getElementById("phand")){ last=key; pointAt(el); }
+    else { const h=document.getElementById("phand"); h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; }
+    setTimeout(tick,150); })(); }
+function stopGuide(){ GUIDE++; unpoint(); }
+function unpoint(){ LOCK=null; const h=document.getElementById("phand"); if(h) h.remove(); }
 function custMood(cls){
   const w=$("who"); if(w){ w.classList.remove("enter","happy","sad"); void w.offsetWidth; w.classList.add(cls); }
   const sl=$("slip"); if(sl&&cls==="sad"){ sl.classList.remove("enter","shake"); void sl.offsetWidth; sl.classList.add("shake"); }
@@ -1922,7 +1944,7 @@ function startLevel(lv,tutorial){ S.lv=lv; S.i=0; S.stars=0; S.done=[]; S.hinted
 function jumpTo(lv,i){ if(lv!==S.lv){ S.lv=lv; S.stars=0; S.done=[]; } S.i=i; $("start").hidden=true; $("end").hidden=true; loadOrder(); }
 
 async function loadOrder(){
-  const o=cur(), gen=++S.gen; unpoint();
+  const o=cur(), gen=++S.gen; stopGuide(); MLOCK=null;
   clearPlateScene();
   document.querySelectorAll(".flyer").forEach(f=>f.remove());
   hideHint(); S.tries=0; S.covered=new Map(); S.topping=null; S.busy=true; S.skip=false;
@@ -2025,12 +2047,12 @@ async function useMould(k,btn){
 }
 /* the pointing hand over the right mould (after the third wrong pick) */
 function mouldHand(on){
-  let h=$("mhand"); if(h) h.remove(); if(!on) return;
+  let h=$("mhand"); if(h) h.remove(); MLOCK=null; if(!on) return;
   const m=document.querySelector(`.mould[data-m="${cur().d}"]`); if(!m) return;
   const r=m.getBoundingClientRect();
   h=document.createElement("img"); h.id="mhand"; h.className="mhand"; h.src="assets/draft2/hand_point.webp"; h.alt="";
   h.style.left=(r.left+r.width/2)+"px"; h.style.top=(r.top+r.height*.55)+"px";
-  document.body.appendChild(h); m.classList.add("pointed");
+  document.body.appendChild(h); m.classList.add("pointed"); MLOCK=m;   // only this mould can be tapped now
 }
 
 /* ---------- toppings: drag a katori onto a slice, or pick one and tap slices ---------- */
@@ -2090,7 +2112,7 @@ function toSvg(x,y){ const m=PZ.getScreenCTM(); return m ? new DOMPoint(x,y).mat
 /* toppings spread out from where they were dropped, one piece after another */
 function cover(i,kind,drop){
   if(S.phase!=="top"||S.busy) return;
-  unpoint(); const sh=partEl(i)&&partEl(i).querySelector(".hit.showme"); if(sh) sh.classList.remove("showme");
+  const sh=partEl(i)&&partEl(i).querySelector(".hit.showme"); if(sh) sh.classList.remove("showme");
   const p=G.parts[i], off=S.off[i]||{x:0,y:0};
   const from = drop ? {x:drop.x-off.x, y:drop.y-off.y} : {x:p.cx, y:p.cy};
   S.covered.set(i,kind);
@@ -2165,8 +2187,14 @@ async function miss(){
 function showSlices(n){
   blinkNum("n",n);
   for(let i=0;i<n&&i<G.parts.length;i++) setTimeout(()=>{ const h=partEl(i)&&partEl(i).querySelector(".hit"); if(h&&S.phase==="top") h.classList.add("showme"); },i*260);
-  setTimeout(()=>{ const h=partEl(0)&&partEl(0).querySelector(".hit"); if(h&&S.phase==="top") pointAt(h); },200);
-  say(`Tap ${n} ${n===1?"slice":"slices"} like the glowing ${n===1?"one":"ones"}, then tap DONE.`);
+  const key=S.lv+":"+S.i;
+  guide(()=>{ if(S.phase!=="top"||S.lv+":"+S.i!==key) return null;
+    if(!S.topping) return document.querySelector(".katori");                     // first a topping
+    if(S.covered.size<n){ let i=[...Array(n).keys()].find(i=>!S.covered.has(i));   // then the glowing slices, one by one
+      if(i===undefined) i=G.parts.findIndex((_,j)=>!S.covered.has(j)); const h=partEl(i)&&partEl(i).querySelector(".hit"); return h; }
+    if(S.covered.size===n) return $("done");                                    // then DONE
+    return null; });
+  say(`Follow the hand: tap ${n} ${n===1?"slice":"slices"}, one by one, then tap DONE.`);
 }
 async function serve(){
   const o=cur(), gen=S.gen, first=S.tries===0;
