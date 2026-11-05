@@ -51,8 +51,8 @@ html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place
   const cu=document.createElement("div"); cu.id="curtain"; cu.className="on"; (document.body||d).appendChild(cu);
   window.CURTAIN={ cover(){ cu.classList.add("on"); return new Promise(r=>setTimeout(r,420)); },
     reveal(){ cu.classList.remove("on"); } };
-  const lift=()=>setTimeout(()=>CURTAIN.reveal(),180);
-  if(document.readyState==="complete") lift(); else addEventListener("load",lift);
+  const lift=()=>setTimeout(()=>CURTAIN.reveal(),220);   // as soon as the page is built (pictures keep loading behind)
+  if(document.readyState!=="loading") lift(); else addEventListener("DOMContentLoaded",lift);
   setTimeout(()=>CURTAIN.reveal(),4000);   // never stays up
   addEventListener("pageshow",e=>{ if(e.persisted) CURTAIN.reveal(); });   // back button from the next page
 })();

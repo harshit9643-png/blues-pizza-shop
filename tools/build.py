@@ -79,7 +79,20 @@ def page_html(src_name, title):
     # title and host-only meta tags belong in the head the build writes
     body = re.sub(r"<title>.*?</title>\s*", "", body, count=1, flags=re.S)
     body = re.sub(r'<meta name="claude:[^"]*"[^>]*>\s*', "", body)
+    # <link> tags go into the head; web fonts load without holding up the page (text shows at once, then swaps)
+    links = re.findall(r"<link [^>]*>", body)
+    body = re.sub(r"<link [^>]*>\s*", "", body)
+    extra = ['<link rel="preconnect" href="https://fonts.googleapis.com">']
+    for tag in links:
+        if 'rel="stylesheet"' in tag and "fonts.googleapis.com" in tag:
+            href = re.search(r'href="([^"]+)"', tag).group(1)
+            extra.append(f'<link rel="preload" as="style" href="{href}">')
+            extra.append(f'<link rel="stylesheet" href="{href}" media="print" onload="this.media=\'all\'">')
+            extra.append(f'<noscript><link rel="stylesheet" href="{href}"></noscript>')
+        else:
+            extra.append(tag)
     head = HEAD.format(title=title, site=SITE, description=DESCRIPTION, favicon=FAVICON)
+    head = head.replace("<style>", "\n".join(extra) + "\n<style>", 1)
     return head + body + TAIL, body
 
 
