@@ -1,31 +1,47 @@
 # Billu's Pizza Kitchen
 
-A fractions game for classes 6 and 7. Chef Billu the cat runs a pizza shop in the jungle, and jungle animals order parts of a pizza. Children read the order, cut the pizza into equal parts, add toppings to the right number of parts, and serve it. In Level 2 they compare fractions in the Big Eater Contest.
+A fractions game for classes 6 and 7. Chef Billu the cat runs a pizza shop in the jungle, and the jungle animals order parts of a pizza. Children read the order, cut the pizza into equal parts, top the right number of slices and serve it. In Level 2 they compare fractions in the Big Eater Contest.
 
-## Play it
+**Play:** https://billus-pizza-shop.vercel.app
 
-- **Online:** https://harshit9643-png.github.io/blues-pizza-shop/ (opens `Final/`)
-- **Offline:** open `Final/index.html`
+Press **PLAY**: Story 1 → Tutorial 1.1 → Level 1.1 → Level 1.2 → Story 2 → Tutorial 2 → the matches → the Final → the Champion. The **QA** button (bottom right) jumps to any story, tutorial, order or match.
 
-Press **PLAY**: the story, Tutorial 1.1, Level 1.1, Level 1.2, then Level 2 (its story, Tutorial 2, the matches and the ending). The menu at the top jumps to any story, tutorial or order.
+The game is landscape. It fits any screen from a phone held sideways to a wide monitor; a phone held upright is asked to turn sideways.
 
-## Files
+## Project structure
 
-| Path | What it is |
+```
+src/                    the game source
+  level1.html           main screen, Story 1, Tutorial 1.1, Levels 1.1 and 1.2
+  level2.html           Story 2, Tutorial 2, the matches, the Final, the Champion
+  assets/               all art (story pictures, characters, pizzas, boards)
+tools/
+  build.py              builds dist/ from src/ (Vercel runs this on every deploy)
+  serve.py              builds, then serves dist/ at http://localhost:8000
+  art/                  one-off scripts that generated or cut some of the art
+docs/                   design references
+vercel.json             build command, output folder, clean URLs, caching
+```
+
+`dist/` is the build output and is not committed.
+
+## Develop
+
+Requires Python 3.9+ (no packages needed to build or serve).
+
+```bash
+python3 tools/serve.py       # build and open http://localhost:8000
+python3 tools/build.py       # build only, into dist/
+```
+
+The pages in `src/` are page bodies; the build wraps each in a full HTML document (head, title, description, icon) and copies only the art the pages use. After a build, `dist/index.html` also opens directly from disk.
+
+## Deploy
+
+Vercel is connected to this repository: every push to `main` builds and publishes to production, and every other branch gets a preview URL. The settings live in `vercel.json`:
+
+| Setting | Value |
 |---|---|
-| `Final/` | **The finished game.** Self-contained: copy this folder anywhere and open `index.html`. |
-| `index.html` | Sends the online link to `Final/`. |
-| `level1_draft2.html` | Source of Level 1 (story, tutorial, Levels 1.1 and 1.2). |
-| `level2.html` | Source of Level 2 (story, tutorial, matches, ending). |
-| `assets/` | Art the source pages use. |
-| `tools/` | Scripts: `package_game.py` builds `Final/`, `serve.py` runs the source locally, `gen_*.py` and `rig_parts.py` make art. |
-
-## After editing the game
-
-```
-python tools/package_game.py
-```
-
-This rebuilds `Final/` from `level1_draft2.html`, `level2.html` and `assets/`. To try the source pages directly, run `python tools/serve.py` and open http://localhost:8000.
-
-Older versions and drafts are in the git history.
+| Build command | `python3 tools/build.py` |
+| Output directory | `dist` |
+| Addresses | `/` (Level 1) and `/level2` (Level 2); old `/Final/...` links redirect |

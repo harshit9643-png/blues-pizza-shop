@@ -1,13 +1,21 @@
-# run logs and caches
-*.log
+# build output (made by tools/build.py; Vercel builds it on every deploy)
+dist/
+
+# Vercel CLI
+.vercel/
+.env*
+
+# Python
 __pycache__/
 *.pyc
 
-# editor + OS clutter
+# logs, editor and OS clutter
+*.log
 .vscode/
+.claude/
 Thumbs.db
 desktop.ini
+.DS_Store
 
-# local scratch files from testing
-_*.html
-*-check.js
+.vercel
+.env*
