@@ -1608,7 +1608,9 @@ function setDone(kind,enabled,ready){ const b=$("done");
   b.disabled=false; b._en=!!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;   // always active-looking
   if(kind==="next"&&enabled) autoClick(b,S.sayPlain,1000); }
 function setCount(){ const o=cur(), c=$("count");
-  if(S.phase==="top"){ c.hidden=false; c.textContent=`${S.covered.size}/${o.d}`; } else c.hidden=true; }
+  // the 0/7, 1/7, 2/7… counter is a help: it shows only after a wrong attempt on this order (from the 2nd try)
+  const tried=S.twKey===S.lv+":"+S.i && S.tw>=1;
+  if(S.phase==="top"&&tried){ c.hidden=false; c.textContent=`${S.covered.size}/${o.d}`; } else c.hidden=true; }
 /* one star per question: dark until it is answered right, then gold */
 const QSTAR=(done,now)=>`<svg class="tok qs ${now?'now':''} ${done?'got':''}" viewBox="0 0 32 32" aria-hidden="true">
   <path d="M16 3.2l3.9 8 8.8 1.3-6.4 6.2 1.5 8.7L16 23.3l-7.8 4.1 1.5-8.7-6.4-6.2 8.8-1.3z" fill="${done?'#F6C34A':'#2E2848'}" stroke="${done?'#B97410':(now?'#F6C34A':'#6E6890')}" stroke-width="${now?2.4:1.8}" stroke-linejoin="round"/>
