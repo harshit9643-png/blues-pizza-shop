@@ -1437,7 +1437,7 @@ body.tutoring .trail{display:none!important}
     <p class="say" id="say"></p>
     <button class="done" id="done" disabled>CHECK</button>
   </section>
-  <main class="stage" id="stage"><div class="view" id="view"></div></main>
+  <main class="stage" id="stage"><div class="view" id="view"></div><div id="ghosts" style="display:contents"></div></main>
 </div>
 <div class="fx" id="fx"></div>
 <script>document.body.appendChild(document.getElementById("done"));   /* the DONE button sits at the bottom centre, not in the instruction box */</script>
@@ -1676,7 +1676,8 @@ function renderTop(){
 }
 function setView(cls,html){ const v=$("view");
   if(v.childElementCount&&v.getClientRects().length){ const gh=v.cloneNode(true); gh.removeAttribute("id"); gh.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));
-    gh.classList.remove("enter"); gh.classList.add("ghost"); gh.setAttribute("aria-hidden","true"); v.parentNode.insertBefore(gh,v); setTimeout(()=>gh.remove(),420); }
+    gh.classList.remove("enter"); gh.classList.add("ghost"); gh.setAttribute("aria-hidden","true"); gh.inert=true;
+    $("ghosts").appendChild(gh); setTimeout(()=>gh.remove(),420); }
   v.className="view "+cls+" enter"; v.innerHTML=html; $("stage").classList.remove("dim"); }
 function plateWidth(){ const v=$("view"), portrait=innerWidth<innerHeight*.84;
   const top=Math.min(150,Math.max(96,innerHeight*.17));              // the contestant row above (see .match --top)
