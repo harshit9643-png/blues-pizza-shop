@@ -1275,29 +1275,6 @@ body.tutoring .trail{display:none!important}
 .mainplay.woodplay img{width:100%;height:auto;display:block;pointer-events:none}
 .mainplay.woodplay:hover{transform:scale(1.04);filter:drop-shadow(0 .6em .8em rgba(60,25,0,.45)) brightness(1.05)}
 .mainplay.woodplay:active{transform:translateY(3px) scale(.98)}
-/* title screen: the game's name is the highlight, with Chef Billu and a big pizza */
-.world .w-title{position:absolute;left:50%;top:3%;translate:-50% 0;z-index:4;display:flex;align-items:center;gap:1.2cqw;pointer-events:none;animation:titleIn .9s cubic-bezier(.3,1.5,.5,1) .2s both}
-.world .w-title .tt{display:flex;flex-direction:column;align-items:center;line-height:.92;font-family:var(--display);font-weight:800;text-align:center;
-  padding:1.1cqw 3cqw 1.3cqw;border-radius:2.2cqw;background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A);
-  box-shadow:0 0 0 .45cqw #4A2610,inset 0 .35cqw 0 rgba(255,220,170,.35),0 1.2cqw 2cqw rgba(40,15,0,.45),0 0 3cqw rgba(255,200,80,.55)}
-.world .w-title .tt b{display:block;color:#FFE08A;-webkit-text-stroke:.35cqw #4A2610;paint-order:stroke fill;text-shadow:0 .4cqw 0 #3A1C08;letter-spacing:.02em}
-.world .w-title .tt b:first-child{font-size:4.2cqw;color:#FFF4D6}
-.world .w-title .tt b:last-child{font-size:6.2cqw}
-.world .w-title .tp{width:8cqw;height:auto;filter:drop-shadow(0 .6cqw .6cqw rgba(40,15,0,.4));animation:titleSpin 6s linear infinite}
-.world .w-title .tp.r{width:6.4cqw;animation:titleBob 2.4s ease-in-out infinite}
-@keyframes titleIn{from{opacity:0;transform:scale(.6) translateY(-30%)}}
-@keyframes titleSpin{to{transform:rotate(360deg)}}
-@keyframes titleBob{50%{transform:translateY(-12%) rotate(8deg)}}
-.world .w-sign{display:none}
-.world .w-hero{position:absolute;left:3%;bottom:0;height:52%;z-index:4;pointer-events:none;animation:heroIn .8s cubic-bezier(.3,1.4,.5,1) .5s both}
-.world .w-hero img{height:100%;width:auto;display:block;filter:drop-shadow(0 1cqw 1cqw rgba(40,15,0,.4));transform-origin:50% 100%;animation:heroWave 2.6s ease-in-out infinite}
-@keyframes heroIn{from{opacity:0;transform:translateX(-40%)}}
-@keyframes heroWave{50%{transform:rotate(-3deg) translateY(-2%)}}
-.world .w-pizza{position:absolute;right:3%;bottom:3%;width:22%;aspect-ratio:1;z-index:4;pointer-events:none;animation:heroIn2 .8s cubic-bezier(.3,1.4,.5,1) .7s both}
-.world .w-pizza img{position:absolute;filter:drop-shadow(0 .8cqw .8cqw rgba(40,15,0,.4))}
-.world .w-pizza .bd{inset:0;width:100%;height:100%;object-fit:contain}
-.world .w-pizza .pz{left:14%;top:14%;width:72%;height:72%;object-fit:contain}
-@keyframes heroIn2{from{opacity:0;transform:translateX(40%)}}
 body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:opacity .4s}
 .pz .part.nope .hit,.pz .part.nope{animation:shake .5s}
 .tut .learn .pz{overflow:visible}
@@ -1385,9 +1362,6 @@ body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:op
       <div class="w-prop" style="--x:55.2%;--b:36.4%;--w:8.6%"><img src="assets/web/pizza_board_1.webp" alt=""></div>
       <div class="w-prop" style="--x:65.4%;--b:36.4%;--w:8%"><img src="assets/web/pizza_board_2.webp" alt=""></div>
       <div class="w-prop" style="--x:71.3%;--b:37%;--w:4%"><img src="assets/web/plates_stack.webp" alt=""></div>
-      <div class="w-title" aria-hidden="true"><img class="tp" src="assets/web/hd/pizza_round.webp" alt=""><span class="tt"><b>Billu’s</b><b>Pizza Kitchen</b></span><img class="tp r" src="assets/web/pizza_slice.webp" alt=""></div>
-      <div class="w-hero" aria-hidden="true"><img src="assets/web/billu_happy.webp" alt=""></div>
-      <div class="w-pizza" aria-hidden="true"><img class="bd" src="assets/web/board_empty.webp" alt=""><img class="pz" src="assets/web/hd/pizza_round.webp" alt=""></div>
       <button class="mainplay woodplay" id="mainPlay" aria-label="Play"><img src="assets/web/play_button.webp" alt="Play"></button>
     </div>
   </div>
