@@ -1269,6 +1269,12 @@ body.tutoring .trail{display:none!important}
 @keyframes showMe{50%{filter:drop-shadow(0 0 16px rgba(255,214,60,1)) brightness(1.15)}}
 .phand.nudge,.mhand.nudge{animation:handNudge .5s ease-in-out 2!important}
 @keyframes handNudge{25%{translate:-8px 0}75%{translate:8px 0}}
+/* the main screen's PLAY: the supplied wooden sign button */
+.mainplay.woodplay{background:none!important;box-shadow:none!important;padding:0!important;border:0!important;border-radius:0!important;width:clamp(200px,24cqw,380px);
+  filter:drop-shadow(0 .5em .6em rgba(60,25,0,.4));cursor:pointer;transition:transform .15s,filter .15s}
+.mainplay.woodplay img{width:100%;height:auto;display:block;pointer-events:none}
+.mainplay.woodplay:hover{transform:scale(1.04);filter:drop-shadow(0 .6em .8em rgba(60,25,0,.45)) brightness(1.05)}
+.mainplay.woodplay:active{transform:translateY(3px) scale(.98)}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1343,7 +1349,7 @@ body.tutoring .trail{display:none!important}
       <div class="w-prop" style="--x:55.2%;--b:36.4%;--w:8.6%"><img src="assets/web/pizza_board_1.webp" alt=""></div>
       <div class="w-prop" style="--x:65.4%;--b:36.4%;--w:8%"><img src="assets/web/pizza_board_2.webp" alt=""></div>
       <div class="w-prop" style="--x:71.3%;--b:37%;--w:4%"><img src="assets/web/plates_stack.webp" alt=""></div>
-      <button class="mainplay" id="mainPlay" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>PLAY</button>
+      <button class="mainplay woodplay" id="mainPlay" aria-label="Play"><img src="assets/web/play_button.webp" alt="Play"></button>
     </div>
   </div>
 </div>
