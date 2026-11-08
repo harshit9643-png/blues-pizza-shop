@@ -1275,6 +1275,42 @@ body.tutoring .trail{display:none!important}
 .mainplay.woodplay img{width:100%;height:auto;display:block;pointer-events:none}
 .mainplay.woodplay:hover{transform:scale(1.04);filter:drop-shadow(0 .6em .8em rgba(60,25,0,.45)) brightness(1.05)}
 .mainplay.woodplay:active{transform:translateY(3px) scale(.98)}
+/* title screen: the game's name is the highlight, with Chef Billu and a big pizza */
+.world .w-title{position:absolute;left:50%;top:3%;translate:-50% 0;z-index:4;display:flex;align-items:center;gap:1.2cqw;pointer-events:none;animation:titleIn .9s cubic-bezier(.3,1.5,.5,1) .2s both}
+.world .w-title .tt{display:flex;flex-direction:column;align-items:center;line-height:.92;font-family:var(--display);font-weight:800;text-align:center;
+  padding:1.1cqw 3cqw 1.3cqw;border-radius:2.2cqw;background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A);
+  box-shadow:0 0 0 .45cqw #4A2610,inset 0 .35cqw 0 rgba(255,220,170,.35),0 1.2cqw 2cqw rgba(40,15,0,.45),0 0 3cqw rgba(255,200,80,.55)}
+.world .w-title .tt b{display:block;color:#FFE08A;-webkit-text-stroke:.35cqw #4A2610;paint-order:stroke fill;text-shadow:0 .4cqw 0 #3A1C08;letter-spacing:.02em}
+.world .w-title .tt b:first-child{font-size:4.2cqw;color:#FFF4D6}
+.world .w-title .tt b:last-child{font-size:6.2cqw}
+.world .w-title .tp{width:8cqw;height:auto;filter:drop-shadow(0 .6cqw .6cqw rgba(40,15,0,.4));animation:titleSpin 6s linear infinite}
+.world .w-title .tp.r{width:6.4cqw;animation:titleBob 2.4s ease-in-out infinite}
+@keyframes titleIn{from{opacity:0;transform:scale(.6) translateY(-30%)}}
+@keyframes titleSpin{to{transform:rotate(360deg)}}
+@keyframes titleBob{50%{transform:translateY(-12%) rotate(8deg)}}
+.world .w-sign{display:none}
+.world .w-hero{position:absolute;left:3%;bottom:0;height:52%;z-index:4;pointer-events:none;animation:heroIn .8s cubic-bezier(.3,1.4,.5,1) .5s both}
+.world .w-hero img{height:100%;width:auto;display:block;filter:drop-shadow(0 1cqw 1cqw rgba(40,15,0,.4));transform-origin:50% 100%;animation:heroWave 2.6s ease-in-out infinite}
+@keyframes heroIn{from{opacity:0;transform:translateX(-40%)}}
+@keyframes heroWave{50%{transform:rotate(-3deg) translateY(-2%)}}
+.world .w-pizza{position:absolute;right:3%;bottom:3%;width:22%;aspect-ratio:1;z-index:4;pointer-events:none;animation:heroIn2 .8s cubic-bezier(.3,1.4,.5,1) .7s both}
+.world .w-pizza img{position:absolute;filter:drop-shadow(0 .8cqw .8cqw rgba(40,15,0,.4))}
+.world .w-pizza .bd{inset:0;width:100%;height:100%;object-fit:contain}
+.world .w-pizza .pz{left:14%;top:14%;width:72%;height:72%;object-fit:contain}
+@keyframes heroIn2{from{opacity:0;transform:translateX(40%)}}
+body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:opacity .4s}
+.pz .part.nope .hit,.pz .part.nope{animation:shake .5s}
+.tut .learn .pz{overflow:visible}
+.tut .learn .pz .part.served{transition:transform .7s cubic-bezier(.3,1.2,.5,1)}
+/* the Done button is a CHECK button now, in the game's display font */
+#done{font-family:var(--display)!important;font-weight:800!important;font-size:clamp(18px,calc(1.6*var(--vw)),24px)!important;letter-spacing:.06em!important}
+/* fraction cards in the lesson: the game's brown fraction plate; the highlighted number glows */
+.tut .lf{background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A)!important;border:0!important;box-shadow:0 0 0 4px #4A2610,inset 0 3px 0 rgba(255,220,170,.35),0 10px 16px rgba(0,0,0,.35)!important}
+.tut .lf b{color:#FFE08A!important;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.tut .lf i{background:#FFE08A!important}
+.tut .lf b.lit{background:#FFF4D6!important;color:#C8402E!important;text-shadow:none;box-shadow:0 0 0 3px #F6C34A,0 0 22px rgba(255,214,60,.95)}
+.tut .lword{text-transform:none}
+#lAc,#lBc{margin-top:clamp(40px,calc(6*var(--vh)),70px)}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1311,7 +1347,7 @@ body.tutoring .trail{display:none!important}
     </button>
     <p class="say" id="say"></p>
     <span class="count" id="count" hidden></span>
-    <button class="done" id="done" disabled>DONE</button>
+    <button class="done" id="done" disabled>CHECK</button>
   </section>
   <main class="stage" id="stage">
     <section class="cust" id="cust" aria-live="polite"></section>
@@ -1349,6 +1385,9 @@ body.tutoring .trail{display:none!important}
       <div class="w-prop" style="--x:55.2%;--b:36.4%;--w:8.6%"><img src="assets/web/pizza_board_1.webp" alt=""></div>
       <div class="w-prop" style="--x:65.4%;--b:36.4%;--w:8%"><img src="assets/web/pizza_board_2.webp" alt=""></div>
       <div class="w-prop" style="--x:71.3%;--b:37%;--w:4%"><img src="assets/web/plates_stack.webp" alt=""></div>
+      <div class="w-title" aria-hidden="true"><img class="tp" src="assets/web/hd/pizza_round.webp" alt=""><span class="tt"><b>Billu’s</b><b>Pizza Kitchen</b></span><img class="tp r" src="assets/web/pizza_slice.webp" alt=""></div>
+      <div class="w-hero" aria-hidden="true"><img src="assets/web/billu_happy.webp" alt=""></div>
+      <div class="w-pizza" aria-hidden="true"><img class="bd" src="assets/web/board_empty.webp" alt=""><img class="pz" src="assets/web/hd/pizza_round.webp" alt=""></div>
       <button class="mainplay woodplay" id="mainPlay" aria-label="Play"><img src="assets/web/play_button.webp" alt="Play"></button>
     </div>
   </div>
@@ -1625,13 +1664,13 @@ function guideMood(cls){ const g=$("guide"); g.classList.remove("cheer","hmm"); 
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 function setDone(kind,enabled,ready){ const b=$("done");
-  b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `DONE ${CHECK}`;
+  b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `CHECK ${CHECK}`;
   b.disabled=false; b._en=!!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;   // always active-looking
   if(kind==="next"&&enabled) autoClick(b,S.sayPlain,1000); }
 function setCount(){ const o=cur(), c=$("count");
   // the 0/7, 1/7, 2/7… counter is a help: it shows only after a wrong attempt on this order (from the 2nd try)
   const tried=S.twKey===S.lv+":"+S.i && S.tw>=1;
-  if(S.phase==="top"&&tried){ c.hidden=false; c.textContent=`${S.covered.size}/${o.d}`; } else c.hidden=true; }
+  if(false&&tried){ c.hidden=false; c.textContent=`${S.covered.size}/${o.d}`; } else c.hidden=true; }
 /* one star per question: dark until it is answered right, then gold */
 const QSTAR=(done,now)=>`<svg class="tok qs ${now?'now':''} ${done?'got':''}" viewBox="0 0 32 32" aria-hidden="true">
   <path d="M16 3.2l3.9 8 8.8 1.3-6.4 6.2 1.5 8.7L16 23.3l-7.8 4.1 1.5-8.7-6.4-6.2 8.8-1.3z" fill="${done?'#F6C34A':'#2E2848'}" stroke="${done?'#B97410':(now?'#F6C34A':'#6E6890')}" stroke-width="${now?2.4:1.8}" stroke-linejoin="round"/>
@@ -1967,7 +2006,7 @@ function startLevel(lv,tutorial){ S.lv=lv; S.i=0; S.stars=0; S.done=[]; S.hinted
 function jumpTo(lv,i){ if(lv!==S.lv){ S.lv=lv; S.stars=0; S.done=[]; } S.i=i; $("start").hidden=true; $("end").hidden=true; loadOrder(); }
 
 async function loadOrder(){
-  const o=cur(), gen=++S.gen; stopGuide(); MLOCK=null;
+  const o=cur(), gen=++S.gen; stopGuide(); MLOCK=null; document.body.classList.remove("platescene");
   clearPlateScene();
   document.querySelectorAll(".flyer").forEach(f=>f.remove());
   hideHint(); S.tries=0; S.covered=new Map(); S.topping=null; S.busy=true; S.skip=false;
@@ -2055,7 +2094,7 @@ async function useMould(k,btn){
     PZ.classList.add("bad"); boardFx("wiggle");
     // wrong moulds for this order: 1st try again, 2nd a hint, 3rd the hand points at the right mould
     const key=S.lv+":"+S.i; if(S.mwKey!==key){ S.mwKey=key; S.mw=0; } S.mw++;
-    if(S.mw>=2) say("Check the denominator and pick the correct mould.","bad");   // 1st wrong attempt: only the red glow and wiggle
+    say(S.mw===1?"Oops! Is that how many parts the order needs? Try again.":"Check the denominator and pick the correct mould.","bad");
     if(S.mw>=2){ blinkNum("d",3); const rm=document.querySelector(`.mould[data-m="${o.d}"]`); if(rm){ rm.classList.remove("pulseok"); void rm.offsetWidth; rm.classList.add("pulseok"); setTimeout(()=>rm.classList.remove("pulseok"),3200); } }
     await wait(1600); if(!live(gen)) return;
     btn.classList.remove("wrong"); PZ.classList.remove("bad");
@@ -2168,7 +2207,8 @@ PZ.addEventListener("click",e=>{
   const h=e.target.closest&&e.target.closest(".hit");
   if(!h||S.phase!=="top"||S.busy) return;
   const i=+h.dataset.i;
-  if(S.covered.has(i)){ uncover(i); return; }
+  if(S.covered.has(i)){ say("That slice already has a topping. Put it on a slice with no topping.","bad"); Sound.bad&&Sound.bad();
+    const hp=partEl(i); if(hp){ hp.classList.remove("nope"); void hp.getBBox(); hp.classList.add("nope"); setTimeout(()=>hp.classList.remove("nope"),600); } return; }
   if(!S.topping){ say("Pick a topping first: drag a bowl onto a slice.");
     document.querySelectorAll(".katori").forEach(b=>{ b.classList.remove("ask"); void b.offsetWidth; b.classList.add("ask"); }); return; }
   cover(i,S.topping,toSvg(e.clientX,e.clientY));
@@ -2181,7 +2221,7 @@ $("done").addEventListener("click",()=>{
   if(S.busy) return;
   if(S.phase==="mould"){ say("First pick the mould that cuts the pizza for the order.","bad"); Sound.bad&&Sound.bad(); return; }
   if(S.phase!=="top") return;
-  if(!S.covered.size){ say("Put the topping on the slices first, then tap DONE.","bad"); Sound.bad&&Sound.bad();
+  if(!S.covered.size){ say("Put the topping on the slices first, then tap CHECK.","bad"); Sound.bad&&Sound.bad();
     document.querySelectorAll(".katori").forEach(b=>{ b.classList.remove("ask"); void b.offsetWidth; b.classList.add("ask"); }); return; }
   S.covered.size===cur().n ? serve() : miss();
 });
@@ -2190,7 +2230,7 @@ async function miss(){
   S.tries++; S.busy=true; Sound.bad(); guideMood("hmm"); custMood("sad");
   // the sheet: 1st wrong attempt "Try again" (red glow and wiggle); 2nd and later the hint, and the numerator blinks
   const key=S.lv+":"+S.i; if(S.twKey!==key){ S.twKey=key; S.tw=0; } S.tw++;
-  if(S.tw===1){}   // 1st wrong attempt: only the red glow and wiggle
+  if(S.tw===1) say(`Oops! Is that how much ${custWho(o)} ${o.who?"want":"wants"}? Try again.`,"bad");
   else if(S.tw===2){ say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.who?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
   else say(`Let me show you! The numerator is ${o.n}, so ${custWho(o)} ${o.who?"want":"wants"} ${o.n} ${o.n===1?"piece":"pieces"}.`,"bad");
   S.covered.forEach((_,i)=>partEl(i).querySelector(".hit").classList.add("bad"));
@@ -2216,7 +2256,7 @@ function showSlices(n){
       if(i===undefined) i=G.parts.findIndex((_,j)=>!S.covered.has(j)); const h=partEl(i)&&partEl(i).querySelector(".hit"); return h; }
     if(S.covered.size===n) return $("done");                                    // then DONE
     return null; });
-  say(`Follow the hand: tap ${n} ${n===1?"slice":"slices"}, one by one, then tap DONE.`);
+  say(`Follow the hand: tap ${n} ${n===1?"slice":"slices"}, one by one, then tap CHECK.`);
 }
 async function serve(){
   const o=cur(), gen=S.gen, first=S.tries===0;
@@ -2224,6 +2264,7 @@ async function serve(){
   const t=TOPPINGS.find(x=>x.k===[...S.covered.values()][0]).name.toLowerCase();
   Sound.good(); guideMood("cheer"); setDone("next",false); $("count").hidden=true;
   say(`${custName(o)}: “${o.ok.replace("{t}",t)}”${first?" ⭐":""}`,"good");
+  document.body.classList.add("platescene");   // the Served / Left plates need no instruction box
   await plateScene(gen); if(!live(gen)) return;
   confetti(); renderTop();
   S.busy=false; setDone("next",true,true);
@@ -2440,7 +2481,7 @@ function ropeSVG(){
     </g></svg>`;
 }
 const TUT={o:{cust:"giraffe",n:3,d:4,shape:"round"}, g:null, topping:null, done:new Set(), gen:0};
-const tw=(ms,fn,ease=t=>t)=>new Promise(res=>{ const t0=performance.now();
+const tw=(ms,fn,ease=t=>t)=>new Promise(res=>{ if(window.TUT&&TUT.fast) ms=1; const t0=performance.now();
   (function f(now){ const t=Math.min(1,(now-t0)/ms); fn(ease(t)); if(t<1) requestAnimationFrame(f); else res(); })(t0); });
 const easeOutBack=t=>{ const c1=1.4, c3=c1+1; return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2); };
 const easeInOut=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
@@ -2538,7 +2579,7 @@ function tutBuild(){
       <div class="rod bot">${rodSVG("rb")}</div>
     </div>
     <button class="skip" id="tutSkip">Skip ▸▸</button>`;
-  $("tutNext").addEventListener("click",()=>{ const f=tutNext; tutNext=null; if(f) f(); });
+  $("tutNext").addEventListener("click",()=>{ TUT.fast=true; const f=tutNext; tutNext=null; if(f) f(); });   // NEXT also finishes any animation still running
   $("tutPz").addEventListener("click",e=>{ const p=e.target.closest(".part"); if(p) tapPart(+p.dataset.i); });
   $("tutTray").addEventListener("click",e=>{ const b=e.target.closest(".tp"); if(!b||!$("tutTray").classList.contains("in")) return;
     TUT.topping=b.dataset.top; $("tutTray").querySelectorAll(".tp").forEach(x=>x.classList.toggle("sel",x===b));
@@ -2565,7 +2606,7 @@ function lDraw(svg,d,o={}){
 /* roll the cutter along the lines, then show the pizza in equal parts */
 async function lCut(svg,o={}){
   svg.querySelectorAll(".dot").forEach(e=>e.classList.add("on"));
-  await wait((o.pause===undefined?500:o.pause)*1.8);
+  await wait(TUT.fast?1:(o.pause===undefined?500:o.pause)*1.8);
   const lines=[...svg.querySelectorAll(".cutl")], over=svg.querySelector(".over");
   over.innerHTML=`<image href="${HD}pizza_cutter.webp" x="-44" y="-40" width="170" height="83"/>`; const cu=over.firstChild;
   for(const L of lines){
@@ -2580,6 +2621,8 @@ function lTop(svg,i){ lPart(svg,i).querySelector(".tops").innerHTML=piecesSVG(sv
 function lLit(svg,i,on=true){ lPart(svg,i).classList.toggle("lit",on); }
 function lPulse(svg){ svg.querySelectorAll(".part").forEach((el,i)=>setTimeout(()=>{ el.classList.remove("pulse"); void el.getBBox(); el.classList.add("pulse"); },i*200)); }
 /* the topped parts slide out of the pizza (towards dx,dy in pizza units) and fade */
+function lServeRow(svg,parts){ const g=svg._g; parts.forEach((i,k)=>{ const el=lPart(svg,i), p=g.parts[i]; setTimeout(()=>{
+    const tx=300+(k-(parts.length-1)/2)*165-p.cx, ty=560-p.cy; el.style.transform=`translate(${tx}px,${ty}px) scale(.55)`; el.classList.add("served"); if(Sound.plop) Sound.plop(); },(TUT.fast?0:k*450)); }); }
 function lServe(svg,parts,dx,dy){ parts.forEach((i,k)=>{ const el=lPart(svg,i); setTimeout(()=>{ el.style.transform=`translate(${dx}px,${dy}px) scale(.35)`; el.classList.add("gone"); },k*300); }); }
 const lStage=(html,cls="")=>{ const s=$("tutLearn"); s.className="learn "+cls; s.innerHTML=html; return s; };
 const lGlow=(card,which,on=true)=>card.querySelector(which==="n"?"b.n":"b.d").classList.toggle("lit",on);
@@ -2587,8 +2630,8 @@ const lGlow=(card,which,on=true)=>card.querySelector(which==="n"?"b.n":"b.d").cl
 async function runLearning(ok){
   const page=document.querySelector(".tut .page"), ttl=document.querySelector(".tut .ttl");
   page.classList.add("learning"); ttl.innerHTML="Let's learn: <b>What is a fraction?</b>"; ttl.classList.remove("gone"); ttl._n=0;
-  const say=(who,t)=>tutSay(who,t,{extra:1000});   // 1 s after each line, as everywhere
-  const wait=ms=>new Promise(r=>setTimeout(r,ms*1.8));
+  const say=(who,t)=>{ TUT.fast=false; return tutSay(who,t,{extra:2500}); };   // the lesson goes slower: 2.5 s to look after each line
+  const wait=ms=>new Promise(r=>setTimeout(r,TUT.fast?1:ms*2.4));
   // 1. one whole
   lStage(`<div class="li">${lPizzaHTML("lA")}<div class="lword">1 whole</div></div>`); lDraw($("lA"),2);
   await say("noori","This is one whole."); if(!ok()) return;
@@ -2606,9 +2649,9 @@ async function runLearning(ok){
   lDraw($("lA"),5); lDraw($("lB"),8,{top:"corn"});
   { const s=say("noori","So if someone asks you for 4/5 of a pizza, make 5 equal parts and serve 4 of them. And if someone asks for 3/8 of a pizza, make 8 equal parts and serve 3 of them.");
     const A=$("lA"), B=$("lB");
-    await lCut(A,{ms:380}); if(!ok()) return; for(const i of [0,1,2,3]){ lTop(A,i); await wait(220); } $("lAc").innerHTML=lCard(4,5); await wait(400); lServe(A,[0,1,2,3],0,420);
+    await lCut(A,{ms:380}); if(!ok()) return; for(const i of [0,1,2,3]){ lTop(A,i); await wait(220); } $("lAc").innerHTML=lCard(4,5); await wait(400); lServeRow(A,[0,1,2,3]);
     await wait(1200); if(!ok()) return;
-    await lCut(B,{ms:300}); if(!ok()) return; for(const i of [0,1,2]){ lTop(B,i); await wait(220); } $("lBc").innerHTML=lCard(3,8); await wait(400); lServe(B,[0,1,2],0,420);
+    await lCut(B,{ms:300}); if(!ok()) return; for(const i of [0,1,2]){ lTop(B,i); await wait(220); } $("lBc").innerHTML=lCard(3,8); await wait(400); lServeRow(B,[0,1,2]);
     await s; if(!ok()) return; }
   // 6. Billu is puzzled
   lStage(`<div class="li">${lCard(4,5,"big")}</div><img class="lbillu" src="${A}billu_idle.webp" alt="Billu"><div class="li">${lCard(3,8,"big")}</div>`);
@@ -2618,14 +2661,14 @@ async function runLearning(ok){
   lDraw($("lA"),5,{cut:true,tops:[0,1,2,3]}); lDraw($("lB"),8,{cut:true,tops:[0,1,2],top:"corn"});
   await say("noori","These are fractions. We write them like this: 4/5 and 3/8."); if(!ok()) return;
   // 8. the denominator
-  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">denominator</div></div>`+
+  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Denominator</div></div>`+
     [3,5,8].map(d=>`<div class="li">${lPizzaHTML("lD"+d)}<div id="lDc${d}"></div></div>`).join(""),"three");
   lGlow($("lH"),"d"); [3,5,8].forEach(d=>lDraw($("lD"+d),d));
   { const s=say("noori","The bottom number is the denominator. It tells us the number of equal parts the pizza will be cut into.");
     for(const d of [3,5,8]){ await lCut($("lD"+d),{ms:260,pause:250}); if(!ok()) return; $("lDc"+d).innerHTML=lCard("?",d); lGlow($("lDc"+d).firstChild,"d"); await wait(300); }
     await s; if(!ok()) return; }
   // 9. the numerator: one half goes to Chintu, then 2/3 and 3/5
-  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">numerator</div></div>
+  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Numerator</div></div>
     <div class="li">${lPizzaHTML("lN2")}<div class="lava"><img src="${A}monty.webp" alt="Chintu"></div></div>
     <div class="li">${lPizzaHTML("lN3")}<div id="lNc3"></div></div><div class="li">${lPizzaHTML("lN5")}<div id="lNc5"></div></div>`,"three");
   lGlow($("lH"),"n"); lDraw($("lN2"),2,{cut:true}); lDraw($("lN3"),3,{cut:true}); lDraw($("lN5"),5,{cut:true});
@@ -3199,6 +3242,7 @@ async function storyContext1(){
   await sLine("billu","I’m ready to cook!");
   await sLine("noori","See, Chintu is here for the first order.");
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
+  await W(sleep(1200));   // a moment on the picture before it changes
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
   $("sworld").appendChild(open2); void open2.offsetWidth; open2.classList.add("in"); SFX.whoosh();
   aN.remove(); aB.remove(); await W(sleep(800)); open1.remove();
@@ -3207,10 +3251,12 @@ async function storyContext1(){
   await sLine("chintu","Half a pizza, please!");
   await sLine("billu","Half? Easy! I’ll cut it into two pieces!");
   // ...then the same picture with the pizza cut into one big and one tiny piece
+  await W(sleep(1200));   // a moment on the picture before it changes
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
   $("sworld").appendChild(cut2); void cut2.offsetWidth; cut2.classList.add("in"); await W(sleep(800)); open2.remove(); open2=cut2;
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Ta-da! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
+  await W(sleep(1200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
   $("sworld").appendChild(open3); void open3.offsetWidth; open3.classList.add("in"); SFX.whoosh();
   aC.remove(); aB2.remove(); await W(sleep(800)); open2.remove();
