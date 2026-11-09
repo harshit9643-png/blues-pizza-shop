@@ -2129,6 +2129,9 @@ function showEnd(){
 const STORY={gen:0,run:0,next:null,cast:{}};
 let FLOW=0;   // bumped when the menu takes over, so a running story -> tutorial -> game chain stops
 
+/* Pause (story and tutorial signs): timers stop while it is on */
+window.PAUSE=window.PAUSE||{on:false,hurry:false};
+const paused=()=>PAUSE.on;
 const STOP={stop:true};
 /* auto-advance: a NEXT that is not tapped presses itself once the line has been read out, plus a short pause */
 function autoClick(el,text,extra=1000){
@@ -2138,16 +2141,21 @@ function autoClick(el,text,extra=1000){
   // move on 1 s after the voice finishes; without a voice, after a reading-time estimate
   (function tick(){
     if(el._auto!==tok) return;
+    if(paused()){ setTimeout(tick,100); return; }
     const talking=!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)), t=performance.now()-t0; if(talking) spoke=true;
     const ready=spoke ? !talking : t>=1200 && t>=est;
     if(!ready){ setTimeout(tick,100); return; }
-    setTimeout(()=>{ if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.getClientRects().length) return; el.click(); },extra);
+    sleep(extra).then(function go(){ if(paused()){ setTimeout(go,100); return; }
+      if(el._auto!==tok||el.innerHTML!==html||el.disabled||el.hidden||el.classList.contains("wait")||!el.getClientRects().length) return; el.click(); });
   })();
 }
 
 /* animations started without await stop quietly when the story is skipped */
 addEventListener("unhandledrejection",e=>{ if(e.reason===STOP) e.preventDefault(); });
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+/* a wait that stands still while paused; Next during a scene change cuts it short */
+const sleep=ms=>new Promise(r=>{ let left=ms, last=performance.now(); PAUSE.hurry=false;
+  (function t(){ const now=performance.now(); if(!PAUSE.on) left-=now-last; last=now; if(PAUSE.hurry) left=0;
+    if(left<=0) r(); else setTimeout(t,Math.min(left,100)); })(); });
 let _suid=0;
 /* await something, and stop the scene if the story was skipped meanwhile */
 async function W(p){ const r=await p; if(STORY.run!==STORY.gen) throw STOP; return r; }
@@ -2649,7 +2657,7 @@ function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
   p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
   speak(text);
-  const b=$("tutNext"); b.hidden=!!opts.wait; b.innerHTML=(opts.label||"NEXT")+" "+ARROW_T; b._auto=(b._auto||0)+1; if(!opts.wait) autoClick(b,text);
+  const b=$("tutNext"); b.hidden=!!opts.wait; b.innerHTML=(opts.label||"NEXT")+" "+ARROW_T; b._auto=(b._auto||0)+1; if(!opts.wait) autoClick(b,text,2500);   // tutorial: 2.5 s to look after each line
   return opts.wait ? Promise.resolve() : new Promise(res=>{ tutNext=res; });
 }
 async function rollScroll(open,gen){
@@ -2839,5 +2847,48 @@ if(location.hash==="#play") startLevel2();
   pan.addEventListener("click",e=>{ if(e.target.closest(".x")){ open(false); return; }
     const c=e.target.closest(".chip2"); if(!c) return; open(false);
     sel.value=c.dataset.v; sel.dispatchEvent(new Event("change")); });
+})();
+</script>
+
+<style>
+/* Pause and Next for the story and the tutorials: wooden signs like the PLAY button */
+.pctl{position:fixed;left:50%;bottom:clamp(10px,2.4vh,22px);translate:-50% 0;z-index:9000;display:flex;gap:clamp(10px,1.6vw,22px);align-items:center;
+  pointer-events:none;opacity:0;transform:translateY(24px);transition:opacity .35s ease,transform .45s cubic-bezier(.3,1.5,.5,1)}
+.pctl.on{opacity:1;transform:none}
+.pctl.on button{pointer-events:auto}
+.pctl button{background:none;border:0;padding:0;cursor:pointer;height:clamp(44px,8vh,66px);filter:drop-shadow(0 6px 8px rgba(60,25,0,.4));transition:transform .18s ease,filter .18s ease;-webkit-tap-highlight-color:transparent}
+.pctl button img{height:100%;width:auto;display:block;pointer-events:none}
+.pctl button:hover{transform:translateY(-2px) scale(1.05);filter:drop-shadow(0 9px 10px rgba(60,25,0,.45)) brightness(1.06)}
+.pctl button:active{transform:translateY(3px) scale(.97)}
+.pctl button:focus-visible{outline:3px solid #FFD25A;outline-offset:4px;border-radius:40px}
+/* while paused the PLAY sign breathes so the child sees how to carry on, and the scene rests */
+body.paused .pctl #pcPause{animation:pcBreathe 1.3s ease-in-out infinite}
+@keyframes pcBreathe{50%{transform:scale(1.08);filter:drop-shadow(0 0 14px rgba(255,200,80,.95)) brightness(1.08)}}
+body.paused #story *,body.paused #tut *{animation-play-state:paused!important}
+body.paused #story::after,body.paused #tut::after{content:"";position:absolute;inset:0;z-index:8999;background:rgba(20,12,4,.28);pointer-events:none}
+</style>
+<div class="pctl" id="pctl" aria-label="Story controls">
+  <button id="pcPause" aria-label="Pause"><img src="assets/web/btn_pause.webp" alt="Pause"></button>
+  <button id="pcNext" aria-label="Next"><img src="assets/web/btn_next.webp" alt="Next"></button>
+</div>
+<script>
+/* Pause and Next (review: "The story part is moving very fast. Add pause & forward button") */
+(()=>{ const bar=document.getElementById("pctl"), pb=document.getElementById("pcPause"), nb=document.getElementById("pcNext");
+  const IMG={pause:"assets/web/btn_pause.webp",play:"assets/web/btn_resume.webp"}; new Image().src=IMG.play;
+  const st=document.getElementById("story"), tu=document.getElementById("tut");
+  function setPause(on){ PAUSE.on=on; document.body.classList.toggle("paused",on);
+    pb.querySelector("img").src=on?IMG.play:IMG.pause; pb.setAttribute("aria-label",on?"Play":"Pause");
+    try{ if(window.speechSynthesis){ on?speechSynthesis.pause():speechSynthesis.resume(); } }catch(e){}
+    if(PAUSE.onChange) PAUSE.onChange(on); }
+  PAUSE.set=setPause;
+  pb.addEventListener("click",()=>setPause(!PAUSE.on));
+  nb.addEventListener("click",()=>{ if(PAUSE.on) setPause(false);
+    try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} if(PAUSE.onSkip) PAUSE.onSkip();
+    if(!st.hidden){ const n=document.getElementById("sNext"); if(STORY.next) n.click(); else PAUSE.hurry=true; return; }
+    const t=document.getElementById("tutNext"); if(t&&!t.hidden&&t.getClientRects().length) t.click(); });
+  // the signs show only while a story or a tutorial is on screen
+  setInterval(()=>{ const inStory=!st.hidden, inTut=!tu.hidden&&tu.classList.contains("open"), on=inStory||inTut;
+    bar.classList.toggle("on",on); bar.classList.toggle("intut",!inStory&&inTut);
+    if(!on&&PAUSE.on) setPause(false); },200);
 })();
 </script>
