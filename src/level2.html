@@ -1453,6 +1453,10 @@ body.tutoring .trail{display:none!important}
 .fline .slot .splate.showpart .rest{opacity:.6}
 @keyframes eatPulse{50%{fill-opacity:.5}}
 .phand.drag{animation:none!important}
+/* champion trophy: centred, standing right on the top edge of the winner's card */
+.fline .slot>.fin .medal{top:auto!important;bottom:calc(100% - 6px)!important;left:50%!important;right:auto!important;translate:-50% 0!important;width:30%!important;height:auto!important;
+  filter:drop-shadow(0 6px 6px rgba(60,30,0,.35));animation:trophyIn .6s cubic-bezier(.3,1.6,.5,1) both!important;transform-origin:50% 100%}
+@keyframes trophyIn{from{transform:scale(.3) translateY(-40%);opacity:0}}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
