@@ -3399,11 +3399,11 @@ if(location.hash==="#story") startLevel("1.1",true);
 
 <style>
 /* Pause and Next for the story and the tutorials: wooden signs like the PLAY button */
-.pctl{position:fixed;left:50%;bottom:clamp(10px,2.4vh,22px);translate:-50% 0;z-index:9000;display:flex;gap:clamp(10px,1.6vw,22px);align-items:center;
+.pctl{position:fixed;left:calc(var(--vw,1vw)*50);top:calc(var(--vh,1vh)*100 - var(--pch,60px) - 16px);translate:-50% 0;z-index:9000;display:flex;gap:calc(var(--pch,60px)*.3);align-items:center;
   pointer-events:none;opacity:0;transform:translateY(24px);transition:opacity .35s ease,transform .45s cubic-bezier(.3,1.5,.5,1)}
 .pctl.on{opacity:1;transform:none}
 .pctl.on button{pointer-events:auto}
-.pctl button{background:none;border:0;padding:0;cursor:pointer;height:clamp(44px,8vh,66px);filter:drop-shadow(0 6px 8px rgba(60,25,0,.4));transition:transform .18s ease,filter .18s ease;-webkit-tap-highlight-color:transparent}
+.pctl button{background:none;border:0;padding:0;cursor:pointer;height:var(--pch,60px);filter:drop-shadow(0 6px 8px rgba(60,25,0,.4));transition:transform .18s ease,filter .18s ease;-webkit-tap-highlight-color:transparent}
 .pctl button img{height:100%;width:auto;display:block;pointer-events:none}
 .pctl button:hover{transform:translateY(-2px) scale(1.05);filter:drop-shadow(0 9px 10px rgba(60,25,0,.45)) brightness(1.06)}
 .pctl button:active{transform:translateY(3px) scale(.97)}
@@ -3412,6 +3412,8 @@ if(location.hash==="#story") startLevel("1.1",true);
 body.paused .pctl #pcPause{animation:pcBreathe 1.3s ease-in-out infinite}
 @keyframes pcBreathe{50%{transform:scale(1.08);filter:drop-shadow(0 0 14px rgba(255,200,80,.95)) brightness(1.08)}}
 body.paused #story *,body.paused #tut *{animation-play-state:paused!important}
+/* the tutorial's own small NEXT in the line box is not shown: the big NEXT sign does its job (it still works underneath) */
+#tutNext{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;padding:0!important;margin:0!important;border:0!important;opacity:0!important;overflow:hidden!important;pointer-events:none!important}
 body.paused #story::after,body.paused #tut::after{content:"";position:absolute;inset:0;z-index:8999;background:rgba(20,12,4,.28);pointer-events:none}
 </style>
 <div class="pctl" id="pctl" aria-label="Story controls">
@@ -3433,6 +3435,17 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
     try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} if(PAUSE.onSkip) PAUSE.onSkip();
     if(!st.hidden){ const n=document.getElementById("sNext"); if(STORY.next) n.click(); else PAUSE.hurry=true; return; }
     const t=document.getElementById("tutNext"); if(t&&!t.hidden&&t.getClientRects().length) t.click(); });
+  // placement: in a tutorial the signs sit centred on the bottom log of the scroll (and follow it as it rolls);
+  // in a story they stand a little above the bottom edge; sized to the screen either way
+  (function place(){ if(bar.classList.contains("on")){ const H=innerHeight, rig=!tu.hidden&&tu.querySelector(".rig");
+      let h, top;
+      if(rig&&st.hidden){   // the scroll is board_only.webp drawn 108.6% tall and lifted 6.17vh; its bottom log runs from 89.3% to 99% of it
+        const r=rig.getBoundingClientRect(), y0=r.top-.0617*H, ih=1.086*r.height, lt=y0+.893*ih, lb=Math.min(H,y0+.99*ih);
+        h=Math.max(34,Math.min(64,(lb-lt)*.9)); top=(lt+lb)/2-h/2; }
+      else { h=Math.max(38,Math.min(64,H*.075)); top=H-h-Math.max(8,Math.min(20,H*.022)); }
+      top=Math.min(top,H-h-4);
+      bar.style.setProperty("--pch",h.toFixed(1)+"px"); bar.style.top=top.toFixed(1)+"px"; }
+    requestAnimationFrame(place); })();
   // the signs show only while a story or a tutorial is on screen
   setInterval(()=>{ const inStory=!st.hidden, inTut=!tu.hidden&&tu.classList.contains("open"), on=inStory||inTut;
     bar.classList.toggle("on",on); bar.classList.toggle("intut",!inStory&&inTut);
