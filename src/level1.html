@@ -991,6 +991,14 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.03);transition:opacity .75s ease,transform 1.2s cubic-bezier(.2,.8,.3,1)}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
+.story .sshot.now{transition:none!important}
+.story .sshot{backface-visibility:hidden}
+.story .sshot .sshade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(25,12,2,.8),rgba(25,12,2,.3) 55%,rgba(25,12,2,0))}
+.story .sshot .sfold{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,.15) 35%,rgba(255,248,230,.18) 85%,rgba(255,248,230,.35))}
+.story .sback{background:radial-gradient(ellipse at 50% 45%,#6E4527,#2A180B)!important}
+.story .sslashwrap{background:none!important;pointer-events:none;z-index:30!important}
+.story .sslash{position:absolute;top:-5%;height:110%;width:24px;margin-left:-12px;border-radius:12px;
+  background:linear-gradient(90deg,transparent,#FFFFFF 35%,#FFFFFF 65%,transparent);box-shadow:0 0 18px 6px rgba(255,244,200,.95),0 0 46px 16px rgba(255,196,80,.6)}
 .story .sshot::after{content:"";position:absolute;inset:0;background:#FFFFFF;opacity:0;pointer-events:none}
 .story .sshot.in::after{animation:none}
 @keyframes shotFlash{0%{opacity:.85}100%{opacity:0}}
@@ -3246,6 +3254,36 @@ function showHoles(pz){ pz.querySelectorAll(".holep").forEach(h=>{ h.setAttribut
 function wheelPt(e){ const w=e.querySelector(".hold .whl"); if(!w) return null; return worldPt(w,.5,.95); }
 
 /* Context 1 (before Level 1): Billu's Pizza Kitchen opens, and Billu cuts "half" wrongly */
+/* Story 1 changes picture three ways: a storybook page turn, a knife slash across the pizza, a card flip */
+function sceneChange(oldEl,newEl,kind){ const sw=$("sworld"), P="perspective(2600px) ";
+  const back=document.createElement("div"); back.className="sshot sback in now";   // a warm dark table shows behind a moving picture
+  const done=a=>a.finished.catch(()=>{});
+  if(kind==="turn"){   // the old picture turns away like a page of a book, its shadow sliding off the new one
+    sw.insertBefore(back,oldEl); sw.insertBefore(newEl,oldEl); newEl.classList.add("in","now");
+    const shade=document.createElement("i"); shade.className="sshade"; newEl.appendChild(shade);
+    const fold=document.createElement("i"); fold.className="sfold"; oldEl.appendChild(fold);
+    SFX.whoosh();
+    const o={duration:1300,easing:"cubic-bezier(.55,.06,.3,1)",fill:"forwards"};
+    const a=oldEl.animate([{transform:P+"rotateY(0deg)",transformOrigin:"0% 50%"},{transform:P+"rotateY(-115deg)",transformOrigin:"0% 50%"}],o);
+    fold.animate([{opacity:0},{opacity:1}],o); shade.animate([{opacity:.9},{opacity:0}],{...o,easing:"ease-in"});
+    return done(a).then(()=>{ oldEl.remove(); shade.remove(); back.remove(); }); }
+  if(kind==="slash"){   // a bright cut sweeps across and the cut pizza shows behind it
+    sw.appendChild(newEl); newEl.classList.add("in","now");
+    const wrap=document.createElement("div"); wrap.className="sshot in now sslashwrap"; const cut=document.createElement("i"); cut.className="sslash";
+    cut.style.transform=`skewX(${(-Math.atan(.3*innerWidth/innerHeight)*180/Math.PI).toFixed(2)}deg)`; wrap.appendChild(cut); sw.appendChild(wrap);
+    const o={duration:950,easing:"cubic-bezier(.7,0,.3,1)",fill:"forwards"};
+    const a=newEl.animate([{clipPath:"polygon(-40% 0%,-40% 0%,-70% 100%,-70% 100%)"},{clipPath:"polygon(-40% 0%,140% 0%,110% 100%,-70% 100%)"}],o);
+    cut.animate([{left:"-55%",opacity:1},{left:"80%",opacity:1,offset:.75},{left:"125%",opacity:0}],o);
+    return done(a).then(()=>{ newEl.style.clipPath="none"; newEl.getAnimations().forEach(x=>x.cancel());
+      newEl.animate([{transform:"translateX(-10px)"},{transform:"translateX(8px)"},{transform:"translateX(-4px)"},{transform:"none"}],{duration:260});   // a little jolt from the cut
+      oldEl.remove(); wrap.remove(); }); }
+  // "flip": the picture turns over like a card, the new scene on its back
+  sw.insertBefore(back,oldEl); sw.appendChild(newEl); newEl.classList.add("in","now"); newEl.style.visibility="hidden";
+  SFX.whoosh();
+  const a=oldEl.animate([{transform:P+"rotateY(0deg) scale(1)"},{transform:P+"rotateY(90deg) scale(.82)"}],{duration:450,easing:"cubic-bezier(.5,0,.9,.4)",fill:"forwards"});
+  return done(a).then(()=>{ oldEl.remove(); newEl.style.visibility="";
+    return done(newEl.animate([{transform:P+"rotateY(-90deg) scale(.82)"},{transform:P+"rotateY(7deg) scale(1.01)",offset:.72},{transform:P+"rotateY(0deg) scale(1)"}],{duration:700,easing:"cubic-bezier(.2,.65,.35,1)"})); })
+    .then(()=>back.remove()); }
 async function storyContext1(){
   // 1. wide shot: the tree pizza shop, animals at the tables, the sign
   P.counter(); P.ambient();
@@ -3268,8 +3306,7 @@ async function storyContext1(){
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(1200));   // a moment on the picture before it changes
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
-  $("sworld").appendChild(open2); void open2.offsetWidth; open2.classList.add("in"); SFX.whoosh();
-  aN.remove(); aB.remove(); await W(sleep(800)); open1.remove();
+  aN.remove(); aB.remove(); await W(sceneChange(open1,open2,"turn"));
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   await sLine("chintu","Half a pizza, please!");
@@ -3277,13 +3314,12 @@ async function storyContext1(){
   // ...then the same picture with the pizza cut into one big and one tiny piece
   await W(sleep(1200));   // a moment on the picture before it changes
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
-  $("sworld").appendChild(cut2); void cut2.offsetWidth; cut2.classList.add("in"); await W(sleep(800)); open2.remove(); open2=cut2;
+  await W(sceneChange(open2,cut2,"slash")); open2=cut2;
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Ta-da! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   await W(sleep(1200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
-  $("sworld").appendChild(open3); void open3.offsetWidth; open3.classList.add("in"); SFX.whoosh();
-  aC.remove(); aB2.remove(); await W(sleep(800)); open2.remove();
+  aC.remove(); aB2.remove(); await W(sceneChange(open2,open3,"flip"));
   const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(39,30.8,18,37,"noori"), b3=anchor(68.8,24,21,52,"billu");
   Object.assign(STORY.cast,{chintu:c3,noori:n3,billu:b3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
