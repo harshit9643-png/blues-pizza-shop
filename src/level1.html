@@ -1288,6 +1288,14 @@ body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:op
 .tut .learn .pz{overflow:visible}
 .tut .learn .pz .part.served{transition:transform .7s cubic-bezier(.3,1.2,.5,1)}
 /* the Done button is a CHECK button now, in the game's display font */
+/* CHECK / NEXT under the pizza: wooden signs, the same family as PLAY, PAUSE and NEXT */
+#done.woodbtn{background:none!important;box-shadow:none!important;border:0!important;padding:0!important;border-radius:0!important;
+  height:clamp(48px,calc(9.2*var(--vh)),68px);filter:drop-shadow(0 6px 8px rgba(60,25,0,.4));transition:transform .18s ease,filter .18s ease}
+#done.woodbtn img{height:100%;width:auto;display:block;pointer-events:none}
+#done.woodbtn:hover{transform:translateY(-2px) scale(1.05);filter:drop-shadow(0 9px 10px rgba(60,25,0,.45)) brightness(1.06)}
+#done.woodbtn:active{transform:translateY(3px) scale(.97)}
+#done.woodbtn.ready{animation:doneReady 1.3s ease-in-out infinite}
+@keyframes doneReady{50%{transform:scale(1.07);filter:drop-shadow(0 0 14px rgba(255,200,80,.95)) brightness(1.08)}}
 #done{font-family:var(--display)!important;font-weight:800!important;font-size:clamp(18px,calc(1.6*var(--vw)),24px)!important;letter-spacing:.06em!important}
 /* fraction cards in the lesson: the game's brown fraction plate; the highlighted number glows */
 .tut .lf{background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A)!important;border:0!important;box-shadow:0 0 0 4px #4A2610,inset 0 3px 0 rgba(255,220,170,.35),0 10px 16px rgba(0,0,0,.35)!important}
@@ -1671,7 +1679,8 @@ function guideMood(cls){ const g=$("guide"); g.classList.remove("cheer","hmm"); 
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 function setDone(kind,enabled,ready){ const b=$("done");
-  b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `CHECK ${CHECK}`;
+  b.innerHTML = kind==="next" ? `<img src="assets/web/btn_next.webp" alt="Next">` : `<img src="assets/web/btn_check.webp" alt="Check">`;   // wooden signs like PLAY
+  b.classList.add("woodbtn"); b.setAttribute("aria-label",kind==="next"?"Next":"Check");
   b.disabled=false; b._en=!!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;   // always active-looking
   if(kind==="next"&&enabled) autoClick(b,S.sayPlain,1000); }
 function setCount(){ const o=cur(), c=$("count");
