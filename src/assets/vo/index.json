@@ -41,6 +41,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"0d22aa55": {
+"file": "0d22aa55-d59596.mp3",
+"text": "Let me show you! Follow the hand. The biggest denominator is the smallest piece: 1/6, then 1/5, 1/4, 1/3 and 1/2.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "0f434ce7": {
 "file": "0f434ce7-d6ea4a.mp3",
 "text": "That slice already has a topping. Put it on a slice with no topping.",
@@ -124,6 +130,12 @@
 "text": "5/8 means 5 parts out of 8 equal parts. We read it as “five upon eight” or “five by eight”.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"1e91dad3": {
+"file": "1e91dad3-91a8ff.mp3",
+"text": "And the winner is…?",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
 },
 "1efb1789": {
 "file": "1efb1789-a920f4.mp3",
@@ -215,6 +227,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"33f4c304": {
+"file": "33f4c304-15689d.mp3",
+"text": "Let me show you! The ant ate more: 1/4 is more than 1/6. Tap the ant.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "34980bb9": {
 "file": "34980bb9-470d8b.mp3",
 "text": "Match 3: twin against twin!",
@@ -275,9 +293,21 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"4666efed": {
+"file": "4666efed-8ce7fc.mp3",
+"text": "Oops! Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "47508cd5": {
 "file": "47508cd5-b8f3ce.mp3",
 "text": "Using the 12-part mould…",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"4824e7fb": {
+"file": "4824e7fb-765887.mp3",
+"text": "Add the slices to both plates first, then check.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -329,6 +359,18 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"56992386": {
+"file": "56992386-abe80d.mp3",
+"text": "Same denominator? The parts are the same size. Compare the numerators.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"5b902462": {
+"file": "5b902462-7ccbaf.mp3",
+"text": "Same numerator? Compare the size of the parts. The smaller denominator means bigger parts.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "5f47d1a4": {
 "file": "5f47d1a4-f136f6.mp3",
 "text": "Billu, you’ll need to understand fractions now.",
@@ -365,6 +407,12 @@
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
 },
+"625f9151": {
+"file": "625f9151-d3f95d.mp3",
+"text": "Let me show you! The hippo ate more: 5/9 is more than 2/9. Tap the hippo.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "62fddb90": {
 "file": "62fddb90-bfa7ed.mp3",
 "text": "Cover 5/9 of the pizza with the topping.",
@@ -376,6 +424,12 @@
 "text": "Match 5: the ant and Madhu!",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
+},
+"63e44caf": {
+"file": "63e44caf-aaa11d.mp3",
+"text": "Badal: “My turn to win!” Yes! Same numerator, and eighths are bigger than twelfths.",
+"voice": "en-US-AnaNeural",
+"who": "badal"
 },
 "64b9ca4e": {
 "file": "64b9ca4e-e6e1ac.mp3",
@@ -428,6 +482,12 @@
 "744e9e38": {
 "file": "744e9e38-86354f.mp3",
 "text": "Oops! Is that how much Madhu wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"760e1092": {
+"file": "760e1092-2dc7c3.mp3",
+"text": "Let me show you! The squirrel ate more: 3/5 is more than 3/10. Tap the squirrel.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -713,6 +773,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"b140d99b": {
+"file": "b140d99b-393bf3.mp3",
+"text": "The ant is our Big Eater Champion! Monty (from the crowd): “Beaten by an ant… again!”",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "b33331f7": {
 "file": "b33331f7-534d38.mp3",
 "text": "8 is bigger than 4, so Monty wins!",
@@ -755,9 +821,21 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"beaac6d4": {
+"file": "beaac6d4-4f63bc.mp3",
+"text": "Let me show you! The peacock ate more: 6/7 is more than 4/7. Tap the peacock.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "c1da7b62": {
 "file": "c1da7b62-bc3f6d.mp3",
 "text": "Now tap Check plates.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"c2bcb844": {
+"file": "c2bcb844-f44793.mp3",
+"text": "Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -887,6 +965,12 @@
 "voice": "en-US-AnaNeural",
 "who": "ant"
 },
+"de8ca07d": {
+"file": "de8ca07d-ab52ed.mp3",
+"text": "Oops! Try again. Look at the pictures.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "df22df6a": {
 "file": "df22df6a-181106.mp3",
 "text": "Oops! Is that how much Mouse wants? Try again.",
@@ -995,6 +1079,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"f713273b": {
+"file": "f713273b-43896b.mp3",
+"text": "Let me show you! Badal ate more: 7/8 is more than 7/12. Tap Badal.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "f7974568": {
 "file": "f7974568-e560f2.mp3",
 "text": "Using the 8-part mould…",
@@ -1030,5 +1120,11 @@
 "text": "Oops! Is that how much Peacock wants? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"fd1376f4": {
+"file": "fd1376f4-257484.mp3",
+"text": "And the golden trophy goes to…? Tap the winner!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
 }
 }

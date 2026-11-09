@@ -2915,6 +2915,10 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
   // the signs show only while a story or a tutorial is on screen
   setInterval(()=>{ const inStory=!st.hidden, inTut=!tu.hidden&&tu.classList.contains("open"), on=inStory||inTut;
     bar.classList.toggle("on",on); bar.classList.toggle("intut",!inStory&&inTut);
-    if(!on&&PAUSE.on) setPause(false); },200);
+    if(!on&&PAUSE.on&&!PAUSE.away) setPause(false); },200);
+  // another tab or window: everything goes quiet and waits right there, and carries on on return
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){ if(!PAUSE.on){ PAUSE.away=true; setPause(true); } }
+    else if(PAUSE.away){ PAUSE.away=false; setPause(false); } });
 })();
 </script>
