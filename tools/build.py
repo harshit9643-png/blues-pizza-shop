@@ -14,6 +14,7 @@ HTML document. Vercel runs this script on every deploy (see vercel.json). dist/ 
 build output and is not committed.
 """
 
+import hashlib
 import os
 import re
 import shutil
@@ -93,7 +94,18 @@ def page_html(src_name, title):
             extra.append(tag)
     head = HEAD.format(title=title, site=SITE, description=DESCRIPTION, favicon=FAVICON)
     head = head.replace("<style>", "\n".join(extra) + "\n<style>", 1)
-    return head + body + TAIL, body
+    return head + versioned(body) + TAIL, body
+
+
+def versioned(body):
+    """Give every art link a ?v=<content hash>, so a changed picture is fetched again, not taken from the browser cache."""
+    def tag(m):
+        path = os.path.join(SRC, m.group(0))
+        if not os.path.isfile(path):
+            return m.group(0)
+        with open(path, "rb") as fh:
+            return m.group(0) + "?v=" + hashlib.sha1(fh.read()).hexdigest()[:8]
+    return ASSET_RE.sub(tag, body)
 
 
 def main():
