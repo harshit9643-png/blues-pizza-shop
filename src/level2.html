@@ -1440,6 +1440,7 @@ body.tutoring .trail{display:none!important}
 @keyframes vsPulse{50%{transform:scale(1.07)}}
 .match .mid:has(.ask:not(:empty)) .vs{display:none}
 .match:not(.cardsv) .side .who .ava{width:clamp(96px,calc(9.5*var(--vw)),150px)!important;height:auto!important;aspect-ratio:1}
+.fline .diags5,.fline .diags5.show{display:none!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -2016,8 +2017,7 @@ async function checkOrder(){
   const wrong=p.map((v,s)=>v!==want[s]?v:null).filter(v=>v!==null);
   wrong.forEach(i=>bump($("fin-"+i),"bad",600));
   if(S.oTries===1) say("Oops! Try again.","bad","noori");
-  else { say("Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.","bad","noori");
-    FINALISTS.forEach((f,i)=>{ $("dg-"+i).innerHTML=finDiag(f); }); $("diags").classList.add("show"); }
+  else { say("Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.","bad","noori"); }   // no extra diagram row: it pushed the cards off the screen
   await wait(650); if(!live(g)) return;
   wrong.forEach(i=>putIn($("fin-"+i),null));
   p.forEach((v,s)=>{ if(v!==null&&!wrong.includes(v)) $("fin-"+v).classList.add("lock"); });
