@@ -1447,6 +1447,12 @@ body.tutoring .trail{display:none!important}
 .tut .tsd .ava{width:clamp(120px,calc(20*var(--vh)),190px)!important;height:auto!important;aspect-ratio:1}
 .tut .tsd .eat>span,.tut .tsd .eat .ate{font-size:clamp(22px,calc(3.4*var(--vh)),34px)!important;padding:6px 16px!important}
 .tut .tsd .tag{transform:scale(1.5);transform-origin:center;margin:0 18px}
+/* 2nd wrong attempt in the Final: the eaten portion of each card's pizza lights up */
+.fline .slot .splate.showpart .eat{fill:#FFD23C;fill-opacity:.85;animation:eatPulse 1s ease-in-out infinite}
+.fline .slot .splate.showpart .eatl{stroke:#E07B00;stroke-dasharray:none;stroke-width:5}
+.fline .slot .splate.showpart .rest{opacity:.6}
+@keyframes eatPulse{50%{fill-opacity:.5}}
+.phand.drag{animation:none!important}
 </style>
 
 <svg class="frond l" viewBox="0 0 340 300" aria-hidden="true">
@@ -1715,7 +1721,7 @@ let LOCK=null, MLOCK=null;
 ["pointerdown","mousedown","touchstart","click"].forEach(t=>document.addEventListener(t,e=>{
   const L=(LOCK&&LOCK.isConnected)?LOCK:(MLOCK&&MLOCK.isConnected)?MLOCK:null; if(!L) return;
   const tg=e.target; if(!(tg instanceof Element)) return;
-  if(L.contains(tg)||tg.closest("#home,#qa,.qa,.qabtn,.qap,#jump,header.top,.skip,#sSkip,#tutSkip")) return;
+  if(L.contains(tg)||(LOCK2&&LOCK2.isConnected&&LOCK2.contains(tg))||tg.closest("#home,#qa,.qa,.qabtn,.qap,#jump,header.top,.skip,#sSkip,#tutSkip")) return;
   e.stopPropagation(); e.preventDefault();
   const h=document.getElementById("phand")||document.getElementById("mhand"); if(h){ h.classList.remove("nudge"); void h.offsetWidth; h.classList.add("nudge"); }
 },{capture:true,passive:false}));
@@ -1728,7 +1734,22 @@ function guide(target){ const id=++GUIDE; let last=null;
     else { const h=document.getElementById("phand"); h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; }
     setTimeout(tick,150); })(); }
 function stopGuide(){ GUIDE++; unpoint(); }
-function unpoint(){ LOCK=null; const h=document.getElementById("phand"); if(h) h.remove(); }
+/* show how to drag: the hand picks up the card and carries it to its slot, over and over; only that card and slot work */
+let LOCK2=null;
+function dragGuide(g,want){ const id=++GUIDE; let cur=null; document.querySelectorAll(".fline .splate.showpart,.fline .splate.glowpz").forEach(p=>p.classList.remove("showpart","glowpz"));
+  (function tick(){ if(id!==GUIDE) return;
+    if(!live(g)||S.phase!=="order"){ unpoint(); return; }
+    const s=[0,1,2,3,4].find(s=>placed()[s]!==want[s]); if(s===undefined){ unpoint(); return; }
+    const c=$("fin-"+want[s]), sl=$("slot-"+s); LOCK=c; LOCK2=sl;
+    if(cur!==c||!document.getElementById("phand")){ cur=c; dragHand(c,sl); }
+    setTimeout(tick,200); })(); }
+function dragHand(from,to){ let h=document.getElementById("phand"); if(h) h.remove();
+  const a=from.getBoundingClientRect(), b=to.getBoundingClientRect(), x0=a.left+a.width/2, y0=a.top+a.height*.5, x1=b.left+b.width/2, y1=b.top+b.height*.45;
+  h=document.createElement("img"); h.id="phand"; h.className="phand drag"; h.src="assets/draft2/hand_point.webp"; h.alt="";
+  h.style.left=x0+"px"; h.style.top=y0+"px"; document.body.appendChild(h);
+  h.animate([{translate:"0 0",opacity:0,scale:1},{translate:"0 0",opacity:1,scale:.9,offset:.15},{translate:"0 0",opacity:1,scale:.9,offset:.25},
+    {translate:`${x1-x0}px ${y1-y0}px`,opacity:1,scale:.9,offset:.75},{translate:`${x1-x0}px ${y1-y0}px`,opacity:0,scale:1}],{duration:2200,iterations:Infinity,easing:"ease-in-out"}); }
+function unpoint(){ LOCK2=null; LOCK=null; const h=document.getElementById("phand"); if(h) h.remove(); }
 function bump(el,cls,ms){ if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); if(ms) setTimeout(()=>el.classList.remove(cls),ms); }
 /* one star per question: dark until it is answered right, then gold */
 const QSTAR=(done,now)=>`<svg class="tok qs ${now?'now':''} ${done?'got':''}" viewBox="0 0 32 32" aria-hidden="true">
@@ -1932,9 +1953,9 @@ function eatenPlate(n,d){
   const id=uid("ep"), rest=(d-n)*step>Math.PI?1:0;
   return `<svg class="eplate" viewBox="0 0 200 200" aria-hidden="true">
     <defs><clipPath id="${id}"><path d="M${C} ${C}L${q(a1)}A${R+7} ${R+7} 0 ${rest} 1 ${q(a0)}Z"/></clipPath></defs>
-    <g clip-path="url(#${id})" style="filter:drop-shadow(0 4px 4px rgba(40,20,5,.35))"><image href="${HD}pizza_round.webp" x="${C-R-4}" y="${C-R-4}" width="${2*R+8}" height="${2*R+8}"/>${cuts}</g>
-    <path d="M${C} ${C}L${p(a0)}A${R} ${R} 0 ${big} 1 ${p(a1)}Z" fill="rgba(255,240,215,.16)"/>
-    <path d="M${C} ${C}L${p(a0)}A${R} ${R} 0 ${big} 1 ${p(a1)}Z" fill="none" stroke="#C8402E" stroke-width="4" stroke-dasharray="9 7" stroke-linejoin="round"/></svg>`;
+    <g class="rest" clip-path="url(#${id})" style="filter:drop-shadow(0 4px 4px rgba(40,20,5,.35))"><image href="${HD}pizza_round.webp" x="${C-R-4}" y="${C-R-4}" width="${2*R+8}" height="${2*R+8}"/>${cuts}</g>
+    <path class="eat" d="M${C} ${C}L${p(a0)}A${R} ${R} 0 ${big} 1 ${p(a1)}Z" fill="rgba(255,240,215,.16)"/>
+    <path class="eatl" d="M${C} ${C}L${p(a0)}A${R} ${R} 0 ${big} 1 ${p(a1)}Z" fill="none" stroke="#C8402E" stroke-width="4" stroke-dasharray="9 7" stroke-linejoin="round"/></svg>`;
 }
 /* the piece that was eaten, on its own (true size, so the pieces can be compared) */
 function slicePiece(n,d){
@@ -2026,17 +2047,16 @@ async function checkOrder(){
   else { say("Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.","bad","noori");
     // the sheet: "round diagrams of all five fractions, from 1/6 to 1/2". Shown on the cards' own pizzas instead:
     // they light up one by one, smallest piece first, twice
-    [0,1,2,3,4,0,1,2,3,4].forEach((sl,k)=>setTimeout(()=>{ if(!live(g)||S.phase!=="order") return; const pz=$("slot-"+sl)&&$("slot-"+sl).querySelector(".splate");
-      if(pz){ pz.classList.remove("glowpz"); void pz.offsetWidth; pz.classList.add("glowpz"); } },300+k*650)); }
+    const tries=S.oTries; if(tries===2)
+    [0,1,2,3,4].forEach((sl,k)=>setTimeout(()=>{ if(!live(g)||S.phase!=="order"||S.oTries!==tries) return; const pz=$("slot-"+sl)&&$("slot-"+sl).querySelector(".splate");
+      if(pz){ pz.classList.remove("glowpz"); void pz.offsetWidth; pz.classList.add("glowpz","showpart"); } },400+k*900));
+    setTimeout(()=>document.querySelectorAll(".fline .splate.showpart").forEach(p=>p.classList.remove("showpart")),400+5*900+3500); }
   await wait(650); if(!live(g)) return;
   wrong.forEach(i=>putIn($("fin-"+i),null));
   p.forEach((v,s)=>{ if(v!==null&&!wrong.includes(v)) $("fin-"+v).classList.add("lock"); });
   if(S.oTries>=3){   // third wrong attempt: show how, smallest first
     say("Let me show you! Follow the hand. The biggest denominator is the smallest piece: 1/6, then 1/5, 1/4, 1/3 and 1/2.","bad","noori");
-    // the hand takes the child through it: tap the card, then its slot, smallest first
-    guide(()=>{ if(!live(g)||S.phase!=="order") return null;
-      const s=[0,1,2,3,4].find(s=>placed()[s]!==want[s]); if(s===undefined) return null;
-      const c=$("fin-"+want[s]); return S.sel===c ? ($("slot-"+s).querySelector(".splate")||$("slot-"+s)) : c; }); }
+    dragGuide(g,want); }
 }
 function finalWinner(){
   S.phase="finalPick"; S.wTries=0; $("stage").classList.add("dim"); Sound.drum();
