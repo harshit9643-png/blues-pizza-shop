@@ -3205,9 +3205,9 @@ async function storyContext1(){
   P.menuBoard();   // the shop's SLICES! board stands beside the stall the whole time
   
   // 1-4. the shop picture (sheet: Context_Final): Noori by the oven, Billu behind the counter
-  const open1=document.createElement("div"); open1.className="sshot"; open1.innerHTML=`<img src="assets/story/scene1_shop.webp" alt="">`;
+  const open1=document.createElement("div"); open1.className="sshot"; open1.innerHTML=`<img src="assets/story/scene1_billu0.webp" alt="">`;
   $("sworld").appendChild(open1); void open1.offsetWidth; open1.classList.add("in");
-  const aN=anchor(41.9,45.2,6.5,16.5,"noori"), aB=anchor(54.5,34.8,12.5,24.5,"billu");
+  const aN=anchor(41.9,45.2,6.5,16.5,"noori"), aB=anchor(53.5,33.5,11.5,25.5,"billu");
   STORY.cast.noori=aN; STORY.cast.billu=aB;
   await sLine("narr","Billu’s Pizza Kitchen is open!");
   const board=anchor(23.6,50,14,32); setTimeout(()=>sLook(board),350);   // the "Order a whole pizza, or just a part!" chalkboard
@@ -3281,6 +3281,11 @@ if(location.hash==="#story") startLevel("1.1",true);
     const talking=NT.on && (now<NT.until || voice); if(NT.on && !talking) NT.on=false;
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
     document.querySelectorAll("img").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
+
+/* Billu blinks every 3 seconds in the shop picture, from the supplied sheet: open, half, shut, half, open */
+(()=>{ const B=["assets/story/scene1_billu0.webp","assets/story/scene1_billu1.webp","assets/story/scene1_billu2.webp"]; B.forEach(s=>{ new Image().src=s; });
+  const show=src=>document.querySelectorAll("img:not(.blur)").forEach(im=>{ if(/scene1_billu\d\.webp/.test(im.getAttribute("src")||"")) im.src=src; });
+  setInterval(()=>{ [1,2,1,0].forEach((k,i)=>setTimeout(()=>show(B[k]),i*80)); },3000); })();
 </script>
 <script>
 /* QA panel: built from the jump menu's groups; picking a chip makes the same jump the dropdown did */
