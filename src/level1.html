@@ -1610,7 +1610,32 @@ const NT={on:false,until:0};
 function nooriTalk(text){ if(!text){ NT.on=false; NT.until=0; return; }
   const words=String(text).replace(/<[^>]+>/g," ").split(/\s+/).filter(Boolean).length;
   NT.on=true; NT.until=performance.now()+Math.max(1200,words*300+400); }
-function speak(text){ if(!window.speechSynthesis) return;
+/* AI voices: each line the game says has a recorded clip in assets/vo, named by a hash of speaker and text
+   (tools/voices.py makes them); a line without a clip falls back to the browser's own voice */
+const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0; const el=new Audio(); el.preload="auto";
+  fetch("assets/vo/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():[]).then(a=>{ have=new Map(Object.entries(a||{})); }).catch(()=>{ have=new Map(); });
+  const norm=t=>String(t||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+  const key=(who,t)=>{ const s=who+"|"+norm(t); let h=0x811c9dc5; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(16).padStart(8,"0"); };
+  const tts=window.speechSynthesis, cancel0=tts?tts.cancel.bind(tts):()=>{};
+  const end=()=>{ const f=onEnd; onEnd=null; if(f) f(); };
+  el.addEventListener("ended",end); el.addEventListener("error",end);
+  function stop(){ onEnd=null; el._held=false; try{ el.pause(); }catch(e){} }
+  // a customer's line ("Monty: “…”") is said in that customer's voice
+  function who(text,w){ const m=/^\s*([A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?):\s*[“"]/.exec(norm(text)); return m?m[1].toLowerCase():(w||"noori"); }
+  // plays the clip for this line; false when there is none (then the caller uses the browser voice)
+  function play(w,text,done){ const k=key(w,text); if(window.__vo) window.__vo(w,norm(text),k);
+    if(!have||!have.has(k)) return false;
+    if(k===lastK&&performance.now()-lastT<1500&&!el.paused){ if(done) onEnd=done; return true; }   // the same line asked for twice in a row
+    stop(); cancel0(); lastK=k; lastT=performance.now(); onEnd=done||null;
+    el.src="assets/vo/"+have.get(k); const p=el.play(); if(p&&p.catch) p.catch(end); return true; }
+  // anything that silences the browser voice silences the clip too (Skip, leaving a screen, NEXT)
+  if(tts) try{ tts.cancel=()=>{ stop(); cancel0(); }; }catch(e){}
+  return {play,stop,who,norm,key,el,
+    busy:()=>!!el.src&&!el.paused&&!el.ended,
+    pause(){ if(!el.paused&&!el.ended){ el.pause(); el._held=true; } },
+    resume(){ if(el._held){ el._held=false; el.play().catch(()=>{}); } } };
+})();
+function speak(text,who){ if(VOICE.play(VOICE.who(text,who||(text===S.sayPlain&&S.saySpk)||"noori"),text)) return; if(!window.speechSynthesis) return;
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; speechSynthesis.speak(u); }catch(e){} }
 
 /* ============================================================
@@ -1633,7 +1658,7 @@ function pieceName(o,k){ const n=k||o.d;
 function greeting(o){ const g=o.line.split(/\d+\/\d+/)[0].trim(); return g || (o.line.match(/\d+\/\d+/)?"":o.line); }
 let G=null; const PZ=$("pz");
 
-function say(text,tone){ nooriTalk(text); S.sayPlain=text; const el=$("say"); el.innerHTML=fracify(text); el.className="say"+(tone?" "+tone:""); }
+function say(text,tone){ nooriTalk(text); S.sayPlain=text; S.saySpk="noori"; if($("story").hidden&&$("tut").hidden) speak(text); const el=$("say"); el.innerHTML=fracify(text); el.className="say"+(tone?" "+tone:""); }
 function guideMood(cls){ const g=$("guide"); g.classList.remove("cheer","hmm"); void g.offsetWidth; g.classList.add(cls); }
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
@@ -2481,7 +2506,7 @@ function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
   p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
-  speak(text);
+  speak(text,who);
   const b=$("tutNext"); b.hidden=!!opts.wait; b.innerHTML=(opts.label||"NEXT")+" "+ARROW_T; b._auto=(b._auto||0)+1; if(!opts.wait) autoClick(b,text,opts.extra??2500);
   return opts.wait ? Promise.resolve() : new Promise(res=>{ tutNext=res; });
 }
@@ -2801,7 +2826,7 @@ function autoClick(el,text,extra=1000){
   (function tick(){
     if(el._auto!==tok) return;
     if(paused()){ setTimeout(tick,100); return; }
-    const talking=!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)), t=performance.now()-t0; if(talking) spoke=true;
+    const talking=VOICE.busy()||!!(window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)), t=performance.now()-t0; if(talking) spoke=true;
     const ready=spoke ? !talking : t>=1200 && t>=est;
     if(!ready){ setTimeout(tick,100); return; }
     sleep(extra).then(function go(){ if(paused()){ setTimeout(go,100); return; }
@@ -3002,12 +3027,13 @@ async function sCam(x,y,z,ms=1100){
 function atRest(fn){ const c=$("scam"), t=c.style.transform, tr=c.style.transition; c.style.transition="none"; c.style.transform="none";
   const r=fn(); c.style.transform=t; void c.offsetWidth; c.style.transition=tr; return r; }
 /* talking: lip-sync while the line is spoken (or for an estimated time without a voice) */
-function sTalk(e,text){
-  if(!e) { speak(text); return; }
+function sTalk(e,text,who){
+  if(!e) { speak(text,who); return; }
   e.style.setProperty("--jw",(0.12+Math.random()*.06).toFixed(3)+"s");
   const est=Math.min(8000,700+text.split(/\s+/).length*300); let done=false;
   const off=()=>{ if(done) return; done=true; e.classList.remove("talking"); };
   e.classList.add("talking"); STORY.talkOff=off;
+  if(VOICE.play(VOICE.who(text,who),text,off)){ setTimeout(off,est+15000); return; }
   try{ if(window.speechSynthesis){ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/(\d+)\/(\d+)/g,"$1 by $2").replace(/…/g,", "));
       u.rate=.95; u.onend=off; u.onerror=()=>setTimeout(off,est); speechSynthesis.speak(u);
       setTimeout(()=>{ if(!speechSynthesis.speaking) setTimeout(off,Math.max(0,est-600)); },600); setTimeout(off,est+5000); return; } }catch(err){}
@@ -3086,7 +3112,7 @@ function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
   sBubbleSay(STORY.cast[who],name,text);
   if(STORY.talkOff) STORY.talkOff();
-  sTalk(STORY.cast[who],text); $("sNext").classList.remove("wait"); autoClick($("sNext"),text);
+  sTalk(STORY.cast[who],text,who); $("sNext").classList.remove("wait"); autoClick($("sNext"),text);
   return W(new Promise(r=>{ STORY.next=r; })).finally(()=>sSpot(null));
 }
 
@@ -3363,7 +3389,7 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
   const st=document.getElementById("story"), tu=document.getElementById("tut");
   function setPause(on){ PAUSE.on=on; document.body.classList.toggle("paused",on);
     pb.querySelector("img").src=on?IMG.play:IMG.pause; pb.setAttribute("aria-label",on?"Play":"Pause");
-    try{ if(window.speechSynthesis){ on?speechSynthesis.pause():speechSynthesis.resume(); } }catch(e){}
+    on?VOICE.pause():VOICE.resume(); try{ if(window.speechSynthesis){ on?speechSynthesis.pause():speechSynthesis.resume(); } }catch(e){}
     if(PAUSE.onChange) PAUSE.onChange(on); }
   PAUSE.set=setPause;
   pb.addEventListener("click",()=>setPause(!PAUSE.on));

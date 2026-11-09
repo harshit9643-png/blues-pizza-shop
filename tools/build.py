@@ -126,6 +126,12 @@ def main():
         for fn in os.listdir(os.path.join(SRC, folder)):
             if fn.endswith(".webp"):
                 files.add(f"{folder}/{fn}")
+    # the AI voice clips and their list (tools/voices.py)
+    vo = os.path.join(SRC, "assets", "vo")
+    if os.path.isdir(vo):
+        for fn in os.listdir(vo):
+            if fn.endswith(".mp3") or fn == "manifest.json":
+                files.add(f"assets/vo/{fn}")
     missing = []
     for rel in sorted(files):
         src = os.path.join(SRC, rel)
