@@ -2312,7 +2312,19 @@ async function plateScene(gen){
   };
   const ids=G.parts.map((_,i)=>i);
   const idsA=ids.filter(i=>served.has(i)), idsB=ids.filter(i=>!served.has(i));
-  const cA=centreOf(idsA), cB=centreOf(idsB);
+  // where a group's pizza really is (its area centre, traced along the piece outlines): a wedge's weight
+  // sits by its crust, so centring its box left the slices looking pushed to one side of the plate
+  const massOf=group=>{ let A=0,X=0,Y=0;
+    group.forEach(i=>{ const h=partEl(i).querySelector(".hit"), L=h.getTotalLength(), o=S.off[i]||{x:0,y:0}, P=[];
+      for(let t=0;t<96;t++){ const q=h.getPointAtLength(L*t/96); P.push([q.x,q.y]); }
+      let a=0,x=0,y=0; for(let j=0;j<P.length;j++){ const [x0,y0]=P[j],[x1,y1]=P[(j+1)%P.length], c=x0*y1-x1*y0; a+=c; x+=(x0+x1)*c; y+=(y0+y1)*c; }
+      if(Math.abs(a)<1e-6) return; A+=a/2; X+=(x/(3*a)+o.x*.5)*a/2; Y+=(y/(3*a)+o.y*.5)*a/2; });
+    return A?{x:X/A,y:Y/A}:centreOf(group); };
+  const cA=massOf(idsA), cB=massOf(idsB);
+  // round pizza: the served slices turn to stand upright on their plate, crust on top and tip pointing down
+  const pc=massOf(ids), rotA=(o.shape==="round"&&idsA.length&&idsA.length<ids.length&&Math.hypot(cA.x-pc.x,cA.y-pc.y)>1)
+    ? -90-Math.atan2(cA.y-pc.y,cA.x-pc.x)*180/Math.PI : 0;
+  const rot=(v,deg,c0)=>{ const r=deg*Math.PI/180, x=v.x-c0.x, y=v.y-c0.y; return {x:c0.x+x*Math.cos(r)-y*Math.sin(r), y:c0.y+x*Math.sin(r)+y*Math.cos(r)}; };
   // how far a group reaches from its centre, traced along the real piece outlines
   const reach=(group,c)=>{ let m=0;
     group.forEach(i=>{ const h=partEl(i).querySelector(".hit"), L=h.getTotalLength(), o=S.off[i]||{x:0,y:0};
@@ -2331,9 +2343,10 @@ async function plateScene(gen){
     el.style.removeProperty("transform"); el.style.transition="none";
     if(served.has(i)) el.parentNode.appendChild(el);                 // served pieces travel on top
     // keyframes as [offset, x, y, scale] for translate(x y) scale(s)
-    const fx=T.x-c.x*k+off.x*.5*k, fy=T.y-c.y*k+off.y*.5*k, lift=served.has(i)?-120:-50;
-    const K=[[0,off.x,off.y,1],[.18,off.x,off.y-24,1.04],[.58,(fx+off.x)/2,(fy+off.y)/2+lift,(1+k)/2],[1,fx,fy,k]];
-    const set=(x,y,sc)=>el.setAttribute("transform",`translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${sc.toFixed(4)})`);
+    const R=served.has(i)?rotA:0, Rc=rot(c,R,pc), Ro=rot({x:off.x*.5,y:off.y*.5},R,{x:0,y:0});
+    const fx=T.x+k*(Ro.x-Rc.x), fy=T.y+k*(Ro.y-Rc.y), lift=served.has(i)?-120:-50;
+    const K=[[0,off.x,off.y,1,0],[.18,off.x,off.y-24,1.04,0],[.58,(fx+off.x)/2,(fy+off.y)/2+lift,(1+k)/2,R/2],[1,fx,fy,k,R]];
+    const set=(x,y,sc,r=0)=>el.setAttribute("transform",`translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${sc.toFixed(4)})`+(r?` rotate(${r.toFixed(2)} ${pc.x.toFixed(2)} ${pc.y.toFixed(2)})`:""));
     set(off.x,off.y,1);
     const delay=(served.has(i)?0:260)+i*40, dur=1500, t0=performance.now()+delay;
     (function f(now){
@@ -2341,10 +2354,10 @@ async function plateScene(gen){
       const t=Math.min(1,Math.max(0,(now-t0)/dur)), e=ease(t);
       let j=1; while(j<K.length-1 && K[j][0]<e) j++;
       const A=K[j-1], B=K[j], u=(e-A[0])/(B[0]-A[0]||1);
-      set(lerp(A[1],B[1],u),lerp(A[2],B[2],u),lerp(A[3],B[3],u));
+      set(lerp(A[1],B[1],u),lerp(A[2],B[2],u),lerp(A[3],B[3],u),lerp(A[4],B[4],u));
       if(t<1) requestAnimationFrame(f); else done();
     })(performance.now());
-    setTimeout(()=>{ if(live(gen)) set(fx,fy,k); done(); }, delay+dur+400);   // never stall in a throttled tab
+    setTimeout(()=>{ if(live(gen)) set(fx,fy,k,R); done(); }, delay+dur+400);   // never stall in a throttled tab
   })));
   if(!live(gen)) return;
   layer.classList.add("show");
