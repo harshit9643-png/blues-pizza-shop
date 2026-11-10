@@ -1376,7 +1376,7 @@ body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:op
     <!-- PRE-LBD title screen: camera zoom-in intro, idle loop, and a pizza-on-a-plate PLAY button that zooms the camera in on tap -->
     <div class="world pre" id="pre" aria-label="Billu’s Pizza Kitchen">
       <div class="pcam" id="pcam">
-        <img class="pbg" src="assets/prelbd/prelbd_bg.webp" alt="">
+        <img class="pbg" src="assets/prelbd/prelbd_noori0.webp" alt="">
         <div class="pfire"></div>
         <div class="pshine" aria-hidden="true"></div>
         <div class="pmotes" id="pmotes" aria-hidden="true"></div>
@@ -3386,6 +3386,10 @@ if(location.hash==="#story") startLevel("1.1",true);
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
     document.querySelectorAll("img").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 
+/* Noori blinks every 3 seconds on the main screen, from the supplied sheet: open, half, shut, half, open */
+(()=>{ const N=["assets/prelbd/prelbd_noori0.webp","assets/prelbd/prelbd_noori1.webp","assets/prelbd/prelbd_noori2.webp"]; N.forEach(s=>{ new Image().src=s; });
+  setInterval(()=>{ const im=document.querySelector("#pre .pbg"); if(!im||$("start").hidden) return;
+    [1,2,1,0].forEach((k,i)=>setTimeout(()=>{ im.src=N[k]; },i*80)); },3000); })();
 /* Billu blinks every 3 seconds in the shop picture, from the supplied sheet: open, half, shut, half, open */
 (()=>{ const B=["assets/story/scene1_billu0.webp","assets/story/scene1_billu1.webp","assets/story/scene1_billu2.webp"];
   B.concat(["assets/story/scene1_wave0.webp","assets/story/scene1_wave1.webp","assets/story/scene1_wave2.webp","assets/story/scene1_wave3.webp"]).forEach(s=>{ new Image().src=s; });
