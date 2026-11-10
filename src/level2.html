@@ -1992,7 +1992,7 @@ function pickCard(st,sd){ stopGuide();
 
 /* ---------- the Golden Trophy Final ---------- */
 function showFinalIntro(){
-  setView("intro",`<div class="lineup trophies">${FINALISTS.map((f,i)=>`<img src="${A}${f.k}_trophy.webp" alt="${NAMES[f.k]}" style="animation-delay:${400+i*450}ms,${1300+i*450}ms">`).join("")}</div>`);
+  setView("intro","");   // just the announcement: no line of trophy-holders walking in (it showed half an ant)
   Sound.drum(); say("The Golden Trophy Final! Our top medal winners eat one more time!","","billu"); speak(S.sayPlain);
   button("next",true,true,next);
 }
