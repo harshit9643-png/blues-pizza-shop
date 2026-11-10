@@ -3031,15 +3031,17 @@ button.stack{gap:3px!important}
 /* the animal sits in the middle of its circle, clear of the edge */
 .tut .tsd .ava,.match .side .who .ava{align-items:center!important;justify-content:center!important}
 .tut .tsd .ava img,.match .side .who .ava img{width:80%!important;height:80%!important;object-position:50% 50%!important;margin:0!important}
-/* a white stage spotlight in place of the golden glow: a beam from above opening onto a bright pool round the character */
-:is(.view.cardsv .side,.tut .duel.dim .tsd.pick)::before{inset:-60% -16% -6% -16%!important;border-radius:0!important;
-  clip-path:polygon(41% 0,59% 0,100% 100%,0 100%);
-  background:radial-gradient(ellipse 52% 11% at 50% 92%,rgba(255,253,240,.7),rgba(255,253,240,.25) 60%,transparent 72%),
-    linear-gradient(180deg,rgba(255,252,236,0),rgba(255,252,236,.16) 35%,rgba(255,252,236,.34))!important;
-  filter:blur(3px);animation:beam 3s ease-in-out infinite!important}
-@keyframes beam{50%{opacity:.82}}
-.view.cardsv .side::before{opacity:0;translate:none!important}
+/* spotlight seen from above (the light comes from the camera): a round pool of white light on each character, soft at the edge */
+:is(.view.cardsv .side,.tut .duel.dim .tsd.pick,.side.spot)::before{inset:auto!important;left:50%!important;top:50%!important;translate:-50% -50%!important;
+  width:var(--spw,118%)!important;height:auto!important;aspect-ratio:1;border-radius:50%!important;clip-path:none!important;filter:none!important;
+  background:radial-gradient(circle closest-side,rgba(255,252,238,.5) 0,rgba(255,252,238,.42) 60%,rgba(255,252,238,.18) 84%,rgba(255,252,238,0) 100%)!important;
+  box-shadow:0 0 60px 10px rgba(255,250,230,.08);animation:pool 3s ease-in-out infinite!important}
+@keyframes pool{50%{opacity:.85;scale:.985}}
+.view.cardsv .side::before{opacity:0;--spw:170%}
+.side.spot::before{--spw:88%;background:radial-gradient(circle closest-side,rgba(255,255,248,.75) 0,rgba(255,255,248,.6) 60%,rgba(255,255,248,.22) 84%,rgba(255,255,248,0) 100%)!important}
 .view.cardsv.focus .side::before{opacity:1}
+.tut .duel.dim .tsd.a.pick::before{left:calc(50% - var(--sw))!important;--spw:calc(140% - var(--sw))}
+.tut .duel.dim .tsd.b.pick::before{left:calc(50% + var(--sw))!important;--spw:calc(140% - var(--sw))}
 /* Home: the round wooden frame */
 #home{background:url("assets/ui/round_wood.webp") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;color:#FFF3D6!important;
   filter:drop-shadow(0 4px 5px rgba(50,25,0,.4))}
