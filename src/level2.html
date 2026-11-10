@@ -3007,6 +3007,12 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
 /* Level 2: the slice stacks sit on the square parchment */
 .stack{background:none!important;box-shadow:none!important;border-style:solid!important;border-color:transparent!important;border-width:14px!important;
   border-image:url("assets/ui/tile_parch.webp") 34 fill / 14px stretch!important;border-radius:0!important}
+/* the slice stack is a small square tile: "+" and the slice side by side */
+.stack,.tut .tsd .stack{flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:2px!important;
+  aspect-ratio:1/1;width:clamp(84px,calc(13*var(--vh)),120px)!important;height:auto!important;padding:0!important;box-sizing:border-box}
+.stack,.tut .tsd .stack{border-width:7px!important;border-image-width:12px!important}
+.stack svg,.tut .tsd .stack svg{width:64%!important;height:auto!important;flex:0 0 auto!important;min-width:0}
+.stack .plus,.tut .tsd .stack .plus{font-size:clamp(18px,calc(2.6*var(--vh)),26px)!important;flex:0 0 auto}
 /* Home: the round wooden frame */
 #home{background:url("assets/ui/round_wood.webp") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;color:#FFF3D6!important;
   filter:drop-shadow(0 4px 5px rgba(50,25,0,.4))}
