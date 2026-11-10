@@ -3348,14 +3348,11 @@ async function storyContext1(){
   $("sworld").appendChild(open1); void open1.offsetWidth; open1.classList.add("in");
   const aN=anchor(41.9,45.2,6.5,16.5,"noori"), aB=anchor(53.5,33.5,11.5,25.5,"billu");
   STORY.cast.noori=aN; STORY.cast.billu=aB;
-  await sLine("narr","Billu’s Pizza Kitchen is open!");
+  // the sheet (Context 1): one line from the narrator; Billu waves hello meanwhile, then folds his arms again
   const board=anchor(23.6,50,14,32); setTimeout(()=>sLook(board),350);   // the "Order a whole pizza, or just a part!" chalkboard
-  await sLine("narr","Here, you need not order a whole pizza. You can order as many pizza slices as you want to eat!"); board.remove();
-  await sLine("noori","I am here to help Billu!");
-  { // Billu waves once while he says it (the supplied waving sheet), then folds his arms again
-    let done=false; const wave=(async()=>{ for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
-    await sLine("billu","I’m ready to cook!"); done=true; await wave; S1.set("billu0"); }
-  await sLine("noori","See, Chintu is here for the first order.");
+  { let done=false; const wave=(async()=>{ await sleep(600); for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
+    await sLine("narr","At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!"); done=true; await wave; S1.set("billu0"); }
+  board.remove();
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(1200));   // a moment on the picture before it changes
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
@@ -3363,12 +3360,11 @@ async function storyContext1(){
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   await sLine("chintu","Half a pizza, please!");
-  await sLine("billu","Half? Easy! I’ll cut it into two pieces!");
-  // ...then the same picture with the pizza cut into one big and one tiny piece
+  // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
   await W(sleep(1200));   // a moment on the picture before it changes
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
   await W(sceneBook(open2,cut2)); open2=cut2;
-  STORY.noSpot=true; SFX.roll(); await sLine("billu","Ta-da! Two pieces!"); STORY.noSpot=false;
+  STORY.noSpot=true; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   await W(sleep(1200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
@@ -3376,10 +3372,8 @@ async function storyContext1(){
   const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(39,30.8,18,37,"noori"), b3=anchor(68.8,24,21,52,"billu");
   Object.assign(STORY.cast,{chintu:c3,noori:n3,billu:b3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
-  await sLine("chintu","Oh wow! I want the bigger half!");
-  await sLine("noori","No, no, Billu… these two pieces are not equal, so this cannot be half.");
-  await sLine("billu","Oh, Noori, what is a half? And how will I know how much to serve to the customers?");
-  await sLine("noori","Billu, you’ll need to understand fractions now.");
+  await sLine("chintu","I want the bigger half!");
+  await sLine("noori","These pieces aren’t equal, so neither is a half. Let’s learn about fractions!");
   STORY.noSpot=false;
 }
 $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });

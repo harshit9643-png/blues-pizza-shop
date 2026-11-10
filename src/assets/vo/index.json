@@ -689,6 +689,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"99687b3e": {
+"file": "99687b3e-e11d74.mp3",
+"text": "These pieces aren’t equal, so neither is a half. Let’s learn about fractions!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "99d613c2": {
 "file": "99d613c2-4b9759.mp3",
 "text": "Meow-gnificent! Your turn to take the next order.",
@@ -977,6 +983,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"d983f99b": {
+"file": "d983f99b-1212ac.mp3",
+"text": "At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!",
+"voice": "en-IN-NeerjaNeural",
+"who": "narr"
+},
 "d9faf4dc": {
 "file": "d9faf4dc-d23b6b.mp3",
 "text": "I will cut the pizza for you.",
@@ -1067,6 +1079,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"e8a55286": {
+"file": "e8a55286-1c7783.mp3",
+"text": "Easy! Two pieces!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "e8c16fbd": {
 "file": "e8c16fbd-f0fbf6.mp3",
 "text": "Oops! Is that how much Hippo wants? Try again.",
@@ -1132,6 +1150,12 @@
 "text": "10 equal pieces!",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"f6014dae": {
+"file": "f6014dae-ab3dc6.mp3",
+"text": "I want the bigger half!",
+"voice": "en-US-AnaNeural",
+"who": "chintu"
 },
 "f68dfa64": {
 "file": "f68dfa64-b5689a.mp3",
