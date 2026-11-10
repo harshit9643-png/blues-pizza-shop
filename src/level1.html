@@ -1373,16 +1373,21 @@ body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:op
 
 <div class="overlay" id="start">
   <div class="start-wrap">
-    <div class="world" aria-label="Billu’s Pizza Kitchen">
-      <img class="bg" src="assets/web/backdrop.webp" alt="">
-      <div class="w-sign"><span>Billu’s Pizza Kitchen</span><img src="assets/web/pizza_slice.webp" alt=""></div>
-      <div class="w-noori"><img src="assets/web/noori.webp" alt="Noori"></div>
-      <div class="w-billu"><img src="assets/web/billu_idle.webp" alt="Chef Billu"></div>
-      <div class="w-prop" style="--x:34.5%;--b:36.8%;--w:10.5%"><img src="assets/web/topping_box.webp" alt=""></div>
-      <div class="w-prop" style="--x:55.2%;--b:36.4%;--w:8.6%"><img src="assets/web/pizza_board_1.webp" alt=""></div>
-      <div class="w-prop" style="--x:65.4%;--b:36.4%;--w:8%"><img src="assets/web/pizza_board_2.webp" alt=""></div>
-      <div class="w-prop" style="--x:71.3%;--b:37%;--w:4%"><img src="assets/web/plates_stack.webp" alt=""></div>
-      <button class="mainplay woodplay" id="mainPlay" aria-label="Play"><img src="assets/web/play_button.webp" alt="Play"></button>
+    <!-- PRE-LBD title screen: camera zoom-in intro, idle loop, and a pizza-on-a-plate PLAY button that zooms the camera in on tap -->
+    <div class="world pre" id="pre" aria-label="Billu’s Pizza Kitchen">
+      <div class="pcam" id="pcam">
+        <img class="pbg" src="assets/prelbd/prelbd_bg.webp" alt="">
+        <div class="pfire"></div>
+        <div class="pshine" aria-hidden="true"></div>
+        <div class="pmotes" id="pmotes" aria-hidden="true"></div>
+        <button class="pplay" id="mainPlay" aria-label="Play">
+          <span class="pglow"></span><span class="pripple"></span><span class="prays" id="prays"></span>
+          <span class="psteam"><i></i><i></i><i></i></span>
+          <img src="assets/prelbd/plate_pizza.webp" alt="">
+        </button>
+      </div>
+      <div class="pburst" id="pburst" aria-hidden="true"></div>
+      <div class="pflash" aria-hidden="true"></div>
     </div>
   </div>
 </div>
@@ -3346,7 +3351,7 @@ $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=tr
 /* Level 2 is the next page of the same game (online it is served at /level2) */
 function goLevel2(){ CURTAIN.cover().then(()=>{ location.href=new URL((location.protocol==="file:"?"level2.html":"level2")+"#play",location.href).href; }); }
 /* the main screen's PLAY: the story, then Tutorial 1.1, then Level 1.1 -> 1.2 -> Level 2 */
-$("mainPlay").addEventListener("click",()=>startLevel("1.1",true));
+$("mainPlay").addEventListener("click",()=>PRE.go(()=>startLevel("1.1",true)));   // the pre-LBD screen zooms into the plate, then the story
 $("jump").innerHTML=`<optgroup label="Story"><option value="S">Story · Billu’s Pizza Kitchen</option></optgroup><optgroup label="Tutorial"><option value="T">Tutorial 1.1 · Top and serve</option></optgroup>`+Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
   `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("")
   +`<optgroup label="Level 2 · Big Eater Contest"><option value="L2">Level 2 · Big Eater Contest ▸</option></optgroup>`;
@@ -3502,3 +3507,128 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
   filter:drop-shadow(0 4px 5px rgba(50,25,0,.4))}
 #home svg{filter:drop-shadow(0 1px 0 #5A2E08)}
 </style>
+<style>
+/* ===================== PRE-LBD title screen (motion) ===================== */
+.world.pre{aspect-ratio:1672/941;width:min(100%,calc((calc(100*var(--vh)) - 40px) * 1672 / 941));background:#C98A4A}
+.world.pre::before,.world.pre::after{display:none!important}
+.pre .pcam{position:absolute;inset:0;transform-origin:50% 50%;will-change:transform}
+.pre .pbg{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;pointer-events:none}
+/* oven fire breathes */
+.pre .pfire{position:absolute;left:10.4%;top:47%;width:24%;height:30%;translate:-50% -50%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,170,60,.55),rgba(255,120,30,.22) 55%,transparent);mix-blend-mode:screen;
+  animation:pFire 1.9s ease-in-out infinite}
+@keyframes pFire{0%,100%{opacity:.55;scale:1}22%{opacity:.85;scale:1.05}47%{opacity:.6;scale:.98}71%{opacity:.95;scale:1.07}}
+/* light sweep across the title letters only (mask cut from the artwork) */
+.pre .pshine{position:absolute;inset:0;pointer-events:none;
+  -webkit-mask:url("assets/prelbd/title_mask.png") 0 0/100% 100% no-repeat;mask:url("assets/prelbd/title_mask.png") 0 0/100% 100% no-repeat;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.95) 50%,transparent 60%) 0 0/300% 100% no-repeat;
+  background-position:120% 0;mix-blend-mode:screen;opacity:0}
+.pre.idle .pshine{animation:pShine 4.2s ease-in-out .3s infinite}
+@keyframes pShine{0%{background-position:120% 0;opacity:1}38%{background-position:-20% 0;opacity:1}39%,100%{opacity:0}}
+/* sunlit dust motes */
+.pre .pmotes{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.pre .pmotes i{position:absolute;width:.45%;aspect-ratio:1;border-radius:50%;background:#FFF1C2;box-shadow:0 0 .6cqw #FFD873;opacity:0;
+  animation:pMote var(--d,9s) linear var(--dl,0s) infinite}
+@keyframes pMote{0%{opacity:0;transform:translate(0,0)}15%{opacity:.8}85%{opacity:.6}100%{opacity:0;transform:translate(var(--dx,3cqw),-18cqw)}}
+
+/* the PLAY button: pizza on a plate */
+.pre .pplay{position:absolute;left:50%;bottom:1.6%;width:26.5%;translate:-50% 0;padding:0;border:0;background:none;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transform-origin:50% 70%;z-index:4}
+.pre .pplay img{position:relative;display:block;width:100%;height:auto;pointer-events:none;
+  filter:drop-shadow(0 .9cqw .6cqw rgba(90,40,5,.38)) drop-shadow(0 0 .5cqw rgba(255,205,80,.0))}
+.pre.idle .pplay img{animation:pGlowImg 2.4s ease-in-out infinite}
+@keyframes pGlowImg{0%,100%{filter:drop-shadow(0 .9cqw .6cqw rgba(90,40,5,.38)) drop-shadow(0 0 .5cqw rgba(255,205,80,.35))}
+  50%{filter:drop-shadow(0 .9cqw .6cqw rgba(90,40,5,.38)) drop-shadow(0 0 1.6cqw rgba(255,205,80,.95))}}
+.pre .pglow{position:absolute;left:50%;top:56%;width:120%;height:105%;translate:-50% -50%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(255,214,110,.75),rgba(255,190,70,.25) 60%,transparent);opacity:0}
+.pre.idle .pglow{animation:pGlow 2.4s ease-in-out infinite}
+@keyframes pGlow{0%,100%{opacity:.35;scale:.95}50%{opacity:.9;scale:1.04}}
+.pre .pripple{position:absolute;left:50%;top:54%;width:100%;height:96%;translate:-50% -50%;border-radius:50%;pointer-events:none;
+  border:.35cqw solid rgba(255,226,140,.9);opacity:0}
+.pre.idle .pripple{animation:pRipple 2.4s ease-out 1.2s infinite}
+@keyframes pRipple{0%{opacity:.85;scale:.92}100%{opacity:0;scale:1.28}}
+.pre .prays{position:absolute;inset:0;pointer-events:none}
+.pre .prays i{position:absolute;width:3.2%;height:12%;border-radius:99px;background:linear-gradient(#FFF6C8,#FFC83A);
+  box-shadow:0 0 .5cqw rgba(255,200,60,.8);translate:-50% -50%;opacity:0}
+.pre.idle .prays i{animation:pRay 2.4s ease-in-out var(--dl) infinite}
+@keyframes pRay{0%,100%{opacity:0;scale:.4}30%{opacity:1;scale:1}60%{opacity:0;scale:.6}}
+.pre .psteam{position:absolute;left:44%;top:6%;width:30%;height:40%;pointer-events:none}
+.pre .psteam i{position:absolute;bottom:0;width:22%;height:70%;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,255,255,.7),rgba(255,255,255,0));filter:blur(.4cqw);opacity:0;
+  animation:pSteam 3.2s ease-out infinite}
+.pre .psteam i:nth-child(1){left:8%}.pre .psteam i:nth-child(2){left:40%;animation-delay:1.05s}.pre .psteam i:nth-child(3){left:70%;animation-delay:2.1s}
+@keyframes pSteam{0%{opacity:0;transform:translateY(20%) scale(.6)}30%{opacity:.75}100%{opacity:0;transform:translateY(-110%) scale(1.35) translateX(18%)}}
+.pre.idle .pplay{animation:pBob 2.4s ease-in-out infinite}
+@keyframes pBob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3%) scale(1.035)}}
+.pre.idle .pplay:hover{animation:none;transform:translateY(-4%) scale(1.07);transition:transform .2s}
+.pre .pplay:focus-visible{outline:.35cqw dashed #FFF3C4;outline-offset:.4cqw;border-radius:40%}
+
+/* 1) INTRO: the camera starts close and pulls back, then the plate drops onto the counter */
+.pre.intro .pcam{animation:pCamIn 1.5s cubic-bezier(.2,.75,.25,1) both}
+@keyframes pCamIn{0%{transform:scale(1.35) translateY(3%);filter:blur(5px) brightness(1.15);opacity:0}
+  25%{opacity:1}100%{transform:none;filter:none;opacity:1}}
+.pre.intro .pplay{animation:pDrop .75s cubic-bezier(.35,1.55,.55,1) 1.05s both}
+@keyframes pDrop{0%{transform:translateY(-150%) scale(.55) rotate(-8deg);opacity:0}60%{opacity:1}
+  80%{transform:translateY(0) scale(1.06,.92)}100%{transform:none;opacity:1}}
+.pre.intro .pshine{animation:pShine 1.6s ease-in-out .9s 1}
+/* gentle camera drift while idling */
+.pre.idle .pcam{animation:pDrift 16s ease-in-out infinite alternate}
+@keyframes pDrift{from{transform:scale(1)}to{transform:scale(1.025) translateY(-.4%)}}
+
+/* 2) TAP: squash, burst, then the camera zooms into the plate and flashes into the story */
+.pre.go .pplay{animation:pPress .32s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pPress{0%{transform:scale(1)}35%{transform:scale(1.08,.86)}100%{transform:scale(1.1)}}
+.pre.go .pcam{animation:pCamGo 1.15s cubic-bezier(.65,0,.35,1) .18s both;transform-origin:50% 83%}
+@keyframes pCamGo{0%{transform:scale(1)}100%{transform:scale(3.4);filter:blur(3px)}}
+.pre .pflash{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:6;
+  background:radial-gradient(circle at 50% 83%,#FFFBEA,#FFE7AE 60%,#F6C978)}
+.pre.go .pflash{animation:pFlash 1.3s ease-in both}
+@keyframes pFlash{0%,55%{opacity:0}100%{opacity:1}}
+.pre .pburst{position:absolute;inset:0;pointer-events:none;z-index:5}
+.pre .pburst i{position:absolute;left:50%;top:80%;width:1.1%;aspect-ratio:1;border-radius:50%;translate:-50% -50%;
+  animation:pBurst .8s cubic-bezier(.2,.8,.3,1) both}
+@keyframes pBurst{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1);opacity:0}}
+.pre.go .pmotes,.pre.go .pripple,.pre.go .prays{display:none}
+
+@media (prefers-reduced-motion: reduce){
+  .pre *, .pre.intro .pcam, .pre.idle .pcam{animation:none!important}
+}
+</style>
+<script>
+/* PRE-LBD title screen: intro zoom each time the screen shows, idle loop, tap = zoom into the plate */
+const PRE=(()=>{ const pre=document.getElementById("pre"), start=document.getElementById("start");
+  if(!pre) return {go:f=>f()};
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // sparkle rays around the plate (on an ellipse)
+  const rays=document.getElementById("prays");
+  for(let k=0;k<10;k++){ const ang=-170+k*(340/9);
+    const r=ang*Math.PI/180, x=50+60*Math.cos(r), y=55+62*Math.sin(r);
+    if(y>78) continue; const i=document.createElement("i");
+    i.style.left=x+"%"; i.style.top=y+"%"; i.style.rotate=(ang+90)+"deg"; i.style.setProperty("--dl",(k*.12)+"s"); rays.appendChild(i); }
+  // dust motes
+  const motes=document.getElementById("pmotes");
+  for(let k=0;k<16;k++){ const i=document.createElement("i");
+    i.style.left=(8+Math.random()*84)+"%"; i.style.top=(30+Math.random()*60)+"%";
+    i.style.setProperty("--d",(7+Math.random()*6)+"s"); i.style.setProperty("--dl",(-Math.random()*10)+"s");
+    i.style.setProperty("--dx",((Math.random()*6-3).toFixed(1))+"cqw"); motes.appendChild(i); }
+  let busy=false, t1=0;
+  function intro(){ busy=false; clearTimeout(t1); pre.classList.remove("go","idle","intro"); void pre.offsetWidth;
+    document.getElementById("pburst").innerHTML="";
+    if(reduce){ pre.classList.add("idle"); return; }
+    pre.classList.add("intro"); t1=setTimeout(()=>{ pre.classList.remove("intro"); pre.classList.add("idle"); },1850);
+    setTimeout(()=>{ try{ Sound.thunk(); }catch(e){} },1500); }
+  function go(done){ if(busy) return; busy=true;
+    if(reduce){ done(); return; }
+    clearTimeout(t1); pre.classList.remove("intro","idle"); void pre.offsetWidth; pre.classList.add("go");
+    try{ Sound.pop(); setTimeout(()=>Sound.good(),180); }catch(e){}
+    const b=document.getElementById("pburst"), cols=["#FFD54A","#E8402A","#3FA34D","#FFF3D0","#F59E2B"];
+    for(let k=0;k<18;k++){ const i=document.createElement("i"), a=Math.random()*Math.PI*2, d=10+Math.random()*16;
+      i.style.background=cols[k%cols.length]; i.style.setProperty("--x",(Math.cos(a)*d)+"cqw"); i.style.setProperty("--y",(Math.sin(a)*d*.7-6)+"cqw");
+      i.style.animationDelay=(Math.random()*.08)+"s"; b.appendChild(i); }
+    setTimeout(done,1350); }
+  // replay the intro whenever the title screen is shown again (first load, HOME button)
+  new MutationObserver(()=>{ if(!start.hidden) intro(); }).observe(start,{attributes:true,attributeFilter:["hidden"]});
+  if(!start.hidden) intro();
+  return {go,intro};
+})();
+</script>
