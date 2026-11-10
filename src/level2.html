@@ -3023,6 +3023,15 @@ button.stack{gap:3px!important}
 /* the animal sits in the middle of its circle, clear of the edge */
 .tut .tsd .ava,.match .side .who .ava{align-items:center!important;justify-content:center!important}
 .tut .tsd .ava img,.match .side .who .ava img{width:80%!important;height:80%!important;object-position:50% 50%!important;margin:0!important}
+/* a white stage spotlight in place of the golden glow: a beam from above opening onto a bright pool round the character */
+:is(.view.cardsv .side,.tut .duel.dim .tsd.pick)::before{inset:-60% -16% -6% -16%!important;border-radius:0!important;
+  clip-path:polygon(41% 0,59% 0,100% 100%,0 100%);
+  background:radial-gradient(ellipse 52% 11% at 50% 92%,rgba(255,253,240,.7),rgba(255,253,240,.25) 60%,transparent 72%),
+    linear-gradient(180deg,rgba(255,252,236,0),rgba(255,252,236,.16) 35%,rgba(255,252,236,.34))!important;
+  filter:blur(3px);animation:beam 3s ease-in-out infinite!important}
+@keyframes beam{50%{opacity:.82}}
+.view.cardsv .side::before{opacity:0;translate:none!important}
+.view.cardsv.focus .side::before{opacity:1}
 /* Home: the round wooden frame */
 #home{background:url("assets/ui/round_wood.webp") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;color:#FFF3D6!important;
   filter:drop-shadow(0 4px 5px rgba(50,25,0,.4))}
