@@ -1112,6 +1112,13 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
 .story .sshot.now{transition:none!important}
+.story .sshot.pgleaf{transform-origin:50% 50%;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important;box-shadow:none}
+.story .sshot .sshade{background:linear-gradient(90deg,rgba(25,12,2,0) 45%,rgba(25,12,2,.55) 50%,rgba(25,12,2,.15) 75%,rgba(25,12,2,0))!important}
+.story .sshot .sshade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(25,12,2,.75),rgba(25,12,2,.25) 55%,rgba(25,12,2,0))}
+.story .sshot .sfold{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,.1) 40%,rgba(255,248,230,.2) 85%,rgba(255,248,230,.4))}
+.story .sshot.pback>img{visibility:hidden}
+.story .sshot.pback{background:repeating-linear-gradient(0deg,#F3E6C8 0 26px,#E9D9B4 26px 27px),#F3E6C8!important;box-shadow:inset -30px 0 40px rgba(120,80,30,.35)}
+
 .story .sshot{backface-visibility:hidden}
 .story .sback{background:radial-gradient(ellipse at 50% 45%,#6E4527,#2A180B)!important}
 .story .sshot.far img:not(.blur){position:absolute;inset:8%!important;width:84%!important;height:84%!important}
@@ -2607,6 +2614,26 @@ function showHoles(pz){ pz.querySelectorAll(".holep").forEach(h=>{ h.setAttribut
 /* where the held cutter's wheel touches down, for an arm angle (world %); measured with the camera at rest */
 function wheelPt(e){ const w=e.querySelector(".hold .whl"); if(!w) return null; return worldPt(w,.5,.95); }
 
+/* a story picture turns like a page of a book: the next scene lies underneath, the page lifts from the right and turns over its
+   left edge, its paper back showing for the second half, with a shadow sweeping off the page below */
+function sceneBook(oldEl,newEl){ const sw=$("sworld"), P="perspective(3600px) ", done=a=>a.finished.catch(()=>{});
+  const im=newEl.querySelector("img"), ready=im&&im.decode?im.decode().catch(()=>{}):Promise.resolve();
+  return Promise.race([ready,sleep(1500)]).then(()=>{   // the next picture is ready before the page turns
+    sw.insertBefore(newEl,oldEl); newEl.classList.add("in","now");
+    const leaf=(src,clip,z)=>{ const c=src.cloneNode(true); c.classList.add("in","now","pgleaf"); c.style.clipPath=clip; c.style.zIndex=z; sw.appendChild(c); return c; };
+    const keepL=leaf(oldEl,"inset(0 50% 0 0)",26);        // the old picture's left page stays until the leaf lands on it
+    const front=leaf(oldEl,"inset(0 0 0 50%)",28);         // the turning leaf: the old right page in front...
+    const back=leaf(newEl,"inset(0 50% 0 0)",28);          // ...and the new left page on its back
+    oldEl.style.visibility="hidden";
+    const sh=document.createElement("i"); sh.className="sshade"; newEl.appendChild(sh);   // the leaf's shadow on the page below
+    SFX.whoosh();
+    // the leaf turns in two halves: the old right page lifts up to edge-on, then the new left page comes down from edge-on
+    back.style.visibility="hidden"; const H1=560, H2=620;
+    sh.animate([{opacity:.75},{opacity:0}],{duration:H1+H2,easing:"ease-in",fill:"forwards"});
+    const a=front.animate([{transform:P+"rotateY(0deg)"},{transform:P+"rotateY(-90deg)"}],{duration:H1,easing:"cubic-bezier(.5,0,.85,.45)",fill:"forwards"});
+    return done(a).then(()=>{ front.remove(); back.style.visibility="";
+      return done(back.animate([{transform:P+"rotateY(90deg)"},{transform:P+"rotateY(4deg)",offset:.85},{transform:P+"rotateY(0deg)"}],{duration:H2,easing:"cubic-bezier(.2,.6,.35,1)",fill:"forwards"})); })
+      .then(()=>{ [keepL,back,sh,oldEl].forEach(e=>e.remove()); }); }); }
 /* a story picture flips over like a card to show the next one (the same flip as Story 1) */
 function sceneFlip(oldEl,newEl){ const sw=$("sworld"), P="perspective(2600px) ", done=a=>a.finished.catch(()=>{});
   const back=document.createElement("div"); back.className="sshot sback in now";
@@ -2622,7 +2649,7 @@ async function storyContext2(){
     $("sworld").appendChild(el); SFX.whoosh(); void el.offsetWidth; el.classList.add("in"); return el; };
   const say=async(who,box,text)=>{ const a=anchor(...box); a._key=who; STORY.cast[who]=a; await sLine(who,text); a.remove(); };
   const next=async(prev,src)=>{ const el=document.createElement("div"); el.className="sshot"; el.innerHTML=`<img src="${src}" alt="">`;
-    await W(sceneFlip(prev,el)); return el; };   // the picture turns over like a card, the next scene on its back
+    await W(sceneBook(prev,el)); return el; };   // the picture turns like a page of a book onto the next scene
   // 1. evening at the kitchen: the "Big Eater Contest!" banner and the golden trophy; the customers cheer
   let sc=shot("assets/story/l2_scene1.webp"); SFX.cheer();
   let keep=[anchor(31,25,36,15),anchor(48,41,10,26)];   // the banner and the trophy stay clear of the bubble

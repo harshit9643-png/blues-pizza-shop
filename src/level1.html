@@ -992,6 +992,14 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
 .story .sshot.now{transition:none!important}
+.story .sshot.pgleaf{transform-origin:50% 50%;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important;box-shadow:none}
+.story .sshot .sshade{background:linear-gradient(90deg,rgba(25,12,2,0) 45%,rgba(25,12,2,.55) 50%,rgba(25,12,2,.15) 75%,rgba(25,12,2,0))!important}
+.story .sshot .sshade2{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(25,12,2,.75),rgba(25,12,2,.25) 55%,rgba(25,12,2,0))}
+.story .sshot .sfold2{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.45),rgba(0,0,0,.1) 40%,rgba(255,248,230,.2) 85%,rgba(255,248,230,.4))}
+.story .sshot.pback>img{visibility:hidden}
+.story .sshot.pback{background:repeating-linear-gradient(0deg,#F3E6C8 0 26px,#E9D9B4 26px 27px),#F3E6C8!important;box-shadow:inset -30px 0 40px rgba(120,80,30,.35)}
+.story .sshot.pback>img{visibility:hidden}
+
 .story .sshot{backface-visibility:hidden}
 .story .sshot .sshade{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(25,12,2,.8),rgba(25,12,2,.3) 55%,rgba(25,12,2,0))}
 .story .sshot .sfold{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.5),rgba(0,0,0,.15) 35%,rgba(255,248,230,.18) 85%,rgba(255,248,230,.35))}
@@ -3302,6 +3310,26 @@ function sceneChange(oldEl,newEl,kind){ const sw=$("sworld"), P="perspective(260
   return done(a).then(()=>{ oldEl.remove(); newEl.style.visibility="";
     return done(newEl.animate([{transform:P+"rotateY(-90deg) scale(.82)"},{transform:P+"rotateY(7deg) scale(1.01)",offset:.72},{transform:P+"rotateY(0deg) scale(1)"}],{duration:700,easing:"cubic-bezier(.2,.65,.35,1)"})); })
     .then(()=>back.remove()); }
+/* a story picture turns like a page of a book: the next scene lies underneath, the page lifts from the right and turns over its
+   left edge, its paper back showing for the second half, with a shadow sweeping off the page below */
+function sceneBook(oldEl,newEl){ const sw=$("sworld"), P="perspective(3600px) ", done=a=>a.finished.catch(()=>{});
+  const im=newEl.querySelector("img"), ready=im&&im.decode?im.decode().catch(()=>{}):Promise.resolve();
+  return Promise.race([ready,sleep(1500)]).then(()=>{   // the next picture is ready before the page turns
+    sw.insertBefore(newEl,oldEl); newEl.classList.add("in","now");
+    const leaf=(src,clip,z)=>{ const c=src.cloneNode(true); c.classList.add("in","now","pgleaf"); c.style.clipPath=clip; c.style.zIndex=z; sw.appendChild(c); return c; };
+    const keepL=leaf(oldEl,"inset(0 50% 0 0)",26);        // the old picture's left page stays until the leaf lands on it
+    const front=leaf(oldEl,"inset(0 0 0 50%)",28);         // the turning leaf: the old right page in front...
+    const back=leaf(newEl,"inset(0 50% 0 0)",28);          // ...and the new left page on its back
+    oldEl.style.visibility="hidden";
+    const sh=document.createElement("i"); sh.className="sshade"; newEl.appendChild(sh);   // the leaf's shadow on the page below
+    SFX.whoosh();
+    // the leaf turns in two halves: the old right page lifts up to edge-on, then the new left page comes down from edge-on
+    back.style.visibility="hidden"; const H1=560, H2=620;
+    sh.animate([{opacity:.75},{opacity:0}],{duration:H1+H2,easing:"ease-in",fill:"forwards"});
+    const a=front.animate([{transform:P+"rotateY(0deg)"},{transform:P+"rotateY(-90deg)"}],{duration:H1,easing:"cubic-bezier(.5,0,.85,.45)",fill:"forwards"});
+    return done(a).then(()=>{ front.remove(); back.style.visibility="";
+      return done(back.animate([{transform:P+"rotateY(90deg)"},{transform:P+"rotateY(4deg)",offset:.85},{transform:P+"rotateY(0deg)"}],{duration:H2,easing:"cubic-bezier(.2,.6,.35,1)",fill:"forwards"})); })
+      .then(()=>{ [keepL,back,sh,oldEl].forEach(e=>e.remove()); }); }); }
 async function storyContext1(){
   // 1. wide shot: the tree pizza shop, animals at the tables, the sign
   P.counter(); P.ambient();
@@ -3323,7 +3351,7 @@ async function storyContext1(){
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(1200));   // a moment on the picture before it changes
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
-  aN.remove(); aB.remove(); await W(sceneChange(open1,open2,"flip"));
+  aN.remove(); aB.remove(); await W(sceneBook(open1,open2));
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   await sLine("chintu","Half a pizza, please!");
@@ -3331,12 +3359,12 @@ async function storyContext1(){
   // ...then the same picture with the pizza cut into one big and one tiny piece
   await W(sleep(1200));   // a moment on the picture before it changes
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
-  await W(sceneChange(open2,cut2,"flip")); open2=cut2;
+  await W(sceneBook(open2,cut2)); open2=cut2;
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Ta-da! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   await W(sleep(1200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
-  aC.remove(); aB2.remove(); await W(sceneChange(open2,open3,"flip"));
+  aC.remove(); aB2.remove(); await W(sceneBook(open2,open3));
   const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(39,30.8,18,37,"noori"), b3=anchor(68.8,24,21,52,"billu");
   Object.assign(STORY.cast,{chintu:c3,noori:n3,billu:b3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
