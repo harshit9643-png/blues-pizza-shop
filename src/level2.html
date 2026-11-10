@@ -3019,6 +3019,10 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
 .tut .duel.dim .tsd.b.pick::before{translate:var(--sw) 0}
 button.stack>span.plus{font-size:clamp(22px,calc(3.4*var(--vh)),30px)!important;font-weight:800!important;line-height:1!important;margin:0!important}
 button.stack{gap:3px!important}
+.tut .tsd{row-gap:clamp(10px,calc(2.4*var(--vh)),24px)!important}   /* a little space between the animal and its plate */
+/* the animal sits in the middle of its circle, clear of the edge */
+.tut .tsd .ava,.match .side .who .ava{align-items:center!important;justify-content:center!important}
+.tut .tsd .ava img,.match .side .who .ava img{width:80%!important;height:80%!important;object-position:50% 50%!important;margin:0!important}
 /* Home: the round wooden frame */
 #home{background:url("assets/ui/round_wood.webp") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;color:#FFF3D6!important;
   filter:drop-shadow(0 4px 5px rgba(50,25,0,.4))}
