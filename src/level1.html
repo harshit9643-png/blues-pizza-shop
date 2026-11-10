@@ -3323,7 +3323,7 @@ async function storyContext1(){
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(1200));   // a moment on the picture before it changes
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
-  aN.remove(); aB.remove(); await W(sceneChange(open1,open2,"turn"));
+  aN.remove(); aB.remove(); await W(sceneChange(open1,open2,"flip"));
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   await sLine("chintu","Half a pizza, please!");
@@ -3331,7 +3331,7 @@ async function storyContext1(){
   // ...then the same picture with the pizza cut into one big and one tiny piece
   await W(sleep(1200));   // a moment on the picture before it changes
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
-  await W(sceneChange(open2,cut2,"slash")); open2=cut2;
+  await W(sceneChange(open2,cut2,"flip")); open2=cut2;
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Ta-da! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   await W(sleep(1200));   // a moment on the picture before it changes
