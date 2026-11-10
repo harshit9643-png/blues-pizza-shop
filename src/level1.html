@@ -1272,7 +1272,7 @@ body.tutoring .trail{display:none!important}
 .story .sspot.on{opacity:1}
 .story .sbub{z-index:30!important}
 /* story pictures: shown whole, a soft blurred copy fills any space around them */
-.story .sshot img:not(.blur){position:absolute;inset:0;object-fit:contain!important}
+.story .sshot img:not(.blur){position:absolute;inset:0;object-fit:cover!important}
 .story .sshot img.blur{position:absolute;inset:0;object-fit:cover;filter:blur(18px) brightness(.8);transform:scale(1.08)}
 .story .sspot{transition:opacity .45s ease,--sr 1.1s cubic-bezier(.3,.7,.3,1)!important}
 .tut .lbillu{display:none!important}   /* no standing Billu in the lessons */
@@ -3085,7 +3085,7 @@ function sTalk(e,text,who){
 /* story pictures always show whole (no cropping on narrow or tall windows); boxes on them are given in % of the picture */
 const SHOT_AR=1672/941;
 function fitBox(l,t,w,h){ const q=$("sworld").getBoundingClientRect(), W=innerWidth, H=innerHeight;   // the picture fits the window
-  let fw=W, fh=H; if(W/H>SHOT_AR) fw=H*SHOT_AR; else fh=W/SHOT_AR;
+  let fw=W, fh=H; if(W/H>SHOT_AR) fh=W/SHOT_AR; else fw=H*SHOT_AR;   // the picture covers the whole window (no blurred sides)
   const x0=(W-fw)/2-q.left, y0=(H-fh)/2-q.top;   // in the story world's own box (it may be wider than the window)
   return [(x0+l/100*fw)/q.width*100, (y0+t/100*fh)/q.height*100, w/100*fw/q.width*100, h/100*fh/q.height*100]; }
 /* pictures and the focus layer cover exactly the window (the story world itself can be wider than it) */
@@ -3686,3 +3686,9 @@ const PRE=(()=>{ const pre=document.getElementById("pre"), start=document.getEle
   ["mainPlay","play"].forEach(id=>{ const b=document.getElementById(id); if(b) b.addEventListener("pointerdown",go,true); });
 })();
 </script>
+<style>
+/* the main screen fills the whole window: the picture covers it (cropped a little at the edges if needed), no blurred sides */
+#start:has(.world.pre){overflow:hidden!important;padding:0!important}
+#start:has(.world.pre) .start-wrap{position:fixed;inset:0;display:grid;place-items:center;overflow:hidden;padding:0!important;max-width:none!important;width:auto!important}
+.world.pre{width:max(calc(100*var(--vw)),calc(100*var(--vh)*1672/941))!important;max-width:none!important;flex:0 0 auto;border:0!important;border-radius:0!important;box-shadow:none!important}
+</style>
