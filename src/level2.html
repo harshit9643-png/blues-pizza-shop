@@ -3047,3 +3047,41 @@ button.stack{gap:3px!important}
   filter:drop-shadow(0 4px 5px rgba(50,25,0,.4))}
 #home svg{filter:drop-shadow(0 1px 0 #5A2E08)}
 </style>
+
+<style>
+/* spotlight from the camera: the screen dims, and a bright round pool of light sits on each character and its number */
+:is(.view.cardsv .side,.tut .duel.dim .tsd.pick,.side.spot)::before{display:none!important}
+.view.cardsv::before{display:none!important}
+.spotlay{position:fixed;inset:calc(-100*var(--vh)) calc(-100*var(--vw));z-index:0;pointer-events:none;opacity:0;transition:opacity .45s ease}
+.spotlay.on{opacity:1}
+.spotlay .dk{position:absolute;inset:0;background:rgba(18,10,4,.62);-webkit-mask-composite:source-in;mask-composite:intersect}
+.spotlay .pool{position:absolute;border-radius:50%;translate:-50% -50%;
+  background:radial-gradient(closest-side,rgba(255,252,236,.42),rgba(255,250,230,.28) 65%,rgba(255,250,230,0));animation:pool 3s ease-in-out infinite}
+.spot-lit{position:relative;z-index:2}
+</style>
+<script>
+/* places the dim layer with a hole and a pool of light over every character the child is choosing between */
+(()=>{ const lay=document.createElement("div"); lay.className="spotlay"; lay.innerHTML='<div class="dk"></div>';
+  const dk=lay.querySelector(".dk"); let pools=[], lit=[];
+  const box=els=>{ let l=1e9,t=1e9,r=-1e9,b=-1e9; els.forEach(e=>{ if(!e) return; const q=e.getBoundingClientRect(); if(!q.width) return;
+    l=Math.min(l,q.left); t=Math.min(t,q.top); r=Math.max(r,q.right); b=Math.max(b,q.bottom); }); return r>l?{x:(l+r)/2,y:(t+b)/2,w:r-l,h:b-t}:null; };
+  function targets(){
+    let s=[...document.querySelectorAll(".view.cardsv.focus .side")]; if(s.length) return s.map(e=>({el:e,parts:[e.querySelector(".ava"),e.querySelector(".eat")]}));
+    s=[...document.querySelectorAll(".tut .duel.dim .tsd.pick")]; if(s.length) return s.map(e=>({el:e,parts:[e.querySelector(".ava"),e.querySelector(".tag"),e.querySelector(".board2")]}));
+    s=[...document.querySelectorAll(".side.spot")]; if(s.length) return s.map(e=>({el:e,parts:[e.querySelector(".ava"),e.querySelector(".eat"),e.querySelector(".plate")]}));
+    return []; }
+  (function loop(){ const T=targets();
+    lit.forEach(e=>{ if(!T.some(t=>t.el===e)) e.classList.remove("spot-lit"); }); lit=T.map(t=>t.el);
+    if(T.length){ const par=T[0].el.parentElement; if(lay.parentElement!==par) par.insertBefore(lay,par.firstChild);
+      const o=lay.getBoundingClientRect(), masks=[];
+      while(pools.length<T.length){ const p=document.createElement("i"); p.className="pool"; lay.appendChild(p); pools.push(p); }
+      pools.forEach((p,i)=>p.style.display=i<T.length?"":"none");
+      T.forEach((t,i)=>{ t.el.classList.add("spot-lit"); const b=box(t.parts.filter(Boolean)); if(!b) return;
+        const rx=b.w*.5*1.32+18, ry=b.h*.5*1.2+18, x=b.x-o.left, y=b.y-o.top;
+        masks.push(`radial-gradient(${rx}px ${ry}px at ${x}px ${y}px,transparent 0,transparent 78%,#000 100%)`);
+        Object.assign(pools[i].style,{left:x+"px",top:y+"px",width:rx*2+"px",height:ry*2+"px"}); });
+      dk.style.webkitMaskImage=dk.style.maskImage=masks.join(","); lay.classList.add("on"); }
+    else lay.classList.remove("on");
+    requestAnimationFrame(loop); })();
+})();
+</script>
