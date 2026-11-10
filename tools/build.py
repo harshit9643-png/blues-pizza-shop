@@ -35,7 +35,7 @@ PAGES = {
 }
 
 # the pages also build file names in code (characters, toppings, pizzas): ship these folders whole
-WHOLE_FOLDERS = ["assets/web", "assets/web/hd", "assets/web/noori_anim", "assets/draft2", "assets/ui"]
+WHOLE_FOLDERS = ["assets/web", "assets/web/hd", "assets/web/noori_anim", "assets/draft2", "assets/ui", "assets/story", "assets/prelbd"]
 ASSET_RE = re.compile(r"assets/[A-Za-z0-9_/\-]+\.(?:webp|svg|png|jpg)")
 
 FAVICON = ("data:image/svg+xml,"
