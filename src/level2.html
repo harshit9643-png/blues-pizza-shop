@@ -1,5 +1,5 @@
 <script>
-/* Fit to any screen: below the size the game is laid out for (1180 x 680), the whole page is drawn at that
+/* Fit to any screen: the whole page is drawn at the size the game is laid out for (1180 x 680, or wider) and scaled to fit (smaller screens shrink it, big screens enlarge it); was: below the size the game is laid out for (1180 x 680), the whole page is drawn at that
    size and shrunk to fit (CSS zoom). Every measurement the game reads (window size, element boxes, pointer
    positions, SVG matrices) is given back in the page's own units, so taps, drags and placements stay exact.
    On a phone held upright, a card asks to turn it sideways. */
@@ -9,11 +9,11 @@
   const iw=g(window,"innerWidth")||g(Window.prototype,"innerWidth"), ih=g(window,"innerHeight")||g(Window.prototype,"innerHeight");
   const realW=()=>iw.get.call(window), realH=()=>ih.get.call(window);
   let Z=1;
-  function fit(){ Z=Math.min(1,realW()/W0,realH()/H0); Z=Math.max(Z,.2); d.style.zoom=Z===1?"":String(Z);
+  function fit(){ Z=Math.min(2.2,realW()/W0,realH()/H0); Z=Math.max(Z,.2); d.style.zoom=Z===1?"":String(Z);
     // viewport units follow the page's own (drawn) size: the CSS uses var(--vw) etc. in place of vw
     const w=realW()/Z/100, h=realH()/Z/100;
     d.style.setProperty("--vw",w+"px"); d.style.setProperty("--vh",h+"px"); d.style.setProperty("--vmin",Math.min(w,h)+"px"); d.style.setProperty("--vmax",Math.max(w,h)+"px");
-    media(); d.classList.toggle("turnme", realW()<realH() && realW()<700); const tm=document.getElementById("turnme"); if(tm) tm.style.zoom=String(1/Z); }
+    media(); d.classList.toggle("turnme", realW()<realH()); const tm=document.getElementById("turnme"); if(tm) tm.style.zoom=String(1/Z); }
   // width/height conditions in @media rules are judged on the page's own size too
   function media(){ for(const sh of document.styleSheets){ let rs; try{ rs=sh.cssRules; }catch(e){ continue; }
     for(const r of rs){ if(!(r instanceof CSSMediaRule)) continue; if(r._o===undefined) r._o=r.media.mediaText;
@@ -2461,7 +2461,7 @@ function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   sBubbleSay(STORY.cast[who],name,text);
   if(STORY.inPicture) $("ssub").classList.add("bub");
   if(STORY.talkOff) STORY.talkOff();
-  sTalk(STORY.cast[who],text,who); $("sNext").classList.remove("wait"); autoClick($("sNext"),text);
+  sTalk(STORY.cast[who],text,who); $("sNext").classList.remove("wait"); autoClick($("sNext"),text,2600);   // the story goes slowly: 2.6 s to look after each line
   return W(new Promise(r=>{ STORY.next=r; })).finally(()=>sSpot(null));
 }
 
@@ -2656,7 +2656,7 @@ async function storyContext2(){
     $("sworld").appendChild(el); SFX.whoosh(); void el.offsetWidth; el.classList.add("in"); return el; };
   const say=async(who,box,text)=>{ const a=anchor(...box); a._key=who; STORY.cast[who]=a; await sLine(who,text); a.remove(); };
   const next=async(prev,src)=>{ const el=document.createElement("div"); el.className="sshot"; el.innerHTML=`<img src="${src}" alt="">`;
-    await W(sceneBook(prev,el)); return el; };   // the picture turns like a page of a book onto the next scene
+    await W(sleep(1500)); await W(sceneBook(prev,el)); return el; };   // the picture turns like a page of a book onto the next scene
   // 1. evening at the kitchen: the "Big Eater Contest!" banner and the golden trophy; the customers cheer
   let sc=shot("assets/story/l2_scene1.webp"); SFX.cheer();
   let keep=[anchor(31,25,36,15),anchor(48,41,10,26)];   // the banner and the trophy stay clear of the bubble
@@ -3099,3 +3099,8 @@ button.stack{gap:3px!important}
   ["mainPlay","play"].forEach(id=>{ const b=document.getElementById(id); if(b) b.addEventListener("pointerdown",go,true); });
 })();
 </script>
+<style>
+/* words sit in the middle of their boxes */
+.story .ssub p,.say,#say,.tut .talk p,#tutLine,.servelayer figcaption,.orderc,.tut .tray .lbl{text-align:center!important}
+.story .ssub p,.tut .talk p{display:block}
+</style>
