@@ -1683,8 +1683,8 @@ function guideMood(cls){ const g=$("guide"); g.classList.remove("cheer","hmm"); 
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 function setDone(kind,enabled,ready){ const b=$("done");
-  b.innerHTML = kind==="next" ? `<img src="assets/web/btn_next.webp" alt="Next">` : `<img src="assets/web/btn_check.webp" alt="Check">`;   // wooden signs like PLAY
-  b.classList.add("woodbtn"); b.setAttribute("aria-label",kind==="next"?"Next":"Check");
+  b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `CHECK ${CHECK}`;
+  b.classList.toggle("pk-orange",kind==="next"); b.classList.toggle("pk-green",kind!=="next");   // plank set: green checks, orange carries on
   b.disabled=false; b._en=!!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;   // always active-looking
   if(kind==="next"&&enabled) autoClick(b,S.sayPlain,1000); }
 function setCount(){ const o=cur(), c=$("count");
@@ -3469,3 +3469,36 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
     else if(PAUSE.away){ PAUSE.away=false; setPause(false); } });
 })();
 </script>
+
+<style>
+/* Buttons in the supplied plank set (assets/ui): green = check / skip, orange = carry on, parchment = a quieter choice,
+   grey = not yet; each has a brighter twin for the pointer. The planks stretch in the middle, the riveted ends keep their shape. */
+:is(.pk-green,.pk-orange,.pk-parch,.pk-grey,#sSkip,#tutSkip,#tutServe,#t2check,#goNext,#goL2,#again,#toL1){
+  background:none!important;box-shadow:none!important;border-radius:0!important;outline-offset:3px;
+  border-style:solid!important;border-color:transparent!important;border-width:12px 22px!important;
+  border-image-slice:28 52 28 52 fill!important;border-image-width:12px 22px!important;border-image-repeat:stretch!important;
+  padding:3px 8px!important;min-height:0!important;font-family:var(--display)!important;font-weight:800!important;letter-spacing:.05em!important;
+  filter:drop-shadow(0 5px 6px rgba(50,25,0,.35));transition:transform .16s ease,filter .16s ease!important;cursor:pointer}
+:is(.pk-green,.pk-orange,.pk-parch,.pk-grey,#sSkip,#tutSkip,#tutServe,#t2check,#goNext,#goL2,#again,#toL1):hover{transform:translateY(-2px);filter:drop-shadow(0 8px 8px rgba(50,25,0,.4))}
+:is(.pk-green,.pk-orange,.pk-parch,.pk-grey,#sSkip,#tutSkip,#tutServe,#t2check,#goNext,#goL2,#again,#toL1):active{transform:translateY(2px) scale(.98)}
+#done:is(.pk-green,.pk-orange,.pk-grey){translate:-50% 0}
+:is(.pk-green,#sSkip,#tutSkip,#t2check){border-image-source:url("assets/ui/plank_green.webp")!important;color:#FFFCEB!important;
+  text-shadow:-1px -1px 0 #2E4A0C,1px -1px 0 #2E4A0C,-1px 1px 0 #2E4A0C,1px 1px 0 #2E4A0C,0 3px 0 #2E4A0C!important}
+:is(.pk-green,#sSkip,#tutSkip,#t2check):hover{border-image-source:url("assets/ui/plank_green_hi.webp")!important;border-image-slice:32 52 32 52 fill!important}
+:is(.pk-orange,#tutServe,#goNext,#goL2){border-image-source:url("assets/ui/plank_orange.webp")!important;color:#FFF8E6!important;
+  text-shadow:-1px -1px 0 #6A3304,1px -1px 0 #6A3304,-1px 1px 0 #6A3304,1px 1px 0 #6A3304,0 3px 0 #6A3304!important}
+:is(.pk-orange,#tutServe,#goNext,#goL2):hover{border-image-source:url("assets/ui/plank_orange_hi.webp")!important;border-image-slice:32 52 32 52 fill!important}
+:is(.pk-parch,#again,#toL1){border-image-source:url("assets/ui/plank_parch.webp")!important;color:#5A3210!important;text-shadow:0 1px 0 rgba(255,250,235,.7)!important}
+:is(.pk-parch,#again,#toL1):hover{border-image-source:url("assets/ui/plank_parch_hi.webp")!important;border-image-slice:32 52 32 52 fill!important}
+.pk-grey{border-image-source:url("assets/ui/plank_grey.webp")!important;color:#F3EFE8!important;text-shadow:0 2px 0 #4A4036!important;cursor:default}
+:is(.pk-green,.pk-orange).ready{animation:pkReady 1.3s ease-in-out infinite!important}
+@keyframes pkReady{50%{transform:scale(1.07);filter:drop-shadow(0 0 12px rgba(255,214,90,.95)) brightness(1.06)}}
+#sSkip,#tutSkip{font-size:15px!important;color:#FFFCEB!important}
+/* Level 2: the slice stacks sit on the square parchment */
+.stack{background:none!important;box-shadow:none!important;border-style:solid!important;border-color:transparent!important;border-width:14px!important;
+  border-image:url("assets/ui/tile_parch.webp") 34 fill / 14px stretch!important;border-radius:0!important}
+/* Home: the round wooden frame */
+#home{background:url("assets/ui/round_wood.webp") center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;color:#FFF3D6!important;
+  filter:drop-shadow(0 4px 5px rgba(50,25,0,.4))}
+#home svg{filter:drop-shadow(0 1px 0 #5A2E08)}
+</style>
