@@ -3010,7 +3010,7 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
 /* the slice stack is a small square tile: "+" and the slice side by side */
 .stack,.tut .tsd .stack{flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:2px!important;
   aspect-ratio:1/1;width:clamp(84px,calc(13*var(--vh)),120px)!important;height:auto!important;padding:0!important;box-sizing:border-box}
-.stack,.tut .tsd .stack{border-width:7px!important;border-image-width:12px!important}
+.stack,.tut .tsd .stack{border:0!important;border-image:none!important;background:url("assets/ui/tile_parch.webp") center/100% 100% no-repeat!important;padding:8px!important}   /* one whole tile: no seams
 .stack svg,.tut .tsd .stack svg{width:64%!important;height:auto!important;flex:0 0 auto!important;min-width:0}
 .stack .plus,.tut .tsd .stack .plus{font-size:clamp(18px,calc(2.6*var(--vh)),26px)!important;flex:0 0 auto}
 /* Home: the round wooden frame */
