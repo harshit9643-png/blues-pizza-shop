@@ -3677,3 +3677,12 @@ const PRE=(()=>{ const pre=document.getElementById("pre"), start=document.getEle
   return {go,intro};
 })();
 </script>
+<script>
+/* full screen: the game asks the browser for full screen on the first tap of each page, and again on every PLAY
+   (browsers allow it only from a tap; Esc leaves it, and the game then does not force it back until PLAY) */
+(()=>{ const d=document.documentElement, go=()=>{ if(document.fullscreenElement||document.webkitFullscreenElement) return;
+    try{ const r=(d.requestFullscreen||d.webkitRequestFullscreen).call(d,{navigationUI:"hide"}); if(r&&r.catch) r.catch(()=>{}); }catch(e){} };
+  addEventListener("pointerdown",go,{once:true,capture:true});
+  ["mainPlay","play"].forEach(id=>{ const b=document.getElementById(id); if(b) b.addEventListener("pointerdown",go,true); });
+})();
+</script>
