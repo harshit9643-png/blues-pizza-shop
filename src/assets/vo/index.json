@@ -5,6 +5,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"044b9fda": {
+"file": "044b9fda-0591d5.mp3",
+"text": "Mouse: “Squeak! Good match!”",
+"voice": "en-US-AnaNeural",
+"who": "mouse"
+},
 "06978517": {
 "file": "06978517-ed538c.mp3",
 "text": "So many customers! Can you help us prepare the orders?",
@@ -76,6 +82,12 @@
 "text": "Monty: “3/4 with tomato! My favourite!” ⭐",
 "voice": "en-US-AnaNeural",
 "who": "monty"
+},
+"130c461a": {
+"file": "130c461a-15c91f.mp3",
+"text": "Jhumru: “Well eaten, hippo!”",
+"voice": "en-US-AnaNeural",
+"who": "jhumru"
 },
 "1327c029": {
 "file": "1327c029-2a8764.mp3",
@@ -220,6 +232,12 @@
 "text": "Cover 2/7 of the pizza with the topping.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"31961213": {
+"file": "31961213-3fdc3a.mp3",
+"text": "Hippo: “Hip hip hooray!”",
+"voice": "en-US-RogerNeural",
+"who": "hippo"
 },
 "32c84dfa": {
 "file": "32c84dfa-18091e.mp3",
@@ -491,6 +509,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"76151d26": {
+"file": "76151d26-3da367.mp3",
+"text": "Squirrel: “Quick, quick, I win!”",
+"voice": "en-US-AnaNeural",
+"who": "squirrel"
+},
 "764ae4e7": {
 "file": "764ae4e7-5c3f09.mp3",
 "text": "Yes! Same denominator, and 6 is more than 4.",
@@ -598,6 +622,12 @@
 "text": "Half a pizza, please!",
 "voice": "en-US-AnaNeural",
 "who": "chintu"
+},
+"882c27d5": {
+"file": "882c27d5-e69459.mp3",
+"text": "Bijli: “Hisss-tory made!”",
+"voice": "en-US-AnaNeural",
+"who": "bijli"
 },
 "8b2579ac": {
 "file": "8b2579ac-132ee7.mp3",
@@ -773,6 +803,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"b0130151": {
+"file": "b0130151-3bc493.mp3",
+"text": "Badal: “Next time!”",
+"voice": "en-US-AnaNeural",
+"who": "badal"
+},
 "b140d99b": {
 "file": "b140d99b-393bf3.mp3",
 "text": "The ant is our Big Eater Champion! Monty (from the crowd): “Beaten by an ant… again!”",
@@ -839,6 +875,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"c3403896": {
+"file": "c3403896-d9e02d.mp3",
+"text": "Bijli: “Sssorry, twin!”",
+"voice": "en-US-AnaNeural",
+"who": "bijli"
+},
 "c44de2f0": {
 "file": "c44de2f0-8772f9.mp3",
 "text": "Oops! Is that how much Monty wants? Try again.",
@@ -896,6 +938,12 @@
 "cf59a6a7": {
 "file": "cf59a6a7-ab0f78.mp3",
 "text": "Peacock: “5/6! Simply magnificent!” ⭐",
+"voice": "en-US-AnaNeural",
+"who": "peacock"
+},
+"d0d2978a": {
+"file": "d0d2978a-03de96.mp3",
+"text": "Peacock: “Hmph! Well done.”",
 "voice": "en-US-AnaNeural",
 "who": "peacock"
 },
@@ -976,6 +1024,12 @@
 "text": "Oops! Is that how much Mouse wants? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"e10fc150": {
+"file": "e10fc150-c66e72.mp3",
+"text": "Monty (from the crowd): “Beaten by an ant… again!”",
+"voice": "en-US-AnaNeural",
+"who": "monty"
 },
 "e2b42558": {
 "file": "e2b42558-cc4701.mp3",
@@ -1066,6 +1120,12 @@
 "text": "The pizza is cut into 7 equal slices.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"f4cc0915": {
+"file": "f4cc0915-94024d.mp3",
+"text": "Badal: “My turn to win!”",
+"voice": "en-US-AnaNeural",
+"who": "badal"
 },
 "f588908d": {
 "file": "f588908d-7be077.mp3",

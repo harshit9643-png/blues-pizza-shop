@@ -66,7 +66,7 @@ def key(who, text):
 def spoken(text):
     """What the voice reads: fractions as "3 by 4" (as the sheet asks), no name tag before a quote, no emoji."""
     t = norm(text)
-    t = re.sub(r"^\s*[A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?:\s*(?=[“\"])", "", t)
+    t = re.sub(r"^\s*[A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?(?:\s*\([^)]*\))?:\s*(?=[“\"])", "", t)
     t = re.sub(r"(\d+)\s*/\s*(\d+)", r"\1 by \2", t)
     t = t.replace("…", ", ").replace("⭐", "").replace("▸", "").replace("✓", "")
     t = re.sub(r"[“”\"]", "", t)

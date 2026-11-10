@@ -1701,7 +1701,7 @@ const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0; const el=new Au
   el.addEventListener("ended",end); el.addEventListener("error",end);
   function stop(){ onEnd=null; el._held=false; try{ el.pause(); }catch(e){} }
   // a customer's line ("Monty: “…”") is said in that customer's voice
-  function who(text,w){ const m=/^\s*([A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?):\s*[“"]/.exec(norm(text)); return m?m[1].toLowerCase():(w||"noori"); }
+  function who(text,w){ const m=/^\s*([A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?)(?:\s*\([^)]*\))?:\s*[“"]/.exec(norm(text)); return m?m[1].toLowerCase():(w||"noori"); }
   // plays the clip for this line; false when there is none (then the caller uses the browser voice)
   function play(w,text,done){ const k=key(w,text); if(window.__vo) window.__vo(w,norm(text),k);
     if(!have||!have.has(k)) return false;
@@ -1715,7 +1715,15 @@ const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0; const el=new Au
     pause(){ if(!el.paused&&!el.ended){ el.pause(); el._held=true; } },
     resume(){ if(el._held){ el._held=false; el.play().catch(()=>{}); } } };
 })();
-function speak(text,who){ if(VOICE.play(VOICE.who(text,who||(text===S.sayPlain&&S.saySpk)||"noori"),text)) return; if(!window.speechSynthesis) return;
+function speak(text,who){
+  // a message that strings together several speakers ("Bijli: “…”  Badal: “…”  Noori's line") is said piece by piece, each in its own voice
+  const parts=String(text||"").split(/\s{2,}/).map(t=>t.trim()).filter(Boolean);
+  if(parts.length>1){ const w0=who||(text===S.sayPlain&&S.saySpk)||"noori", tok=(speak._t=(speak._t||0)+1);
+    const next=i=>{ if(i>=parts.length||speak._t!==tok) return; const t=parts[i];
+      const nx=()=>setTimeout(()=>next(i+1),250);
+      if(!VOICE.play(VOICE.who(t,w0),t,nx)&&!VOICE.play(VOICE.who(t,"noori"),t,nx)){ try{ const u=new SpeechSynthesisUtterance(t.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; u.onend=()=>next(i+1); speechSynthesis.speak(u); }catch(e){} } };
+    try{ speechSynthesis.cancel(); }catch(e){} next(0); return; }
+  if(VOICE.play(VOICE.who(text,who||(text===S.sayPlain&&S.saySpk)||"noori"),text)) return; if(!window.speechSynthesis) return;
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; speechSynthesis.speak(u); }catch(e){} }
 
 /* ============================================================
