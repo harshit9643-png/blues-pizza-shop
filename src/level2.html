@@ -1628,9 +1628,8 @@ function plateOverlay(count,d,popLast){
 /* a stack of three loose 1/d slices for the "add a slice" button */
 function stackIcon(d){
   const r=46, th=2*Math.PI/d, a0=-Math.PI/2-th/2, a1=-Math.PI/2+th/2, hw=r*Math.sin(Math.min(th/2,Math.PI/2));
-  let g="";
-  for(let k=2;k>=0;k--) g+=`<g transform="translate(0 ${k*7})" opacity="${1-k*.18}">${wedge(0,0,r,a0,a1)}</g>`;
-  return `<svg viewBox="${-Math.max(hw,22)-4} ${-r-6} ${2*Math.max(hw,22)+8} ${r+26}" aria-hidden="true">${g}</svg>`;
+  const g=`<g>${wedge(0,0,r,a0,a1)}</g>`;   // a single slice
+  return `<svg viewBox="${-Math.max(hw,22)-4} ${-r-6} ${2*Math.max(hw,22)+8} ${r+12}" aria-hidden="true">${g}</svg>`;
 }
 /* Set C diagrams in the round's pizza shape: eaten parts painted, the rest a faint outline */
 const GRID={4:[2,2],5:[1,5],6:[2,3],10:[2,5]};
@@ -3058,6 +3057,7 @@ button.stack{gap:3px!important}
 .spotlay .pool{position:absolute;border-radius:50%;translate:-50% -50%;
   background:radial-gradient(closest-side,rgba(255,252,236,.42),rgba(255,250,230,.28) 65%,rgba(255,250,230,0));animation:pool 3s ease-in-out infinite}
 .spot-lit{position:relative;z-index:2}
+.view.cardsv .side .diag{display:none!important}   /* Set C is fractions only: no pizza pictures under the cards */
 </style>
 <script>
 /* places the dim layer with a hole and a pool of light over every character the child is choosing between */
