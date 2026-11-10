@@ -1733,7 +1733,7 @@ function sayRule(k){
 }
 function guideMood(c){ const g=$("guide"); g.classList.remove("cheer","hmm"); void g.offsetWidth; g.classList.add(c); }
 function button(label,enabled,ready,fn){ const b=$("done");
-  b.innerHTML = label==="next" ? `NEXT ${ARROW}` : label==="check" ? `CHECK PLATES ${CHECK}` : label==="order" ? `CHECK ORDER ${CHECK}` : label;
+  b.innerHTML = label==="next" ? `NEXT ${ARROW}` : label==="check" ? `CHECK PLATES` : label==="order" ? `CHECK ORDER` : label;
   const act=/^(next|check|order)$/.test(label); b.disabled=act?false:!enabled; b.style.visibility=(!act&&!enabled)?"hidden":"";   /* an instruction-only bar ("Tap who ate more") is not shown: the dialogue box says it */ b._en=!!enabled; b.classList.toggle("ready",!!ready); onDone=fn||null; b._auto=(b._auto||0)+1;   // DONE-type buttons always look active
   b.classList.toggle("pk-orange",label==="next"); b.classList.toggle("pk-green",label==="check"||label==="order"); b.classList.toggle("pk-grey",!act);   // plank set
   if(label==="next"&&enabled) autoClick(b,S.sayPlain,1000); }
@@ -2732,7 +2732,7 @@ function t2Build(){
             <div class="tmid">
               ${ruleCard("d").replace(/ id="rule-\w+"/,' id="t2rule"')}
               <div class="ask2" id="t2ask">Who ate more?</div>
-              <button class="check2" id="t2check">CHECK PLATES ${CHECK}</button>
+              <button class="check2" id="t2check">CHECK PLATES</button>
             </div>
             ${t2Side("b")}
           </div>
@@ -2954,7 +2954,7 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
 :is(.pk-green,.pk-orange,.pk-parch,.pk-grey,#sSkip,#tutSkip,#tutServe,#t2check,#goNext,#goL2,#again,#toL1):active{transform:translateY(2px) scale(.98)}
 #done:is(.pk-green,.pk-orange,.pk-grey){translate:-50% 0}
 :is(.pk-green,#sSkip,#tutSkip,#t2check){border-image-source:url("assets/ui/plank_green.webp")!important;color:#FFFCEB!important;
-  text-shadow:-1px -1px 0 #2E4A0C,1px -1px 0 #2E4A0C,-1px 1px 0 #2E4A0C,1px 1px 0 #2E4A0C,0 3px 0 #2E4A0C!important}
+  text-shadow:0 2px 3px rgba(30,50,8,.45)!important;justify-content:center!important;text-align:center!important}
 :is(.pk-green,#sSkip,#tutSkip,#t2check):hover{border-image-source:url("assets/ui/plank_green_hi.webp")!important;border-image-slice:32 52 32 52 fill!important}
 :is(.pk-orange,#tutServe,#goNext,#goL2){border-image-source:url("assets/ui/plank_orange.webp")!important;color:#FFF8E6!important;
   text-shadow:-1px -1px 0 #6A3304,1px -1px 0 #6A3304,-1px 1px 0 #6A3304,1px 1px 0 #6A3304,0 3px 0 #6A3304!important}

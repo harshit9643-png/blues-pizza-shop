@@ -1688,7 +1688,7 @@ function guideMood(cls){ const g=$("guide"); g.classList.remove("cheer","hmm"); 
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 function setDone(kind,enabled,ready){ const b=$("done");
-  b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `CHECK ${CHECK}`;
+  b.innerHTML = kind==="next" ? `NEXT ${ARROW}` : `CHECK`;
   b.classList.toggle("pk-orange",kind==="next"); b.classList.toggle("pk-green",kind!=="next");   // plank set: green checks, orange carries on
   b.disabled=false; b._en=!!enabled; b.classList.toggle("ready",!!ready); b._auto=(b._auto||0)+1;   // always active-looking
   if(kind==="next"&&enabled) autoClick(b,S.sayPlain,1000); }
@@ -3308,7 +3308,7 @@ async function storyContext1(){
   P.menuBoard();   // the shop's SLICES! board stands beside the stall the whole time
   
   // 1-4. the shop picture (sheet: Context_Final): Noori by the oven, Billu behind the counter
-  const open1=document.createElement("div"); open1.className="sshot"; open1.innerHTML=`<img src="assets/story/scene1_billu0.webp" alt="">`;
+  const open1=document.createElement("div"); open1.className="sshot"; open1.innerHTML=`<img src="${S1.src()}" alt="">`; S1.el=open1.querySelector("img");
   $("sworld").appendChild(open1); void open1.offsetWidth; open1.classList.add("in");
   const aN=anchor(41.9,45.2,6.5,16.5,"noori"), aB=anchor(53.5,33.5,11.5,25.5,"billu");
   STORY.cast.noori=aN; STORY.cast.billu=aB;
@@ -3317,9 +3317,8 @@ async function storyContext1(){
   await sLine("narr","Here, you need not order a whole pizza. You can order as many pizza slices as you want to eat!"); board.remove();
   await sLine("noori","I am here to help Billu!");
   { // Billu waves once while he says it (the supplied waving sheet), then folds his arms again
-    const im=open1.querySelector("img:not(.blur)"), WV=["assets/story/scene1_wave0.webp","assets/story/scene1_wave1.webp","assets/story/scene1_wave2.webp","assets/story/scene1_wave3.webp"];
-    let done=false; const wave=(async()=>{ for(const k of [0,1,2,1,2,1,3]){ if(done) break; im.src=WV[k]; await sleep(220); } })();
-    await sLine("billu","I’m ready to cook!"); done=true; await wave; im.src="assets/story/scene1_billu0.webp"; }
+    let done=false; const wave=(async()=>{ for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
+    await sLine("billu","I’m ready to cook!"); done=true; await wave; S1.set("billu0"); }
   await sLine("noori","See, Chintu is here for the first order.");
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(1200));   // a moment on the picture before it changes
@@ -3390,11 +3389,16 @@ if(location.hash==="#story") startLevel("1.1",true);
 (()=>{ const N=["assets/prelbd/prelbd_noori0.webp","assets/prelbd/prelbd_noori1.webp","assets/prelbd/prelbd_noori2.webp"]; N.forEach(s=>{ new Image().src=s; });
   setInterval(()=>{ const im=document.querySelector("#pre .pbg"); if(!im||$("start").hidden) return;
     [1,2,1,0].forEach((k,i)=>setTimeout(()=>{ im.src=N[k]; },i*80)); },3000); })();
-/* Billu blinks every 3 seconds in the shop picture, from the supplied sheet: open, half, shut, half, open */
-(()=>{ const B=["assets/story/scene1_billu0.webp","assets/story/scene1_billu1.webp","assets/story/scene1_billu2.webp"];
-  B.concat(["assets/story/scene1_wave0.webp","assets/story/scene1_wave1.webp","assets/story/scene1_wave2.webp","assets/story/scene1_wave3.webp"]).forEach(s=>{ new Image().src=s; });
-  const show=src=>document.querySelectorAll("img:not(.blur)").forEach(im=>{ if(/scene1_billu\d\.webp/.test(im.getAttribute("src")||"")) im.src=src; });
-  setInterval(()=>{ [1,2,1,0].forEach((k,i)=>setTimeout(()=>show(B[k]),i*80)); },3000); })();
+/* Story scene 1 picture: Billu (arms folded or waving) and Noori each blink every 3 seconds, from the supplied sheets.
+   One picture per pairing: scene1_n<Noori eyes>_<Billu frame>.webp */
+const S1=(()=>{ let b="billu0", n=0, el=null; const P=()=>`assets/story/scene1_n${n}_${b}.webp`;
+  for(const nn of [0,1,2]) for(const bb of ["billu0","billu1","billu2","wave0","wave1","wave2","wave3"]) new Image().src=`assets/story/scene1_n${nn}_${bb}.webp`;
+  const draw=()=>{ if(el&&el.isConnected) el.src=P(); };
+  const blink=f=>[1,2,1,0].forEach((k,i)=>setTimeout(()=>f(k),i*80));
+  setInterval(()=>{ if(!el||!el.isConnected||PAUSE.on) return; blink(k=>{ if(/^billu/.test(b)){ b="billu"+k; draw(); } }); },3000);
+  setTimeout(()=>setInterval(()=>{ if(!el||!el.isConnected||PAUSE.on) return; blink(k=>{ n=k; draw(); }); },3000),1400);   // Noori blinks between Billu's blinks
+  return {src:P, set(x){ b=x; draw(); }, set el(e){ el=e; b="billu0"; n=0; }, get el(){ return el; }};
+})();
 </script>
 <script>
 /* QA panel: built from the jump menu's groups; picking a chip makes the same jump the dropdown did */
@@ -3492,7 +3496,7 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
 :is(.pk-green,.pk-orange,.pk-parch,.pk-grey,#sSkip,#tutSkip,#tutServe,#t2check,#goNext,#goL2,#again,#toL1):active{transform:translateY(2px) scale(.98)}
 #done:is(.pk-green,.pk-orange,.pk-grey){translate:-50% 0}
 :is(.pk-green,#sSkip,#tutSkip,#t2check){border-image-source:url("assets/ui/plank_green.webp")!important;color:#FFFCEB!important;
-  text-shadow:-1px -1px 0 #2E4A0C,1px -1px 0 #2E4A0C,-1px 1px 0 #2E4A0C,1px 1px 0 #2E4A0C,0 3px 0 #2E4A0C!important}
+  text-shadow:0 2px 3px rgba(30,50,8,.45)!important;justify-content:center!important;text-align:center!important}
 :is(.pk-green,#sSkip,#tutSkip,#t2check):hover{border-image-source:url("assets/ui/plank_green_hi.webp")!important;border-image-slice:32 52 32 52 fill!important}
 :is(.pk-orange,#tutServe,#goNext,#goL2){border-image-source:url("assets/ui/plank_orange.webp")!important;color:#FFF8E6!important;
   text-shadow:-1px -1px 0 #6A3304,1px -1px 0 #6A3304,-1px 1px 0 #6A3304,1px 1px 0 #6A3304,0 3px 0 #6A3304!important}
