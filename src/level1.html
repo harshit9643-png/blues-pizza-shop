@@ -3391,8 +3391,8 @@ if(location.hash==="#story") startLevel("1.1",true);
     [1,2,1,0].forEach((k,i)=>setTimeout(()=>{ im.src=N[k]; },i*80)); },3000); })();
 /* Story scene 1 picture: Billu (arms folded or waving) and Noori each blink every 3 seconds, from the supplied sheets.
    One picture per pairing: scene1_n<Noori eyes>_<Billu frame>.webp */
-const S1=(()=>{ let b="billu0", n=0, el=null; const P=()=>`assets/story/scene1_n${n}_${b}.webp`;
-  for(const nn of [0,1,2]) for(const bb of ["billu0","billu1","billu2","wave0","wave1","wave2","wave3"]) new Image().src=`assets/story/scene1_n${nn}_${bb}.webp`;
+const S1=(()=>{ let b="billu0", n=0, el=null; const P=()=>`assets/story/scene1_n${n}_${b}.webp?v=__BUILD__`;   // the build stamps __BUILD__, so a browser never keeps an old copy
+  for(const nn of [0,1,2]) for(const bb of ["billu0","billu1","billu2","wave0","wave1","wave2","wave3"]) new Image().src=`assets/story/scene1_n${nn}_${bb}.webp?v=__BUILD__`;
   const draw=()=>{ if(el&&el.isConnected) el.src=P(); };
   const blink=f=>[1,2,1,0].forEach((k,i)=>setTimeout(()=>f(k),i*80));
   setInterval(()=>{ if(!el||!el.isConnected||PAUSE.on) return; blink(k=>{ if(/^billu/.test(b)){ b="billu"+k; draw(); } }); },3000);

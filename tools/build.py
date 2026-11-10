@@ -105,7 +105,10 @@ def versioned(body):
             return m.group(0)
         with open(path, "rb") as fh:
             return m.group(0) + "?v=" + hashlib.sha1(fh.read()).hexdigest()[:8]
-    return ASSET_RE.sub(tag, body)
+    body = ASSET_RE.sub(tag, body)
+    # pictures whose names are put together in code carry the build's stamp instead
+    stamp = hashlib.sha1(body.encode("utf-8")).hexdigest()[:8]
+    return body.replace("__BUILD__", stamp)
 
 
 def main():
