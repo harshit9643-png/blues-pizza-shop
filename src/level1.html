@@ -1411,23 +1411,15 @@ const NAMES = {tez:"Tez",monty:"Monty",ant:"Ant",squirrel:"Squirrel",bijli:"Bijl
   peacock:"Peacock",jhumru:"Jhumru",frog:"Frog",gorilla:"Gorilla",mouse:"Mouse",croc:"Crocodile",rabbit:"Rabbit",
   bear:"Bear",sloth:"Sloth",hippo:"Hippo"};
 const LEVELS = {
-  "1.1": { title:"Top and serve", cut:false, end:["8 orders served!","You're a topping star!"], orders:[
+  "1.1": { title:"Top and serve", cut:false, end:["4 orders served!","You're a topping star!"], orders:[
     {cust:"tez",      n:2,  d:7,  shape:"round",  line:"Take your time… 2/7 of a pizza, please.",       ok:"2 of 7 slices. Slow and tasty!"},
     {cust:"monty",    n:3,  d:4,  shape:"square", line:"3/4 of a pizza, please!",                       ok:"3/4 with {t}! My favourite!"},
-    {cust:"ant",      n:1,  d:8,  shape:"round",  line:"Hello up there! 1/8 of a pizza, please!",       ok:"1/8, exactly what I ordered!"},
     {cust:"squirrel", n:2,  d:5,  shape:"rect",   line:"Quick, quick! 2/5 of a pizza, please!",         ok:"2/5! The {t} smells so good!"},
-    {cust:"bijli", duo:"badal", name:"Bijli and Badal", who:"the twins", n:5, d:9, shape:"round",
-                                        line:"Hisss-ello! We're sharing. 5/9 of a pizza, please!",          ok:"5/9 with {t}! Thank you, Chef!"},
-    {cust:"madhu",    n:1,  d:12, shape:"square", line:"Buzz buzz! 1/12 of a pizza, please!",           ok:"1/12. Buzz-tastic!"},
-    {cust:"peacock",  n:5,  d:6,  shape:"square", line:"Make way, make way! 5/6 of a pizza, please!",   ok:"5/6! Simply magnificent!"},
     {cust:"jhumru",   n:9,  d:10, shape:"rect",   line:"Last but not least! 9/10 of a pizza, please!",  ok:"9 of 10 pieces, and {t} too! Delicious!"} ]},
-  "1.2": { title:"Cut, top and serve", cut:true, end:["8 more orders, all perfect!","You're a master chef!"], orders:[
+  "1.2": { title:"Cut, top and serve", cut:true, end:["5 more orders, all perfect!","You're a master chef!"], orders:[
     {cust:"frog",    n:1,  d:4,  shape:"square", moulds:[2,4,6],  line:"Ribbit! 1/4 of a pizza, please!",                ok:"1/4 with {t}! Ribbit-licious!"},
     {cust:"gorilla", n:4,  d:5,  shape:"rect",   moulds:[4,5,6],  line:"Hungry gorilla here! 4/5 of a pizza, please!",   ok:"4 of 5 strips. Thank you, Chef!"},
     {cust:"mouse",   n:1,  d:6,  shape:"round",  moulds:[4,6,8],  line:"Squeak! 1/6 of a pizza, please!",                ok:"1/6, exactly what I ordered!"},
-    {cust:"croc",    n:6,  d:7,  shape:"round",  moulds:[6,7,8],  line:"Snap snap! 6/7 of a pizza, please!",             ok:"6/7 with {t}! Snap-tastic!"},
-    {cust:"rabbit",  n:3,  d:8,  shape:"round",  moulds:[3,6,8],  line:"Hop hop! 3/8 of a pizza, please!",               ok:"3 of 8 slices. Yummy!"},
-    {cust:"bear",    n:7,  d:9,  shape:"square", moulds:[6,9,12], line:"Grrr-eat! 7/9 of a pizza, please!",              ok:"7/9 with {t}! My favourite!"},
     {cust:"sloth",   n:3,  d:10, shape:"rect",   moulds:[3,5,10], line:"Three… tenths… please…",                         ok:"Three… of… ten… Perfect…"},
     {cust:"hippo",   n:11, d:12, shape:"square", moulds:[6,9,12], line:"Last order of the day! 11/12 of a pizza, please!", ok:"11 of 12 pieces, and {t} too! Delicious!"} ]}
 };

@@ -263,6 +263,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"38388bf1": {
+"file": "38388bf1-5a1734.mp3",
+"text": "5 more orders, all perfect! You're a master chef!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "39dbeed5": {
 "file": "39dbeed5-2f9dce.mp3",
 "text": "This is one whole.",
@@ -616,6 +622,12 @@
 "text": "Gorilla: “4 of 5 strips. Thank you, Chef!” ⭐",
 "voice": "en-US-GuyNeural",
 "who": "gorilla"
+},
+"85be2f5b": {
+"file": "85be2f5b-5736fe.mp3",
+"text": "4 orders served! You're a topping star!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "86416367": {
 "file": "86416367-0b82d7.mp3",
