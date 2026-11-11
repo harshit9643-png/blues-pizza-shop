@@ -1405,7 +1405,7 @@ body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:op
     <!-- PRE-LBD title screen: camera zoom-in intro, idle loop, and a pizza-on-a-plate PLAY button that zooms the camera in on tap -->
     <div class="world pre" id="pre" aria-label="Billu’s Pizza Kitchen">
       <div class="pcam" id="pcam">
-        <img class="pbg" src="assets/prelbd/prelbd_noori0.webp" alt="">
+        <img class="pbg" src="assets/prelbd/prelbd_n0_b0.webp" alt="">
         <div class="pfire"></div>
         <div class="pshine" aria-hidden="true"></div>
         <div class="pmotes" id="pmotes" aria-hidden="true"></div>
@@ -3490,10 +3490,16 @@ if(location.hash==="#story") startLevel("1.1",true);
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
     document.querySelectorAll("img").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 
-/* Noori blinks every 3 seconds on the main screen, from the supplied sheet: open, half, shut, half, open */
-(()=>{ const N=["assets/prelbd/prelbd_noori0.webp","assets/prelbd/prelbd_noori1.webp","assets/prelbd/prelbd_noori2.webp"]; N.forEach(s=>{ new Image().src=s; });
-  setInterval(()=>{ const im=document.querySelector("#pre .pbg"); if(!im||$("start").hidden) return;
-    [1,2,1,0].forEach((k,i)=>setTimeout(()=>{ im.src=N[k]; },i*80)); },3000); })();
+/* Noori and Billu blink every 3 seconds on the main screen (open, half, shut, half, open), Billu between Noori's blinks;
+   one picture per pairing: prelbd_n<Noori eyes>_b<Billu eyes>.webp */
+(()=>{ let n=0, bl=0; const P=()=>`assets/prelbd/prelbd_n${n}_b${bl}.webp?v=__BUILD__`;
+  for(const a of [0,1,2]) for(const c of [0,1,2]) new Image().src=`assets/prelbd/prelbd_n${a}_b${c}.webp?v=__BUILD__`;
+  const draw=()=>{ const im=document.querySelector("#pre .pbg"); if(im) im.src=P(); };
+  const blink=f=>[1,2,1,0].forEach((k,i)=>setTimeout(()=>{ f(k); draw(); },i*80));
+  const on=()=>!$("start").hidden&&!document.hidden;
+  setInterval(()=>{ if(on()) blink(k=>n=k); },3000);
+  setTimeout(()=>setInterval(()=>{ if(on()) blink(k=>bl=k); },3000),1500);
+  draw(); })();
 /* Story scene 1 picture: Billu (arms folded or waving) and Noori each blink every 3 seconds, from the supplied sheets.
    One picture per pairing: scene1_n<Noori eyes>_<Billu frame>.webp */
 const S1=(()=>{ let b="billu0", n=0, el=null; const P=()=>`assets/story/scene1_n${n}_${b}.webp?v=__BUILD__`;   // the build stamps __BUILD__, so a browser never keeps an old copy
