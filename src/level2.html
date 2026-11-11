@@ -1591,7 +1591,6 @@ const STEPS=[
     yes:"Yes! Same numerator, and fifths are bigger than tenths."},
   {kind:"cards",set:"C",label:"Round 13",shape:"round",a:{k:"bijli",n:7,d:12},b:{k:"badal",n:7,d:8},win:"b",intro:"Last one! Bijli or Badal: who ate more?",
     yes:"Yes! Same numerator, and eighths are bigger than twelfths.",quotes:[["badal","My turn to win!"]]},
-  {kind:"finalIntro",set:"F",label:"The Final"},
   {kind:"final",set:"F",label:"Final: order"},
   {kind:"champion",set:"F",label:"Champion"}
 ];
@@ -2036,7 +2035,11 @@ function showFinal(){
     </div>`);
   pinColumns(); [60,250,600,1200].forEach(t=>setTimeout(pinColumns,t));
   S.phase="order"; S.sel=null; S.oTries=0;
-  say("They each ate one piece, but from pizzas cut differently. Put them in order, from smallest to greatest!","","noori"); speak(S.sayPlain);
+  // Billu announces the Final on this screen (no separate empty screen), then Noori says what to do
+  const g=S.gen, ORDER="They each ate one piece, but from pizzas cut differently. Put them in order, from smallest to greatest!";
+  Sound.drum(); say("The Golden Trophy Final! Our top medal winners eat one more time!","","billu");
+  let said=false; const next=()=>{ if(said||!live(g)||S.phase!=="order") return; said=true; setTimeout(()=>{ if(live(g)&&S.phase==="order"){ say(ORDER,"","noori"); speak(ORDER); } },600); };
+  VOICE.play("billu",S.sayPlain,next); setTimeout(next,5200);   // after Billu's line (or 5 s at most)
   button("order",false,false,checkOrder);
   wireFinal();
 }
