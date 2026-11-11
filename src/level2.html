@@ -3272,3 +3272,12 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
   animation:medalSwap .7s cubic-bezier(.3,1.6,.5,1) both!important}
 @keyframes medalSwap{0%{transform:scale(.6) rotate(-8deg);opacity:0;filter:brightness(1.6)}55%{opacity:1}100%{transform:none;filter:none}}
 </style>
+<style>
+/* Learning 2: every animal in the same round circle, as big as in Tutorial 1.1 */
+#t2learn .l2ava{width:clamp(96px,calc(16*var(--vh)),150px)!important;height:clamp(96px,calc(16*var(--vh)),150px)!important;aspect-ratio:1/1!important;
+  flex:0 0 auto!important;border-radius:50%!important;overflow:hidden!important;display:flex!important;align-items:flex-end!important;justify-content:center!important}
+#t2learn .l2ava img:not(.l2medal){height:92%!important;width:auto!important;max-width:none!important;object-fit:contain!important;margin-bottom:2%}
+#t2learn .l2win .l2ava{overflow:visible!important}
+#t2learn.tight .l2ava{width:clamp(70px,calc(11*var(--vh)),110px)!important;height:clamp(70px,calc(11*var(--vh)),110px)!important}
+#t2learn .l2line .l2ava{width:clamp(80px,calc(13*var(--vh)),120px)!important;height:clamp(80px,calc(13*var(--vh)),120px)!important}
+</style>
