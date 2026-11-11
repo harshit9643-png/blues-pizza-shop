@@ -2905,6 +2905,7 @@ async function runTutorial(){
       tutSay("noori","Is that how much the giraffe wants? Try again.",{wait:true,bad:true});
     }); if(!ok()) return;
     $("tut").classList.remove("taps"); $("tutServe").classList.remove("on"); lit("n",false);
+    $("tutTray").classList.add("gone"); $("tutCount").classList.add("gone");   // served: the topping bowls and the counter leave
     const pr=$("tutPz").getBoundingClientRect(), plate=$("tutPlate"); plate.hidden=false;
     const pl=plate.getBoundingClientRect(), u=pr.width/600;
     TUT.done.forEach(i=>{ const el=$("tutPz").querySelector(`.part[data-i="${i}"]`), p=TUT.g.parts[i];
@@ -3951,3 +3952,4 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 .final .fin .mini .fr b:first-child,.fline .fin .mini .fr b:first-child{border-bottom-color:#5A3210!important}
 .tut .lf b.lit{background:var(--marigold)!important;color:#FFFFFF!important;text-shadow:0 1px 0 rgba(0,0,0,.3)!important}
 </style>
+<style>#tutTray.gone,#tutCount.gone{opacity:0!important;transform:translateY(16px) scale(.92)!important;pointer-events:none!important;transition:opacity .45s ease,transform .45s ease!important}</style>
