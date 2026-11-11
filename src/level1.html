@@ -68,8 +68,7 @@ html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place
     reveal(){ cu.classList.remove("on"); } };
   // the first opening of the main screen waits for one tap on the leaves (browsers allow sound only after a tap), so the
   // title is read out the moment the leaves part; arriving from Level 2 (#1.1 / #1.2) the leaves part by themselves
-  const gate=!/#(1\.1|1\.2|play)/.test(location.hash);
-  let lifted=false; const lift=()=>{ if(lifted) return; lifted=true; if(gate){ window.CURTAIN_GATE=true; return; } setTimeout(()=>CURTAIN.reveal(),220); };
+  let lifted=false; const lift=()=>{ if(lifted) return; lifted=true; setTimeout(()=>{ CURTAIN.reveal(); if(typeof TITLE!=="undefined") TITLE.opened(); else window.TITLE_PENDING=true; },220); };   // the leaves part by themselves; the title is read out as they open
   if(document.readyState!=="loading") lift(); else addEventListener("DOMContentLoaded",lift);
   setTimeout(lift,4000);   // the first opening never stays shut
   addEventListener("pageshow",e=>{ if(e.persisted) CURTAIN.reveal(); });   // back button from the next page
@@ -3879,20 +3878,14 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
   function say(done){ if(said||$("start").hidden){ if(done) done(); return; } said=true;
     if(!VOICE.play("narr",T,()=>{ if(done) setTimeout(done,250); })){ try{ const u=new SpeechSynthesisUtterance(T); u.onend=()=>done&&done(); speechSynthesis.speak(u); }catch(e){ if(done) done(); } }
     else if(done) setTimeout(()=>{ if(done){ const d=done; done=null; d(); } },2600); }
-  function open(){ const cu=document.getElementById("curtain"); if(cu){ const h=cu.querySelector(".tapopen"); if(h) h.remove(); }
-    window.CURTAIN_GATE=false; CURTAIN.reveal(); setTimeout(()=>say(),350); }
-  let tries=0;
-  (function gate(){
-    if(!window.CURTAIN_GATE){ if(++tries<100) setTimeout(gate,50); return; }   // the leaves' script marks the gate once the page is built
-    const cu=document.getElementById("curtain"); let ac=null; try{ ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
-    if(ac&&ac.state==="running"){ open(); return; }                       // sound already allowed: part at once and speak
-    const sign=document.createElement("div"); sign.className="tapopen"; sign.innerHTML=`<span>👆</span>Tap to open`; cu.appendChild(sign);
-    cu.classList.add("on");
-    const go=e=>{ removeEventListener("pointerdown",go,true); removeEventListener("keydown",go,true); try{ ac&&ac.resume(); }catch(_){} open(); };
-    addEventListener("pointerdown",go,true); addEventListener("keydown",go,true);
-  })();
+  // as the leaves part: the title, straight away if the browser allows sound; if it holds sound back until a tap, the title
+  // comes at that first tap (PLAY included: the title first, then the sauce)
+  function opened(){ setTimeout(()=>{ let ac=null; try{ ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+    if(!ac||ac.state==="running") say(); else{ try{ ac.close(); }catch(e){} } },300); }
+  addEventListener("pointerdown",e=>{ if(!(e.target.closest&&e.target.closest("#mainPlay"))) say(); },{capture:true});
+  if(window.TITLE_PENDING) opened();
   new MutationObserver(()=>{ if(!$("start").hidden){ said=false; setTimeout(()=>say(),1200); } }).observe($("start"),{attributes:true,attributeFilter:["hidden"]});
-  return {say, get said(){ return said; }};
+  return {say, opened, get said(){ return said; }};
 })();
 </script>
 <style>
