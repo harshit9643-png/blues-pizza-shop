@@ -1527,7 +1527,7 @@ body.tutoring .trail{display:none!important}
   <div class="sfill"></div>
   <div class="sworld" id="sworld"><div class="scam" id="scam"><img class="sback" src="assets/story/shop_scene_empty.webp" alt=""><div class="sname">Billu’s Pizza Kitchen</div><div class="sdusk"></div><div class="slayer" id="slayer"></div></div></div>
   <div class="ssub" id="ssub"><div class="who" id="sWho"></div><p id="sLine"></p><button class="snext" id="sNext">NEXT</button></div>
-  <button class="sskip" id="sSkip">Skip story ▸▸</button>
+  <button class="sskip" id="sSkip" hidden aria-hidden="true" tabindex="-1" style="display:none!important"></button>
 </div>
 <div class="tut" id="tut" hidden></div>
 
@@ -2824,7 +2824,7 @@ function t2Build(){
       </div>
       <div class="rod bot">${rodSVG("rb")}</div>
     </div>
-    <button class="skip" id="tutSkip">Skip ▸▸</button>`;
+    <button class="skip" id="tutSkip" hidden aria-hidden="true" tabindex="-1" style="display:none!important"></button>`;
   $("tutNext").addEventListener("click",()=>{ const f=tutNext; tutNext=null; if(f) f(); });
   ["a","b"].forEach(sd=>{
     $("t2stack-"+sd).addEventListener("click",()=>{ if(!TUT2.open[sd]||TUT2.cnt[sd]>=TUT2[sd].d) return;
