@@ -2874,7 +2874,7 @@ async function runLearning2(ok){
   stage(`<div class="l2row">${side("monty",l2Pizza(8,{all:true}),"8 equal parts")}${side("ant",l2Pizza(4,{all:true}),"4 equal parts")}</div>`);
   await say("noori","Monty’s pizza has 8 equal parts. The ant’s has 4. More parts means smaller parts."); if(!ok()) return;
   // 6. the trophy goes to the ant
-  stage(`<div class="l2solo"><div class="l2ava l2won l2big"><img src="${A}ant_medal.webp" alt="The ant wearing its medal"></div></div>`);   // only the winner, big, wearing its medal
+  stage(`<div class="l2solo"><img class="l2antwin" src="${A}ant_medal_cut.webp" alt="The ant wearing its medal"></div>`);   // only the winner, big, wearing its medal
   Sound.win&&Sound.win(); confetti();
   await say("noori","The ant is the winner!"); if(!ok()) return;
   // 7. the rule card: same numerator, different denominators
@@ -3310,3 +3310,13 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 /* no rule cards anywhere (Learning 2, Tutorial 2, the matches, Set C, the Final): Noori says the rule instead */
 .rule,.rules,#t2learn .l2rules,#t2rule{display:none!important}
 </style>
+<style>
+/* Learning 2: bigger animals in their circles */
+#t2learn .l2ava:not(.l2big){width:clamp(120px,calc(21*var(--vh)),190px)!important;height:clamp(120px,calc(21*var(--vh)),190px)!important}
+#t2learn .l2ava:not(.l2big) img{height:94%!important}
+#t2learn.tight .l2ava{width:clamp(80px,calc(13*var(--vh)),130px)!important;height:clamp(80px,calc(13*var(--vh)),130px)!important}
+#t2learn .l2line .l2ava{width:clamp(96px,calc(16*var(--vh)),150px)!important;height:clamp(96px,calc(16*var(--vh)),150px)!important}
+#t2learn .l2pz,#t2learn .l2sl{width:clamp(120px,calc(27*var(--vh)),240px)!important}
+#t2learn.tight .l2pz{width:clamp(96px,calc(19*var(--vh)),170px)!important}
+</style>
+<style>#t2learn .l2antwin{height:clamp(220px,calc(50*var(--vh)),420px);width:auto;filter:drop-shadow(0 10px 14px rgba(0,0,0,.4));animation:winPop .6s cubic-bezier(.3,1.6,.5,1) both}</style>
