@@ -1,4 +1,23 @@
 <script>
+/* another tab or window: every sound stops (music, sound effects, voices), every animation holds still, and the game
+   waits; on return all of it carries on from the same moment */
+(()=>{ const AC=window.AudioContext||window.webkitAudioContext, all=new Set();
+  if(AC){ const W=function(...a){ const c=new AC(...a); all.add(c); return c; }; W.prototype=AC.prototype; Object.setPrototypeOf(W,AC);
+    window.AudioContext=W; if(window.webkitAudioContext) window.webkitAudioContext=W; }
+  let held=[], anims=[];
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){ document.documentElement.classList.add("away");
+      held=[...all].filter(c=>c.state==="running"); held.forEach(c=>{ try{ c.suspend(); }catch(e){} });
+      anims=document.getAnimations().filter(a=>a.playState==="running"); anims.forEach(a=>{ try{ a.pause(); }catch(e){} });
+      document.querySelectorAll("audio,video").forEach(m=>{ if(!m.paused){ m._away=true; m.pause(); } }); }
+    else { document.documentElement.classList.remove("away");
+      held.forEach(c=>{ try{ c.resume(); }catch(e){} }); held=[];
+      anims.forEach(a=>{ try{ if(a.playState==="paused") a.play(); }catch(e){} }); anims=[];
+      document.querySelectorAll("audio,video").forEach(m=>{ if(m._away){ m._away=false; m.play().catch(()=>{}); } }); } });
+})();
+</script>
+<style>html.away *,html.away *::before,html.away *::after{animation-play-state:paused!important}</style>
+<script>
 /* Fit to any screen: the whole page is drawn at the size the game is laid out for (1180 x 680, or wider) and scaled to fit (smaller screens shrink it, big screens enlarge it); was: below the size the game is laid out for (1180 x 680), the whole page is drawn at that
    size and shrunk to fit (CSS zoom). Every measurement the game reads (window size, element boxes, pointer
    positions, SVG matrices) is given back in the page's own units, so taps, drags and placements stay exact.
@@ -1730,7 +1749,7 @@ function speak(text,who){
 const $=id=>document.getElementById(id);
 const S={i:0,stars:0,done:{},gen:0,tries:0,phase:"",cnt:{a:0,b:0},g:0,sayPlain:""};
 const live=g=>g===S.gen;
-const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const wait=ms=>sleep(ms);   // stands still while paused or in another tab
 const fracify=s=>s.replace(/(\d+)\/(\d+)/g,'<span class="fr"><b>$1</b><b>$2</b></span>');
 const frac=(n,d,id)=>`<span class="fr"><b${id?` id="${id}"`:""}>${n}</b><b>${d}</b></span>`;
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';

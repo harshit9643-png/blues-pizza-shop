@@ -1,4 +1,23 @@
 <script>
+/* another tab or window: every sound stops (music, sound effects, voices), every animation holds still, and the game
+   waits; on return all of it carries on from the same moment */
+(()=>{ const AC=window.AudioContext||window.webkitAudioContext, all=new Set();
+  if(AC){ const W=function(...a){ const c=new AC(...a); all.add(c); return c; }; W.prototype=AC.prototype; Object.setPrototypeOf(W,AC);
+    window.AudioContext=W; if(window.webkitAudioContext) window.webkitAudioContext=W; }
+  let held=[], anims=[];
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){ document.documentElement.classList.add("away");
+      held=[...all].filter(c=>c.state==="running"); held.forEach(c=>{ try{ c.suspend(); }catch(e){} });
+      anims=document.getAnimations().filter(a=>a.playState==="running"); anims.forEach(a=>{ try{ a.pause(); }catch(e){} });
+      document.querySelectorAll("audio,video").forEach(m=>{ if(!m.paused){ m._away=true; m.pause(); } }); }
+    else { document.documentElement.classList.remove("away");
+      held.forEach(c=>{ try{ c.resume(); }catch(e){} }); held=[];
+      anims.forEach(a=>{ try{ if(a.playState==="paused") a.play(); }catch(e){} }); anims=[];
+      document.querySelectorAll("audio,video").forEach(m=>{ if(m._away){ m._away=false; m.play().catch(()=>{}); } }); } });
+})();
+</script>
+<style>html.away *,html.away *::before,html.away *::after{animation-play-state:paused!important}</style>
+<script>
 /* Fit to any screen: the whole page is drawn at the size the game is laid out for (1180 x 680, or wider) and scaled to fit (smaller screens shrink it, big screens enlarge it); was: below the size the game is laid out for (1180 x 680), the whole page is drawn at that
    size and shrunk to fit (CSS zoom). Every measurement the game reads (window size, element boxes, pointer
    positions, SVG matrices) is given back in the page's own units, so taps, drags and placements stay exact.
@@ -1474,7 +1493,7 @@ function edgeArc(shape, off, from, to){            // a stretch of the edge, for
   return "M"+EDGES[shape].slice(from,to).map(([x,y])=>`${(cx+(x-cx)*sx).toFixed(1)} ${(cy+(y-cy)*sy).toFixed(1)}`).join("L");
 }
 const ease = t => t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
-const wait = ms => new Promise(r=>setTimeout(r,ms));
+const wait = ms => sleep(ms);   // stands still while paused or in another tab
 /* Wait for an animation, but never longer than its own timing: a paused or throttled
    tab must not leave the game stuck halfway through a step. */
 function settle(anim){
