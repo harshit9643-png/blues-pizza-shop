@@ -5,11 +5,35 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"01519873": {
+"file": "01519873-9f8fa0.mp3",
+"text": "Tap the pieces Jhumru wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"01712542": {
+"file": "01712542-fe843f.mp3",
+"text": "Yes! 5 parts are more than 2. The peacock wins!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "044b9fda": {
 "file": "044b9fda-0591d5.mp3",
 "text": "Mouse: “Squeak! Good match!”",
 "voice": "en-US-AnaNeural",
 "who": "mouse"
+},
+"05f53bed": {
+"file": "05f53bed-07d058.mp3",
+"text": "Who ate more? Tap their plate.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"05fabfd8": {
+"file": "05fabfd8-f6fdd0.mp3",
+"text": "Is that how much the hippo wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "06978517": {
 "file": "06978517-ed538c.mp3",
@@ -23,9 +47,21 @@
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
 },
+"07ee6035": {
+"file": "07ee6035-828536.mp3",
+"text": "Check the numerator. That’s how many pieces Jhumru wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "08cedd96": {
 "file": "08cedd96-56f0f5.mp3",
 "text": "The peacock ate 5/7. Put 5 slices on its plate.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"09613027": {
+"file": "09613027-10b2a4.mp3",
+"text": "Tap the pieces the hippo wants.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -34,6 +70,12 @@
 "text": "Mouse: “1/6, exactly what I ordered!” ⭐",
 "voice": "en-US-AnaNeural",
 "who": "mouse"
+},
+"0ac89baa": {
+"file": "0ac89baa-d935ef.mp3",
+"text": "Tap the strips the squirrel wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "0aff5ae8": {
 "file": "0aff5ae8-91ef13.mp3",
@@ -47,6 +89,18 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"0b6f0c20": {
+"file": "0b6f0c20-b935a7.mp3",
+"text": "Now add the topping to the parts we serve.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"0c8488cd": {
+"file": "0c8488cd-32b4fe.mp3",
+"text": "Monty: “3/4 of a pizza, please!”",
+"voice": "en-US-AnaNeural",
+"who": "monty"
+},
 "0d22aa55": {
 "file": "0d22aa55-d59596.mp3",
 "text": "Let me show you! Follow the hand. The biggest denominator is the smallest piece: 1/6, then 1/5, 1/4, 1/3 and 1/2.",
@@ -56,6 +110,12 @@
 "0f434ce7": {
 "file": "0f434ce7-d6ea4a.mp3",
 "text": "That slice already has a topping. Put it on a slice with no topping.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"0faa3e57": {
+"file": "0faa3e57-e32c19.mp3",
+"text": "Drag the cards into order, from smallest to greatest.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -70,6 +130,12 @@
 "text": "The Golden Trophy Final! Our top medal winners eat one more time!",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
+},
+"117eb883": {
+"file": "117eb883-bc4c3d.mp3",
+"text": "This is one whole pizza.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "11ea1338": {
 "file": "11ea1338-32da5c.mp3",
@@ -107,6 +173,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"14449942": {
+"file": "14449942-68c366.mp3",
+"text": "Pick a topping, then top the mouse’s share.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "15957b27": {
 "file": "15957b27-5b3b2f.mp3",
 "text": "Crocodile: “6/7 with tomato! Snap-tastic!” ⭐",
@@ -119,11 +191,29 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"16737312": {
+"file": "16737312-b3242c.mp3",
+"text": "5 equal strips!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "17b8e803": {
 "file": "17b8e803-226158.mp3",
 "text": "Using the 9-part mould…",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"19a2be24": {
+"file": "19a2be24-dbda50.mp3",
+"text": "Is that how much Mouse wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"1a3c6c22": {
+"file": "1a3c6c22-d9d198.mp3",
+"text": "10 equal pieces!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
 },
 "1b25d378": {
 "file": "1b25d378-055e4e.mp3",
@@ -140,6 +230,24 @@
 "1bca4fd9": {
 "file": "1bca4fd9-57b28b.mp3",
 "text": "5/8 means 5 parts out of 8 equal parts. We read it as “five upon eight” or “five by eight”.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"1c705b9d": {
+"file": "1c705b9d-e12181.mp3",
+"text": "Pick a topping, then top the gorilla’s share.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"1ce07cef": {
+"file": "1ce07cef-65a4f8.mp3",
+"text": "Tap the slices Tez wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"1da86868": {
+"file": "1da86868-7c24bf.mp3",
+"text": "Both pizzas have 7 equal parts. Same denominator? Compare the numerators.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -197,11 +305,29 @@
 "voice": "en-IN-NeerjaNeural",
 "who": "narr"
 },
+"245b38ca": {
+"file": "245b38ca-a282c9.mp3",
+"text": "Sloth: “Three… tenths… please…”",
+"voice": "en-US-AnaNeural",
+"who": "sloth"
+},
 "2567968f": {
 "file": "2567968f-43dd81.mp3",
 "text": "Yes! Same numerator, and fifths are bigger than tenths.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"2613e397": {
+"file": "2613e397-aca5cd.mp3",
+"text": "5 more orders, all perfect! You’re a master chef!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"280da075": {
+"file": "280da075-ee3f0d.mp3",
+"text": "The numerator is 3. The giraffe wants 3 parts.",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
 },
 "288dba77": {
 "file": "288dba77-a89b21.mp3",
@@ -215,9 +341,27 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"2c66ae83": {
+"file": "2c66ae83-1f9e2c.mp3",
+"text": "Check the denominator and pick the correct mould.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"2cbed257": {
+"file": "2cbed257-9972a5.mp3",
+"text": "Tap the part the frog wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "2db880e9": {
 "file": "2db880e9-53498f.mp3",
 "text": "Oops! Is that how much Rabbit wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"2e156b7c": {
+"file": "2e156b7c-acedae.mp3",
+"text": "Check the denominator. Pick the mould that cuts that many equal parts.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -233,11 +377,29 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"31871bfd": {
+"file": "31871bfd-2e11bf.mp3",
+"text": "The parrot got 2 parts out of 3: 2/3. And 1 part out of 3 is left. I'll eat the remaining parts!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "31961213": {
 "file": "31961213-3fdc3a.mp3",
 "text": "Hippo: “Hip hip hooray!”",
 "voice": "en-US-RogerNeural",
 "who": "hippo"
+},
+"31a8bd8f": {
+"file": "31a8bd8f-bd9c17.mp3",
+"text": "More matches are coming! Help me pick the winners!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
+"324ebd41": {
+"file": "324ebd41-57ed36.mp3",
+"text": "Check the numerator. That’s how many pieces the hippo wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "32c84dfa": {
 "file": "32c84dfa-18091e.mp3",
@@ -251,11 +413,29 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"3482b927": {
+"file": "3482b927-4e6047.mp3",
+"text": "Each part is one-half. We write it as 1/2. This is a fraction.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "34980bb9": {
 "file": "34980bb9-470d8b.mp3",
 "text": "Match 3: twin against twin!",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
+},
+"3528a39d": {
+"file": "3528a39d-d88fa6.mp3",
+"text": "Check the numerator. That’s how many pieces the sloth wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"35c4d3cf": {
+"file": "35c4d3cf-4fc801.mp3",
+"text": "Now choose any topping you like!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "3716d76a": {
 "file": "3716d76a-e97a9d.mp3",
@@ -281,9 +461,21 @@
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
 },
+"3c3e49d0": {
+"file": "3c3e49d0-f59a0e.mp3",
+"text": "First, both pizzas are the same size. That’s important!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "3e361017": {
 "file": "3e361017-5e23a9.mp3",
 "text": "The pizza is cut into 12 equal pieces.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"3fc7526c": {
+"file": "3fc7526c-7fcc57.mp3",
+"text": "Hmm, is that how many parts the order needs? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -317,11 +509,29 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"46636a8a": {
+"file": "46636a8a-4b4551.mp3",
+"text": "Is that how much Monty wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "4666efed": {
 "file": "4666efed-8ce7fc.mp3",
 "text": "Oops! Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"46778cc9": {
+"file": "46778cc9-4a0b01.mp3",
+"text": "The greatest fraction is at the end of the row.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"4715ea22": {
+"file": "4715ea22-6ce809.mp3",
+"text": "Into as many parts as the denominator says!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
 },
 "47508cd5": {
 "file": "47508cd5-b8f3ce.mp3",
@@ -341,6 +551,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"4cebb7cc": {
+"file": "4cebb7cc-1b5c99.mp3",
+"text": "4 orders served! You’re a topping star!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "4dc194d9": {
 "file": "4dc194d9-6cf444.mp3",
 "text": "Both plates are right!",
@@ -352,6 +568,18 @@
 "text": "Oh, Noori, what is a half? And how will I know how much to serve to the customers?",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
+},
+"4e836237": {
+"file": "4e836237-f1363c.mp3",
+"text": "Choose the correct pizza mould. It will cut the pizza into equal parts, as many as required.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"4ec0169d": {
+"file": "4ec0169d-6e9392.mp3",
+"text": "The ant is the winner!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "50563922": {
 "file": "50563922-69dbe5.mp3",
@@ -389,9 +617,27 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"5704209d": {
+"file": "5704209d-c195a0.mp3",
+"text": "Is that how much the squirrel wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"5b89e3f5": {
+"file": "5b89e3f5-63b6c7.mp3",
+"text": "Which mould cuts the right number of parts?",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "5b902462": {
 "file": "5b902462-7ccbaf.mp3",
 "text": "Same numerator? Compare the size of the parts. The smaller denominator means bigger parts.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"5c356016": {
+"file": "5c356016-5a2488.mp3",
+"text": "Is that how much the gorilla wants? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -425,6 +671,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"60a1e20b": {
+"file": "60a1e20b-42adaa.mp3",
+"text": "Check the numerator. That’s how many pieces the gorilla wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "618c1c14": {
 "file": "618c1c14-0c3088.mp3",
 "text": "Match 4: the two biggest eaters, Jhumru and the hippo!",
@@ -443,6 +695,24 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"630f0378": {
+"file": "630f0378-232426.mp3",
+"text": "Is that how much Squirrel wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"639dac78": {
+"file": "639dac78-f67a0f.mp3",
+"text": "They are fractions too, just like 1/2.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"639fa2c0": {
+"file": "639fa2c0-599640.mp3",
+"text": "12 equal pieces!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "63aafc6a": {
 "file": "63aafc6a-d5039b.mp3",
 "text": "Match 5: the ant and Madhu!",
@@ -455,17 +725,47 @@
 "voice": "en-US-AnaNeural",
 "who": "badal"
 },
+"64a724d7": {
+"file": "64a724d7-b0617b.mp3",
+"text": "Gorilla: “Hungry gorilla here! 4/5 of a pizza, please!”",
+"voice": "en-US-GuyNeural",
+"who": "gorilla"
+},
 "64b9ca4e": {
 "file": "64b9ca4e-e6e1ac.mp3",
 "text": "Bijli: “Sssorry, twin!” Badal: “Next time!”",
 "voice": "en-US-AnaNeural",
 "who": "bijli"
 },
+"64fd82a6": {
+"file": "64fd82a6-cb9ee1.mp3",
+"text": "Mouse: “Squeak! 1/6 of a pizza, please!”",
+"voice": "en-US-AnaNeural",
+"who": "mouse"
+},
+"660d1041": {
+"file": "660d1041-eb2755.mp3",
+"text": "4 orders served! You’re a topping star!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "6678cb78": {
 "file": "6678cb78-3a9f4c.mp3",
 "text": "…into as many pieces as the denominator says.",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
+},
+"66d2cb19": {
+"file": "66d2cb19-8b9d4a.mp3",
+"text": "Yes! We read it as ‘two upon three’ or ‘two by three’.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"675b346d": {
+"file": "675b346d-ba0546.mp3",
+"text": "Tap the strips the gorilla wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "687b16a9": {
 "file": "687b16a9-6f80f3.mp3",
@@ -485,6 +785,12 @@
 "voice": "en-US-AnaNeural",
 "who": "tez"
 },
+"6baad475": {
+"file": "6baad475-71dd79.mp3",
+"text": "Check the numerator. How many slices did each one eat?",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "6c86acff": {
 "file": "6c86acff-18e511.mp3",
 "text": "Cover 2/5 of the pizza with the topping.",
@@ -497,9 +803,21 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"714644db": {
+"file": "714644db-7f4bc2.mp3",
+"text": "Same number of parts, but different denominators? Then compare the size of the parts. A bigger denominator means smaller parts.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "71e24147": {
 "file": "71e24147-4a6ac1.mp3",
 "text": "5 equal strips!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"73720e13": {
+"file": "73720e13-7ebcd2.mp3",
+"text": "Is that how much Hippo wants? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -545,15 +863,33 @@
 "voice": "en-US-AnaNeural",
 "who": "tez"
 },
+"77707021": {
+"file": "77707021-cb0d82.mp3",
+"text": "The bottom number is the denominator. It tells us how many equal parts to cut.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "79188ee5": {
 "file": "79188ee5-cb838e.mp3",
 "text": "7 equal slices!",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"795c5847": {
+"file": "795c5847-9b2f41.mp3",
+"text": "Check the numerator. That’s how many pieces the frog wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "79f7d90e": {
 "file": "79f7d90e-03bd6c.mp3",
 "text": "Perfect! The more parts a pizza is cut into, the smaller each part.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"7b807bb2": {
+"file": "7b807bb2-3fc306.mp3",
+"text": "Tap the parts Monty wants.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -575,6 +911,30 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"7c8302b7": {
+"file": "7c8302b7-5691c2.mp3",
+"text": "Now cut the pizza on your own.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"7c94c8bc": {
+"file": "7c94c8bc-9fbff6.mp3",
+"text": "Hippo: “Last order of the day! 11/12 of a pizza, please!”",
+"voice": "en-US-RogerNeural",
+"who": "hippo"
+},
+"7d152c4b": {
+"file": "7d152c4b-2fb723.mp3",
+"text": "5/8 means 5 parts out of 8. We read it as ‘five upon eight’ or ‘five by eight’.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"7d501c08": {
+"file": "7d501c08-034a30.mp3",
+"text": "Check the numerator. That’s how many pieces the mouse wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "7f83c502": {
 "file": "7f83c502-cd4f9b.mp3",
 "text": "Cover 3/10 of the pizza with the topping.",
@@ -593,9 +953,27 @@
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
 },
+"809b4c69": {
+"file": "809b4c69-af5829.mp3",
+"text": "Monty ate 1 slice out of 8. The ant ate 1 slice out of 4.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "8109b69b": {
 "file": "8109b69b-34d19c.mp3",
 "text": "Oops! Is that how much Gorilla wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"81910aec": {
+"file": "81910aec-532c91.mp3",
+"text": "Yummy! Just what I ordered!",
+"voice": "en-GB-LibbyNeural",
+"who": "guest"
+},
+"82990065": {
+"file": "82990065-f9d81d.mp3",
+"text": "Is that how much Frog wants? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -611,6 +989,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"847e6032": {
+"file": "847e6032-3a80b7.mp3",
+"text": "Yes! The ant’s piece is bigger.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "84b6ef1b": {
 "file": "84b6ef1b-c2cac4.mp3",
 "text": "Ready… eat!",
@@ -622,6 +1006,18 @@
 "text": "Gorilla: “4 of 5 strips. Thank you, Chef!” ⭐",
 "voice": "en-US-GuyNeural",
 "who": "gorilla"
+},
+"84ff8bff": {
+"file": "84ff8bff-824e3c.mp3",
+"text": "You read every fraction right!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"853eed08": {
+"file": "853eed08-d0637d.mp3",
+"text": "The top number is 2. The parrot wants 2 parts. Tap them to add the topping.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "85be2f5b": {
 "file": "85be2f5b-5736fe.mp3",
@@ -635,11 +1031,35 @@
 "voice": "en-US-AnaNeural",
 "who": "chintu"
 },
+"876740f6": {
+"file": "876740f6-841339.mp3",
+"text": "The squirrel and the peacock! Ready… eat!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "882c27d5": {
 "file": "882c27d5-e69459.mp3",
 "text": "Bijli: “Hisss-tory made!”",
 "voice": "en-US-AnaNeural",
 "who": "bijli"
+},
+"892b7ad8": {
+"file": "892b7ad8-5f37be.mp3",
+"text": "And the golden trophy goes to…?",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
+"89bab4fb": {
+"file": "89bab4fb-7895bb.mp3",
+"text": "6 equal slices!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
+"8aa88fbc": {
+"file": "8aa88fbc-69955b.mp3",
+"text": "You can pick any topping you like!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "8b2579ac": {
 "file": "8b2579ac-132ee7.mp3",
@@ -659,9 +1079,33 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"8d2db118": {
+"file": "8d2db118-9f32aa.mp3",
+"text": "Hmm, look at the order again. Who ate the most?",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"8ffe2482": {
+"file": "8ffe2482-58713f.mp3",
+"text": "Look closely. The ant’s piece is bigger.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"9104cb43": {
+"file": "9104cb43-7ec7c5.mp3",
+"text": "Great! Two parts are ready. Now, serve it.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "9108b2a7": {
 "file": "9108b2a7-1e3737.mp3",
 "text": "Cover 3/4 of the pizza with the topping.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"91b05be3": {
+"file": "91b05be3-ceeeb1.mp3",
+"text": "Is that how much the mouse wants? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -683,6 +1127,12 @@
 "voice": "en-GB-LibbyNeural",
 "who": "guest"
 },
+"9635cea1": {
+"file": "9635cea1-d73752.mp3",
+"text": "Check the numerator. That’s how many pieces Tez wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "9708617b": {
 "file": "9708617b-c30b49.mp3",
 "text": "Sloth: “Three… of… ten… Perfect…” ⭐",
@@ -698,6 +1148,12 @@
 "991e1751": {
 "file": "991e1751-b7b53e.mp3",
 "text": "Both pizzas were cut into 7 equal parts, so the parts are the same size. Compare the numerators.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"992c4b51": {
+"file": "992c4b51-20ec2d.mp3",
+"text": "Tap the slice the mouse wants.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -719,11 +1175,23 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"9bbafb01": {
+"file": "9bbafb01-479851.mp3",
+"text": "Is that how much Gorilla wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "9fb56b4d": {
 "file": "9fb56b4d-7444a9.mp3",
 "text": "Oh wow! I want the bigger half!",
 "voice": "en-US-AnaNeural",
 "who": "chintu"
+},
+"a00ad5be": {
+"file": "a00ad5be-a60d7b.mp3",
+"text": "Parrot: “Perfect!”",
+"voice": "en-US-AnaNeural",
+"who": "parrot"
 },
 "a3d187ae": {
 "file": "a3d187ae-f461c0.mp3",
@@ -743,6 +1211,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"a4095f4b": {
+"file": "a4095f4b-28f595.mp3",
+"text": "Tap the winner.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "a4122426": {
 "file": "a4122426-a05b38.mp3",
 "text": "Now just the fractions, no pizza! Same denominator? Compare the numerators. Same numerator? The smaller denominator means bigger parts.",
@@ -754,6 +1228,12 @@
 "text": "Cover 9/10 of the pizza with the topping.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"a4bbc8fa": {
+"file": "a4bbc8fa-ced95f.mp3",
+"text": "Frog: “Ribbit! 1/4 of a pizza, please!”",
+"voice": "en-US-AnaNeural",
+"who": "frog"
 },
 "a5372fe8": {
 "file": "a5372fe8-0eb3c5.mp3",
@@ -776,6 +1256,12 @@
 "a7a3db01": {
 "file": "a7a3db01-26293e.mp3",
 "text": "The pizza is cut into 9 equal slices.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"a968c5b3": {
+"file": "a968c5b3-1d2035.mp3",
+"text": "Pick a topping, then top the sloth’s share.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -803,6 +1289,12 @@
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
 },
+"abeb2f30": {
+"file": "abeb2f30-f66489.mp3",
+"text": "Is that how much Tez wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "ac006636": {
 "file": "ac006636-99cb47.mp3",
 "text": "The pizza is cut into 8 equal slices.",
@@ -812,6 +1304,18 @@
 "ac3b0576": {
 "file": "ac3b0576-c99a42.mp3",
 "text": "Oops! Is that how much Squirrel wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"acc36f10": {
+"file": "acc36f10-0f1e90.mp3",
+"text": "Is that how much the frog wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"ad61e3da": {
+"file": "ad61e3da-8ebfb0.mp3",
+"text": "The parrot has ordered 2/3 of a pizza. Let's make it.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -827,11 +1331,23 @@
 "voice": "en-US-AnaNeural",
 "who": "badal"
 },
+"b130d8c7": {
+"file": "b130d8c7-c21cc3.mp3",
+"text": "Meow-gnificent! Your turn now!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "b140d99b": {
 "file": "b140d99b-393bf3.mp3",
 "text": "The ant is our Big Eater Champion! Monty (from the crowd): “Beaten by an ant… again!”",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"b216366d": {
+"file": "b216366d-cf36fd.mp3",
+"text": "Now we can cut, top and serve! Here comes the next order!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
 },
 "b33331f7": {
 "file": "b33331f7-534d38.mp3",
@@ -839,11 +1355,23 @@
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
 },
+"b4417fb8": {
+"file": "b4417fb8-85ec62.mp3",
+"text": "Is that how much the sloth wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "b47b3673": {
 "file": "b47b3673-537728.mp3",
 "text": "Rabbit: “3 of 8 slices. Yummy!” ⭐",
 "voice": "en-US-AnaNeural",
 "who": "rabbit"
+},
+"b489b450": {
+"file": "b489b450-c9afe5.mp3",
+"text": "3 equal parts. Well done!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "b48d4147": {
 "file": "b48d4147-86dca1.mp3",
@@ -851,9 +1379,27 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"b5338c97": {
+"file": "b5338c97-0df46b.mp3",
+"text": "Tap the pieces the sloth wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "b57d2595": {
 "file": "b57d2595-005285.mp3",
 "text": "Using the 7-part mould…",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"b745f173": {
+"file": "b745f173-bc2bfb.mp3",
+"text": "I’m ready for more orders!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
+"b883b97c": {
+"file": "b883b97c-8be2fd.mp3",
+"text": "For 4/5 of a pizza, cut 5 equal parts and serve 4. For 3/8, cut 8 equal parts and serve 3.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -869,6 +1415,18 @@
 "voice": "en-US-AnaNeural",
 "who": "ant"
 },
+"bbd5b66f": {
+"file": "bbd5b66f-ff0691.mp3",
+"text": "Next, let’s learn to cut the pizza too!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"bcc90a0d": {
+"file": "bcc90a0d-561b65.mp3",
+"text": "Tez: “Take your time… 2/7 of a pizza, please.”",
+"voice": "en-US-AnaNeural",
+"who": "tez"
+},
 "be96a6fc": {
 "file": "be96a6fc-f846db.mp3",
 "text": "Using the 4-part mould…",
@@ -881,15 +1439,33 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"bf229321": {
+"file": "bf229321-fbe6a6.mp3",
+"text": "I’ll cut the pizza for you.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "c1da7b62": {
 "file": "c1da7b62-bc3f6d.mp3",
 "text": "Now tap Check plates.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"c24c6323": {
+"file": "c24c6323-d3a305.mp3",
+"text": "Pick a topping, then top the hippo’s share.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "c2bcb844": {
 "file": "c2bcb844-f44793.mp3",
 "text": "Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"c32dd59b": {
+"file": "c32dd59b-93dc2d.mp3",
+"text": "The bottom number is 3. Which mould will you choose?",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -902,6 +1478,12 @@
 "c44de2f0": {
 "file": "c44de2f0-8772f9.mp3",
 "text": "Oops! Is that how much Monty wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"c44f6634": {
+"file": "c44f6634-06ff09.mp3",
+"text": "Check the numerator. That’s how many pieces the squirrel wants.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -928,6 +1510,12 @@
 "text": "We have the Big Eater Contest! Whoever eats more wins the golden trophy!",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
+},
+"cb979387": {
+"file": "cb979387-49c85b.mp3",
+"text": "Now the pizzas are cut into different numbers of parts. Watch the size of the slices!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 },
 "cc0a1643": {
 "file": "cc0a1643-bd6074.mp3",
@@ -959,6 +1547,18 @@
 "voice": "en-US-AnaNeural",
 "who": "peacock"
 },
+"d08005da": {
+"file": "d08005da-2da12d.mp3",
+"text": "So many customers! Can you help us?",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"d08dee69": {
+"file": "d08dee69-aac1b5.mp3",
+"text": "I get it! For 2/3, I cut 3 equal parts and serve 2.",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "d0d2978a": {
 "file": "d0d2978a-03de96.mp3",
 "text": "Peacock: “Hmph! Well done.”",
@@ -977,9 +1577,21 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"d706ece8": {
+"file": "d706ece8-d20ebc.mp3",
+"text": "4 equal parts!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
 "d7e28f28": {
 "file": "d7e28f28-8fbd27.mp3",
 "text": "Match 6: Monty and Tez!",
+"voice": "en-IN-PrabhatNeural",
+"who": "billu"
+},
+"d8b81eba": {
+"file": "d8b81eba-700da7.mp3",
+"text": "5 more orders, all perfect! You’re a master chef!",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
 },
@@ -1019,6 +1631,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"db7bac81": {
+"file": "db7bac81-9b855b.mp3",
+"text": "Same denominator? Then the parts are the same size. Just compare the numerators.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "dda10405": {
 "file": "dda10405-cb9a6c.mp3",
 "text": "Your turn to find the winners!",
@@ -1043,9 +1661,27 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"df13e124": {
+"file": "df13e124-0cd526.mp3",
+"text": "Squirrel: “Quick, quick! 2/5 of a pizza, please!”",
+"voice": "en-US-AnaNeural",
+"who": "squirrel"
+},
 "df22df6a": {
 "file": "df22df6a-181106.mp3",
 "text": "Oops! Is that how much Mouse wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"df253f92": {
+"file": "df253f92-ec84a3.mp3",
+"text": "To make a half, we cut it into 2 equal parts.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"e025e24a": {
+"file": "e025e24a-8d87eb.mp3",
+"text": "Let’s find the winner! First, read the scoreboard.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -1064,6 +1700,12 @@
 "e3097a12": {
 "file": "e3097a12-e38788.mp3",
 "text": "Oops! Is that how much Tez wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"e311086e": {
+"file": "e311086e-e8befa.mp3",
+"text": "Is that how much Jhumru wants? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -1109,6 +1751,18 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"e93b5ffa": {
+"file": "e93b5ffa-bec932.mp3",
+"text": "Now just the fractions, no pizza! Use the rules to find who ate more.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"ea25ab77": {
+"file": "ea25ab77-715190.mp3",
+"text": "Tap a stack to add a slice.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "ea3d4816": {
 "file": "ea3d4816-07683e.mp3",
 "text": "The hippo or Jhumru: who ate more?",
@@ -1126,6 +1780,12 @@
 "text": "Oops! Is that how much the twins want? Try again.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"ed7ade0a": {
+"file": "ed7ade0a-2747fa.mp3",
+"text": "Jhumru: “Last but not least! 9/10 of a pizza, please!”",
+"voice": "en-US-AnaNeural",
+"who": "jhumru"
 },
 "edee45a7": {
 "file": "edee45a7-c09ef5.mp3",
@@ -1157,6 +1817,12 @@
 "voice": "en-US-AnaNeural",
 "who": "badal"
 },
+"f4fa51dd": {
+"file": "f4fa51dd-ce79a1.mp3",
+"text": "Tap a stack to add a slice to a plate. Tap a slice to take it off.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
 "f588908d": {
 "file": "f588908d-7be077.mp3",
 "text": "10 equal pieces!",
@@ -1178,6 +1844,12 @@
 "f713273b": {
 "file": "f713273b-43896b.mp3",
 "text": "Let me show you! Badal ate more: 7/8 is more than 7/12. Tap Badal.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"f776b42e": {
+"file": "f776b42e-ea9bf1.mp3",
+"text": "Monty’s pizza has 8 equal parts. The ant’s has 4. More parts means smaller parts.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
@@ -1222,5 +1894,23 @@
 "text": "And the golden trophy goes to…? Tap the winner!",
 "voice": "en-IN-PrabhatNeural",
 "who": "billu"
+},
+"fd172451": {
+"file": "fd172451-132bc7.mp3",
+"text": "Pick a topping, then top the frog’s share.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"fefcfc9b": {
+"file": "fefcfc9b-80797f.mp3",
+"text": "Check the numerator. That’s how many pieces Monty wants.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"ff4febf7": {
+"file": "ff4febf7-95766f.mp3",
+"text": "Is that how much Sloth wants? Try again.",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
 }
 }

@@ -1414,14 +1414,14 @@ const LEVELS = {
   "1.1": { title:"Top and serve", cut:false, end:["4 orders served! You’re a topping star!","Next, let’s learn to cut the pizza too!"], orders:[
     {cust:"tez",      n:2,  d:7,  shape:"round",  idle:"Tap the slices Tez wants.", line:"Take your time… 2/7 of a pizza, please.",       ok:"2 of 7 slices. Slow and tasty!"},
     {cust:"monty",    n:3,  d:4,  shape:"square", idle:"Tap the parts Monty wants.", line:"3/4 of a pizza, please!",                       ok:"3/4 with {t}! My favourite!"},
-    {cust:"squirrel", n:2,  d:5,  shape:"rect",   idle:"Tap the strips the squirrel wants.", line:"Quick, quick! 2/5 of a pizza, please!",         ok:"2/5! The {t} smells so good!"},
+    {cust:"squirrel", who:"the squirrel", n:2,  d:5,  shape:"rect",   idle:"Tap the strips the squirrel wants.", line:"Quick, quick! 2/5 of a pizza, please!",         ok:"2/5! The {t} smells so good!"},
     {cust:"jhumru",   n:9,  d:10, shape:"rect",   idle:"Tap the pieces Jhumru wants.", line:"Last but not least! 9/10 of a pizza, please!",  ok:"9 of 10 pieces, and {t} too! Delicious!"} ]},
   "1.2": { title:"Cut, top and serve", cut:true, end:["5 more orders, all perfect! You’re a master chef!","You read every fraction right!"], orders:[
-    {cust:"frog",    n:1,  d:4,  shape:"square", moulds:[2,4,6],  cut:"4 equal parts!", top:"Pick a topping, then top the frog’s share.", idle:"Tap the part the frog wants.", line:"Ribbit! 1/4 of a pizza, please!",                ok:"1/4 with {t}! Ribbit-licious!"},
-    {cust:"gorilla", n:4,  d:5,  shape:"rect",   moulds:[4,5,6],  cut:"5 equal strips!", top:"Pick a topping, then top the gorilla’s share.", idle:"Tap the strips the gorilla wants.", line:"Hungry gorilla here! 4/5 of a pizza, please!",   ok:"4 of 5 strips. Thank you, Chef!"},
-    {cust:"mouse",   n:1,  d:6,  shape:"round",  moulds:[4,6,8],  cut:"6 equal slices!", top:"Pick a topping, then top the mouse’s share.", idle:"Tap the slice the mouse wants.", line:"Squeak! 1/6 of a pizza, please!",                ok:"1/6, exactly what I ordered!"},
-    {cust:"sloth",   n:3,  d:10, shape:"rect",   moulds:[3,5,10], cut:"10 equal pieces!", top:"Pick a topping, then top the sloth’s share.", idle:"Tap the pieces the sloth wants.", mhint:"Check the denominator. Pick the mould that cuts that many equal parts.", line:"Three… tenths… please…",                         ok:"Three… of… ten… Perfect…"},
-    {cust:"hippo",   n:11, d:12, shape:"square", moulds:[6,9,12], cut:"12 equal pieces!", top:"Pick a topping, then top the hippo’s share.", idle:"Tap the pieces the hippo wants.", line:"Last order of the day! 11/12 of a pizza, please!", ok:"11 of 12 pieces, and {t} too! Delicious!"} ]}
+    {cust:"frog", who:"the frog",    n:1,  d:4,  shape:"square", moulds:[2,4,6],  cut:"4 equal parts!", top:"Pick a topping, then top the frog’s share.", idle:"Tap the part the frog wants.", line:"Ribbit! 1/4 of a pizza, please!",                ok:"1/4 with {t}! Ribbit-licious!"},
+    {cust:"gorilla", who:"the gorilla", n:4,  d:5,  shape:"rect",   moulds:[4,5,6],  cut:"5 equal strips!", top:"Pick a topping, then top the gorilla’s share.", idle:"Tap the strips the gorilla wants.", line:"Hungry gorilla here! 4/5 of a pizza, please!",   ok:"4 of 5 strips. Thank you, Chef!"},
+    {cust:"mouse", who:"the mouse",   n:1,  d:6,  shape:"round",  moulds:[4,6,8],  cut:"6 equal slices!", top:"Pick a topping, then top the mouse’s share.", idle:"Tap the slice the mouse wants.", line:"Squeak! 1/6 of a pizza, please!",                ok:"1/6, exactly what I ordered!"},
+    {cust:"sloth", who:"the sloth",   n:3,  d:10, shape:"rect",   moulds:[3,5,10], cut:"10 equal pieces!", top:"Pick a topping, then top the sloth’s share.", idle:"Tap the pieces the sloth wants.", mhint:"Check the denominator. Pick the mould that cuts that many equal parts.", line:"Three… tenths… please…",                         ok:"Three… of… ten… Perfect…"},
+    {cust:"hippo", who:"the hippo",   n:11, d:12, shape:"square", moulds:[6,9,12], cut:"12 equal pieces!", top:"Pick a topping, then top the hippo’s share.", idle:"Tap the pieces the hippo wants.", line:"Last order of the day! 11/12 of a pizza, please!", ok:"11 of 12 pieces, and {t} too! Delicious!"} ]}
 };
 const TOPPINGS = [{k:"tomato",name:"Tomato"},{k:"mushroom",name:"Mushroom"},{k:"corn",name:"Sweet corn"},{k:"onion",name:"Onion"}];
 /* slots sit inside the thali's well (centre 50%,49.7%, well radius 42%) */
@@ -2293,9 +2293,9 @@ async function miss(){
   S.tries++; S.busy=true; Sound.bad(); guideMood("hmm"); custMood("sad");
   // the sheet: 1st wrong attempt "Try again" (red glow and wiggle); 2nd and later the hint, and the numerator blinks
   const key=S.lv+":"+S.i; if(S.twKey!==key){ S.twKey=key; S.tw=0; } S.tw++;
-  if(S.tw===1) say(`Is that how much ${custWho(o)} ${o.who?"want":"wants"}? Try again.`,"bad");
-  else if(S.tw===2){ say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.who?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
-  else say(`Let me show you! The numerator is ${o.n}, so ${custWho(o)} ${o.who?"want":"wants"} ${o.n} ${o.n===1?"piece":"pieces"}.`,"bad");
+  if(S.tw===1) say(`Is that how much ${custWho(o)} ${o.duo?"want":"wants"}? Try again.`,"bad");
+  else if(S.tw===2){ say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.duo?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
+  else say(`Let me show you! The numerator is ${o.n}, so ${custWho(o)} ${o.duo?"want":"wants"} ${o.n} ${o.n===1?"piece":"pieces"}.`,"bad");
   S.covered.forEach((_,i)=>partEl(i).querySelector(".hit").classList.add("bad"));
   boardFx("wiggle"); setDone("done",false);
   await wait(1000); if(!live(gen)) return;
