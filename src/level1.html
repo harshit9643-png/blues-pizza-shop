@@ -2762,9 +2762,10 @@ async function runLearning(ok){
     drag={b,x0:e.clientX,y0:e.clientY,moved:false,g:null,w:r.width}; });
   document.addEventListener("pointermove",e=>{ if(!drag) return;
     if(!drag.moved && Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)<8) return;
-    if(!drag.moved){ drag.moved=true; const g=drag.g=document.createElement("img"); g.src=drag.b.querySelector("img").src; g.className="tdrag";
-      g.style.width=drag.w*.8+"px"; document.body.appendChild(g); }
-    drag.g.style.left=e.clientX+"px"; drag.g.style.top=e.clientY+"px";
+    if(!drag.moved){ drag.moved=true; const k=drag.b.dataset.top, g=drag.g=document.createElement("div"); g.className="ghost"; g.style.zIndex=9500;   // only the topping travels, as in the levels
+      g.innerHTML=[[22,18,0],[44,32,40],[24,44,110],[6,30,200]].map(([x,y,r])=>`<img src="${A}piece_${k}.webp" alt="" style="left:${x}px;top:${y}px;rotate:${r}deg">`).join("");
+      document.body.appendChild(g); }
+    drag.g.style.transform=`translate(${e.clientX-45}px,${e.clientY-62}px)`;
     document.querySelectorAll("#tutPz .part.over").forEach(p=>p.classList.remove("over"));
     drag.g.style.display="none"; const hit=document.elementFromPoint(e.clientX,e.clientY); drag.g.style.display="";
     const p=hit&&hit.closest&&hit.closest("#tutPz .part"); if(p) p.classList.add("over"); });
@@ -2783,7 +2784,8 @@ async function runLearning(ok){
       tutSay("noori","That slice already has a topping. Put it on a slice with no topping.",{wait:true,bad:true}); return; }
     d.b.click();                    // pick this topping
     if(!p) return;
-    const i=+p.dataset.i; setTimeout(()=>{ if(!TUT.done.has(i)) tapPart(i); },60);   // and put it on the slice it was dropped on
+    const i=+p.dataset.i, t0=performance.now();   // and put it on the slice it was dropped on, as soon as the slices take taps
+    (function put(){ if(TUT.done.has(i)) return; if($("tut").classList.contains("taps")){ tapPart(i); return; } if(performance.now()-t0<8000) setTimeout(put,100); })();
     d.b._noclick=true; setTimeout(()=>d.b._noclick=false,0); });
 })();
 /* plays Tutorial 1.1; resolves when the scroll has rolled up again */
