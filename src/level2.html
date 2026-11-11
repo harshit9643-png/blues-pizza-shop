@@ -2874,7 +2874,7 @@ async function runLearning2(ok){
   stage(`<div class="l2row">${side("monty",l2Pizza(8,{all:true}),"8 equal parts")}${side("ant",l2Pizza(4,{all:true}),"4 equal parts")}</div>`);
   await say("noori","Monty’s pizza has 8 equal parts. The ant’s has 4. More parts means smaller parts."); if(!ok()) return;
   // 6. the trophy goes to the ant
-  stage(`<div class="l2row">${side("monty",l2Pizza(8,{gone:[0]}),"")}<div class="l2side l2win">${`<div class="l2ava"><img src="${A}ant.webp" alt="Ant"><img class="l2medal" src="${A}medal.webp" alt=""></div>`}<img class="l2trophy" src="${A}trophy.webp" alt="Golden trophy"></div></div>`);
+  stage(`<div class="l2row">${side("monty",l2Pizza(8,{gone:[0]}),"")}<div class="l2side l2win">${`<div class="l2ava l2won"><img src="${A}ant_medal.webp" alt="The ant wearing its medal"></div>`}<img class="l2trophy" src="${A}trophy.webp" alt="Golden trophy"></div></div>`);
   Sound.win&&Sound.win(); confetti();
   await say("noori","The ant is the winner!"); if(!ok()) return;
   // 7. the rule card: same numerator, different denominators
@@ -3299,3 +3299,4 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 #t2learn .l2more{display:flex;align-items:center;gap:14px}
 #t2learn.tight .l2f{font-size:clamp(22px,calc(3.6*var(--vh)),34px);padding:5px 14px 7px}
 </style>
+<style>#t2learn .l2won img{height:100%!important;width:100%!important;object-fit:cover!important;margin:0!important;border-radius:50%}</style>
