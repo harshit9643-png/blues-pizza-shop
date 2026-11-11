@@ -3433,7 +3433,7 @@ $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=tr
 /* Level 2 is the next page of the same game (online it is served at /level2) */
 function goLevel2(){ CURTAIN.cover().then(()=>{ location.href=new URL((location.protocol==="file:"?"level2.html":"level2")+"#play",location.href).href; }); }
 /* the main screen's PLAY: the story, then Tutorial 1.1, then Level 1.1 -> 1.2 -> Level 2 */
-$("mainPlay").addEventListener("click",()=>SAUCE(()=>startLevel("1.1",true)));   // the sauce bottle pours over the screen, then the story   // the pre-LBD screen zooms into the plate, then the story
+$("mainPlay").addEventListener("click",()=>{ const go=()=>SAUCE(()=>startLevel("1.1",true)); TITLE.said?go():TITLE.say(go); });   // the sauce bottle pours over the screen, then the story   // the pre-LBD screen zooms into the plate, then the story
 $("jump").innerHTML=`<optgroup label="Story"><option value="S">Story · Billu’s Pizza Kitchen</option></optgroup><optgroup label="Tutorial"><option value="T">Tutorial 1.1 · Top and serve</option><option value="T2">Tutorial 1.2 · Cut, top and serve</option></optgroup>`+Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
   `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("")
   +`<optgroup label="Level 2 · Big Eater Contest"><option value="L2">Level 2 · Big Eater Contest ▸</option></optgroup>`;
@@ -3870,11 +3870,16 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 })();
 </script>
 <script>
-/* the title is read out on the main screen: as soon as sound is allowed (straight away, or at the first tap) */
-(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
-  const say=()=>{ if(said||$("start").hidden) return; said=VOICE.play("narr",T); };
-  setTimeout(say,1600);   // a browser that allows sound reads it on arrival
-  addEventListener("pointerdown",e=>{ if(e.target.closest&&e.target.closest("#mainPlay")) return; setTimeout(say,50); },{capture:true});
-  new MutationObserver(()=>{ if(!$("start").hidden){ said=false; setTimeout(say,1200); } }).observe($("start"),{attributes:true,attributeFilter:["hidden"]});
+/* the title is read out on the main screen: on arrival if the browser allows sound, otherwise at the very first tap
+   (a first tap on PLAY says the title first, then the sauce pours) */
+const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false, ctx0=null;
+  const audible=()=>{ try{ ctx0=ctx0||new (window.AudioContext||window.webkitAudioContext)(); return ctx0.state==="running"; }catch(e){ return false; } };
+  function say(done){ if(said||$("start").hidden){ if(done) done(); return; } said=true;
+    if(!VOICE.play("narr",T,()=>{ if(done) setTimeout(done,250); })){ try{ const u=new SpeechSynthesisUtterance(T); u.onend=()=>done&&done(); speechSynthesis.speak(u); }catch(e){ if(done) done(); } }
+    else if(done) setTimeout(()=>{ if(done){ const d=done; done=null; d(); } },2600); }   // never hold PLAY back for long
+  setTimeout(()=>{ if(audible()) say(); },1400);
+  addEventListener("pointerdown",e=>{ if(!(e.target.closest&&e.target.closest("#mainPlay"))) say(); },{capture:true});
+  new MutationObserver(()=>{ if(!$("start").hidden){ said=false; setTimeout(()=>{ if(audible()) say(); },1200); } }).observe($("start"),{attributes:true,attributeFilter:["hidden"]});
+  return {say, get said(){ return said; }};
 })();
 </script>
