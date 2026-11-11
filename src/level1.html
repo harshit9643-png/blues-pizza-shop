@@ -66,7 +66,10 @@ html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place
 <path d="M14 49Q30 30 34 6"/><path d="M14 51Q30 70 34 94"/><path d="M42 48Q58 30 64 8"/><path d="M42 52Q58 70 64 92"/><path d="M70 49Q84 34 90 16"/><path d="M70 51Q84 66 90 84"/><path d="M94 49Q104 42 110 32"/><path d="M94 51Q104 58 110 68"/></g></svg></div>`; (document.body||d).appendChild(cu);
   window.CURTAIN={ cover(){ cu.classList.add("on"); return new Promise(r=>setTimeout(r,620)); },
     reveal(){ cu.classList.remove("on"); } };
-  let lifted=false; const lift=()=>{ if(lifted) return; lifted=true; setTimeout(()=>CURTAIN.reveal(),220); };   // as soon as the page is built (pictures keep loading behind)
+  // the first opening of the main screen waits for one tap on the leaves (browsers allow sound only after a tap), so the
+  // title is read out the moment the leaves part; arriving from Level 2 (#1.1 / #1.2) the leaves part by themselves
+  const gate=!/#(1\.1|1\.2|play)/.test(location.hash);
+  let lifted=false; const lift=()=>{ if(lifted) return; lifted=true; if(gate){ window.CURTAIN_GATE=true; return; } setTimeout(()=>CURTAIN.reveal(),220); };
   if(document.readyState!=="loading") lift(); else addEventListener("DOMContentLoaded",lift);
   setTimeout(lift,4000);   // the first opening never stays shut
   addEventListener("pageshow",e=>{ if(e.persisted) CURTAIN.reveal(); });   // back button from the next page
@@ -3870,16 +3873,35 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 })();
 </script>
 <script>
-/* the title is read out on the main screen: on arrival if the browser allows sound, otherwise at the very first tap
-   (a first tap on PLAY says the title first, then the sauce pours) */
-const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false, ctx0=null;
-  const audible=()=>{ try{ ctx0=ctx0||new (window.AudioContext||window.webkitAudioContext)(); return ctx0.state==="running"; }catch(e){ return false; } };
+/* the title is read out the moment the leaves part on the main screen (sound needs one tap first: the closed leaves wait
+   for it, with a "Tap to open" sign; if the browser already allows sound, they part by themselves) */
+const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
   function say(done){ if(said||$("start").hidden){ if(done) done(); return; } said=true;
     if(!VOICE.play("narr",T,()=>{ if(done) setTimeout(done,250); })){ try{ const u=new SpeechSynthesisUtterance(T); u.onend=()=>done&&done(); speechSynthesis.speak(u); }catch(e){ if(done) done(); } }
-    else if(done) setTimeout(()=>{ if(done){ const d=done; done=null; d(); } },2600); }   // never hold PLAY back for long
-  setTimeout(()=>{ if(audible()) say(); },1400);
-  addEventListener("pointerdown",e=>{ if(!(e.target.closest&&e.target.closest("#mainPlay"))) say(); },{capture:true});
-  new MutationObserver(()=>{ if(!$("start").hidden){ said=false; setTimeout(()=>{ if(audible()) say(); },1200); } }).observe($("start"),{attributes:true,attributeFilter:["hidden"]});
+    else if(done) setTimeout(()=>{ if(done){ const d=done; done=null; d(); } },2600); }
+  function open(){ const cu=document.getElementById("curtain"); if(cu){ const h=cu.querySelector(".tapopen"); if(h) h.remove(); }
+    window.CURTAIN_GATE=false; CURTAIN.reveal(); setTimeout(()=>say(),350); }
+  let tries=0;
+  (function gate(){
+    if(!window.CURTAIN_GATE){ if(++tries<100) setTimeout(gate,50); return; }   // the leaves' script marks the gate once the page is built
+    const cu=document.getElementById("curtain"); let ac=null; try{ ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){}
+    if(ac&&ac.state==="running"){ open(); return; }                       // sound already allowed: part at once and speak
+    const sign=document.createElement("div"); sign.className="tapopen"; sign.innerHTML=`<span>👆</span>Tap to open`; cu.appendChild(sign);
+    cu.classList.add("on");
+    const go=e=>{ removeEventListener("pointerdown",go,true); removeEventListener("keydown",go,true); try{ ac&&ac.resume(); }catch(_){} open(); };
+    addEventListener("pointerdown",go,true); addEventListener("keydown",go,true);
+  })();
+  new MutationObserver(()=>{ if(!$("start").hidden){ said=false; setTimeout(()=>say(),1200); } }).observe($("start"),{attributes:true,attributeFilter:["hidden"]});
   return {say, get said(){ return said; }};
 })();
 </script>
+<style>
+/* "Tap to open" on the closed leaves of the first screen */
+#curtain .tapopen{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:5;pointer-events:none;display:flex;align-items:center;gap:12px;
+  font-family:var(--display,"Baloo 2"),sans-serif;font-weight:800;font-size:clamp(22px,calc(4.4*var(--vh,1vh)),40px);color:#FFFCEB;
+  padding:12px 30px;border-radius:999px;background:rgba(30,70,20,.55);box-shadow:0 0 0 3px rgba(255,252,235,.5);text-shadow:0 2px 4px rgba(0,0,0,.4);
+  animation:tapPulse 1.4s ease-in-out infinite}
+#curtain .tapopen span{font-size:1.2em}
+@keyframes tapPulse{50%{transform:scale(1.08)}}
+#curtain.on{pointer-events:auto}
+</style>
