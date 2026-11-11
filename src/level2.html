@@ -2874,7 +2874,7 @@ async function runLearning2(ok){
   stage(`<div class="l2row">${side("monty",l2Pizza(8,{all:true}),"8 equal parts")}${side("ant",l2Pizza(4,{all:true}),"4 equal parts")}</div>`);
   await say("noori","Monty’s pizza has 8 equal parts. The ant’s has 4. More parts means smaller parts."); if(!ok()) return;
   // 6. the trophy goes to the ant
-  stage(`<div class="l2solo"><div class="l2antwin l2trophyant"><img src="${A}ant_win_trophy.webp" alt="The ant lifting the trophy"></div></div>`);   // only the winner, big, wearing its medal
+  stage(`<div class="l2solo"><div class="l2antwin l2trophyant"><img src="${A}ant_win_medal.webp" alt="The ant wearing its medal"></div></div>`);   // only the winner, big, wearing its medal
   Sound.win&&Sound.win(); confetti();
   await say("noori","The ant is the winner!"); if(!ok()) return;
   // 7. the rule card: same numerator, different denominators
