@@ -3196,3 +3196,41 @@ button.stack{gap:3px!important}
 #t2learn.tight .l2rules .rule{transform:scale(.88);transform-origin:50% 0}
 #t2learn .l2line{display:flex;gap:clamp(10px,calc(1.6*var(--vw)),26px);justify-content:center}
 </style>
+
+<style>
+/* the music button, beside Home: the round wooden frame, a note when on, a crossed note when off */
+#bgmBtn{width:44px;height:44px;display:grid;place-items:center;flex:0 0 auto;border:0;cursor:pointer;color:#FFF3D6;
+  background:url("assets/ui/round_wood.webp") center/100% 100% no-repeat;filter:drop-shadow(0 4px 5px rgba(50,25,0,.4));padding:0}
+#bgmBtn svg{width:22px;height:22px}
+#bgmBtn.off .on,#bgmBtn:not(.off) .offl{display:none}
+</style>
+<script>
+/* background music (tools/make_bgm.py): starts on the first tap (browsers allow sound only after one), plays softly under
+   everything, dips while someone speaks, stops while paused or in another tab; the note button turns it on and off */
+const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, want=true;
+  try{ want=localStorage.getItem("bgm")!=="off"; }catch(e){}
+  const LEVEL=.16;
+  async function load(){ if(buf) return buf; ctx=ctx||new (window.AudioContext||window.webkitAudioContext)(); gain=gain||ctx.createGain(); gain.gain.value=0; gain.connect(ctx.destination);
+    const r=await fetch("assets/audio/bgm.mp3"); buf=await ctx.decodeAudioData(await r.arrayBuffer()); return buf; }
+  async function start(){ if(started||!want) return; started=true;
+    try{ await load(); if(ctx.state!=="running") await ctx.resume();
+      src=ctx.createBufferSource(); src.buffer=buf; src.loop=true; src.loopStart=.025; src.loopEnd=Math.min(buf.duration,.025+34.286);
+      src.connect(gain); src.start(0,.025); gain.gain.setTargetAtTime(LEVEL,ctx.currentTime,.6); }catch(e){ started=false; } }
+  function stop(){ if(!src) return; try{ gain.gain.setTargetAtTime(0,ctx.currentTime,.15); const s=src; setTimeout(()=>{ try{ s.stop(); }catch(e){} },500); }catch(e){} src=null; started=false; }
+  // dip under the voices; hold still while paused or hidden
+  setInterval(()=>{ if(!ctx||!gain) return;
+    const hold=(window.PAUSE&&PAUSE.on)||document.hidden;
+    if(hold&&ctx.state==="running") ctx.suspend(); else if(!hold&&ctx.state==="suspended"&&src) ctx.resume();
+    const talking=(window.VOICE&&VOICE.busy())||!!(window.speechSynthesis&&speechSynthesis.speaking);
+    if(src) gain.gain.setTargetAtTime(talking?LEVEL*.38:LEVEL,ctx.currentTime,.25); },200);
+  addEventListener("pointerdown",()=>start(),{capture:true});
+  addEventListener("keydown",()=>start(),{capture:true});
+  function toggle(){ want=!want; try{ localStorage.setItem("bgm",want?"on":"off"); }catch(e){} if(want) start(); else stop(); paint(); }
+  function paint(){ const b=document.getElementById("bgmBtn"); if(b){ b.classList.toggle("off",!want); b.setAttribute("aria-label",want?"Music on":"Music off"); } }
+  const home=document.getElementById("home");
+  if(home){ const b=document.createElement("button"); b.id="bgmBtn"; b.type="button";
+    b.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/><path class="offl" d="M3 3l18 18"/></svg>`;
+    b.addEventListener("click",e=>{ e.stopPropagation(); toggle(); }); home.insertAdjacentElement("beforebegin",b); paint(); }
+  return {start,stop,toggle};
+})();
+</script>

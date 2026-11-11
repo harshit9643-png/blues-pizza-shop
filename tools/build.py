@@ -129,6 +129,10 @@ def main():
         for fn in os.listdir(os.path.join(SRC, folder)):
             if fn.endswith(".webp"):
                 files.add(f"{folder}/{fn}")
+    # the background music (tools/make_bgm.py)
+    au = os.path.join(SRC, "assets", "audio")
+    if os.path.isdir(au):
+        files |= {f"assets/audio/{fn}" for fn in os.listdir(au) if fn.endswith(".mp3")}
     # the AI voice clips and their list (tools/voices.py)
     vo = os.path.join(SRC, "assets", "vo")
     if os.path.isdir(vo):
