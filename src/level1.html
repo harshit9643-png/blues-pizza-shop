@@ -2393,7 +2393,7 @@ async function plateScene(gen){
   const target=fig=>{
     const r=fig.getBoundingClientRect(), w=ph*600/630;
     const c=new DOMPoint(r.left+r.width/2, r.top+ph*302/630).matrixTransform(inv);   // centre of the plate's well
-    return {x:c.x, y:c.y, k:(w*.74)/(564*unit), well:w*240/600};                     // well radius in screen px
+    return {x:c.x, y:c.y, k:(w*.74)/(564*unit), well:w*184/600};   // inside the plate's dashed ring (radius 196 of 600)                     // well radius in screen px
   };
   const A_=target(layer.querySelector(".a")), B_=target(layer.querySelector(".b"));
   B_.k=A_.k=Math.min(A_.k,B_.k);
@@ -2416,9 +2416,22 @@ async function plateScene(gen){
       let a=0,x=0,y=0; for(let j=0;j<P.length;j++){ const [x0,y0]=P[j],[x1,y1]=P[(j+1)%P.length], c=x0*y1-x1*y0; a+=c; x+=(x0+x1)*c; y+=(y0+y1)*c; }
       if(Math.abs(a)<1e-6) return; A+=a/2; X+=(x/(3*a)+o.x*.5)*a/2; Y+=(y/(3*a)+o.y*.5)*a/2; });
     return A?{x:X/A,y:Y/A}:centreOf(group); };
-  const cA=massOf(idsA), cB=massOf(idsB);
+  // the pieces are closed up on the plate, as if lifted with the slicer and laid side by side: each served piece takes the
+  // next place of a whole pizza (slots 0,1,2… for Served, the following ones for Left), so there are no gaps between them
+  const slotOf={}; idsA.forEach((i,j)=>slotOf[i]=j); idsB.forEach((i,j)=>slotOf[i]=idsA.length+j);
+  const slotsA=idsA.map((_,j)=>j), slotsB=idsB.map((_,j)=>idsA.length+j);
+  const noOff=f=>{ const keep=S.off; S.off={}; try{ return f(); } finally{ S.off=keep; } };   // the closed-up pieces sit without the pull-apart gaps
+  // square/rect pieces: full rows first, the last (shorter) row centred under them, so every group is symmetric
+  const [gRows,gCols]=o.shape==="round"?[1,1]:gridOf(o.shape,G.parts.length), bb0=partEl(0).querySelector(".hit").getBBox(), cw=bb0.width, ch=bb0.height;
+  const P0={x:G.parts[0].cx,y:G.parts[0].cy}, tgt={};
+  const layout=(group)=>{ const m=group.length, rows=Math.ceil(m/gCols); group.forEach((i,j)=>{ const r=Math.floor(j/gCols), c=j%gCols, inRow=r===rows-1?m-(rows-1)*gCols:gCols;
+      tgt[i]={x:P0.x+(c+(gCols-inRow)/2)*cw, y:P0.y+r*ch}; });
+    const xs=group.map(i=>tgt[i].x), ys=group.map(i=>tgt[i].y);
+    return {x:(Math.min(...xs)+Math.max(...xs))/2, y:(Math.min(...ys)+Math.max(...ys))/2, rx:(Math.max(...xs)-Math.min(...xs)+cw)/2, ry:(Math.max(...ys)-Math.min(...ys)+ch)/2}; };
+  const LA=o.shape==="round"?null:layout(idsA), LB=o.shape==="round"?null:layout(idsB);
+  const cA=o.shape==="round"?noOff(()=>massOf(slotsA)):{x:LA.x,y:LA.y}, cB=o.shape==="round"?noOff(()=>massOf(slotsB)):(LB&&idsB.length?{x:LB.x,y:LB.y}:{x:0,y:0});
   // round pizza: the served slices turn to stand upright on their plate, crust on top and tip pointing down
-  const pc=massOf(ids), rotA=(o.shape==="round"&&idsA.length&&idsA.length<ids.length&&Math.hypot(cA.x-pc.x,cA.y-pc.y)>1)
+  const pc=noOff(()=>massOf(ids)), rotA=(o.shape==="round"&&idsA.length&&idsA.length<ids.length&&Math.hypot(cA.x-pc.x,cA.y-pc.y)>1)
     ? -90-Math.atan2(cA.y-pc.y,cA.x-pc.x)*180/Math.PI : 0;
   const rot=(v,deg,c0)=>{ const r=deg*Math.PI/180, x=v.x-c0.x, y=v.y-c0.y; return {x:c0.x+x*Math.cos(r)-y*Math.sin(r), y:c0.y+x*Math.sin(r)+y*Math.cos(r)}; };
   // how far a group reaches from its centre, traced along the real piece outlines
@@ -2427,8 +2440,9 @@ async function plateScene(gen){
       for(let t=0;t<=48;t++){ const q=h.getPointAtLength(L*t/48); m=Math.max(m,Math.hypot(q.x+o.x*.5-c.x,q.y+o.y*.5-c.y)); } });
     return m; };
   // one scale for both plates, small enough that each group sits inside its plate's well
-  const fit=(T,group,c)=>T.well*.92/(reach(group,c)*unit);
-  A_.k=B_.k=Math.min(A_.k, fit(A_,idsA,cA), onBoard?1e9:fit(B_,idsB,cB));
+  const fit=(T,group,c,Lg)=>T.well*.92/((Lg?Math.hypot(Lg.rx,Lg.ry):noOff(()=>reach(group,c)))*unit);
+  A_.k=B_.k=Math.min(A_.k, fit(A_,slotsA,cA,LA), (onBoard||!idsB.length)?1e9:fit(B_,slotsB,cB,LB));
+  const pcen=i=>G.parts[i], ang=i=>Math.atan2(pcen(i).cy-pc.y,pcen(i).cx-pc.x)*180/Math.PI;
   // drive the SVG transform attribute directly (CSS transforms on SVG groups can be drawn
   // somewhere other than where they are measured, which knocked the pieces off-centre)
   const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -2439,8 +2453,10 @@ async function plateScene(gen){
     el.style.removeProperty("transform"); el.style.transition="none";
     if(served.has(i)) el.parentNode.appendChild(el);                 // served pieces travel on top
     // keyframes as [offset, x, y, scale] for translate(x y) scale(s)
-    const R=served.has(i)?rotA:0, Rc=rot(c,R,pc), Ro=rot({x:off.x*.5,y:off.y*.5},R,{x:0,y:0});
-    const fx=T.x+k*(Ro.x-Rc.x), fy=T.y+k*(Ro.y-Rc.y), lift=served.has(i)?-120:-50;
+    // round: the slice turns into its slot; square/rect: the piece shifts into its slot
+    const sl=slotOf[i], d=o.shape==="round"?{x:0,y:0}:{x:tgt[i].x-p.cx,y:tgt[i].y-p.cy};
+    const R=(served.has(i)?rotA:0)+(o.shape==="round"?ang(sl)-ang(i):0), Rc=rot(c,served.has(i)?rotA:0,pc);
+    const fx=T.x+k*(d.x-Rc.x), fy=T.y+k*(d.y-Rc.y), lift=served.has(i)?-120:-50;
     const K=[[0,off.x,off.y,1,0],[.18,off.x,off.y-24,1.04,0],[.58,(fx+off.x)/2,(fy+off.y)/2+lift,(1+k)/2,R/2],[1,fx,fy,k,R]];
     const set=(x,y,sc,r=0)=>el.setAttribute("transform",`translate(${x.toFixed(2)} ${y.toFixed(2)}) scale(${sc.toFixed(4)})`+(r?` rotate(${r.toFixed(2)} ${pc.x.toFixed(2)} ${pc.y.toFixed(2)})`:""));
     set(off.x,off.y,1);
@@ -2481,7 +2497,16 @@ async function flyToCustomer(gen){
       {duration:1500,delay:k*110,easing:"cubic-bezier(.45,0,.35,1)",fill:"forwards"}));
   }));
 }
-function next(){ S.i++; if(S.i>=LEVELS[S.lv].orders.length){ showEnd(); return; } loadOrder(); }
+function next(){ S.i++;
+  if(S.i>=LEVELS[S.lv].orders.length){
+    if(S.lv==="1.1"){ endOf11(); return; }   // no end card after Level 1.1: Billu and Noori say the round's lines, then straight on to Level 1.2
+    showEnd(); return; }
+  loadOrder(); }
+async function endOf11(){ const L=LEVELS["1.1"], gen=++S.gen; S.phase="idle"; S.busy=true; clearPlateScene(); document.body.classList.remove("platescene");
+  Sound.win(); confetti(); setDone("next",false);
+  await sayW(L.end[0],"good","billu",gen); if(!live(gen)) return;
+  await sayW(L.end[1],"good","noori",gen); if(!live(gen)) return;
+  startLevel("1.2"); }
 
 /* ---------- hint, confetti, end ---------- */
 let hintAnim=null;
