@@ -3773,7 +3773,10 @@ function SAUCE(done){
   const g=cv.getContext("2d"); g.scale(dpr,dpr);
   const bw=btl.getBoundingClientRect().width||90, bh=bw*763/300, top=H*.03, nozzle=top+bh-4;
   btl.style.left="0px"; btl.style.translate="none";
-  const place=(x,rot)=>{ btl.style.transform=`translate(${x-bw/2}px,${top}px) rotate(${rot}deg)`; };
+  // the bottle's centre (cx,cy) and tilt φ: nozzle-down is 180°, it zigzags ±35° as it sweeps; the nozzle is half its height from the centre
+  const place=(cx,cy,phi)=>{ btl.style.transform=`translate(${cx-bw/2}px,${cy-bh/2}px) rotate(${180+phi}deg)`; };
+  const nozzleAt=(cx,cy,phi)=>{ const r=phi*Math.PI/180; return {x:cx-(bh/2-4)*Math.sin(r), y:cy+(bh/2-4)*Math.cos(r)}; };
+  const GAP=H*.2, cyFor=lvl=>lvl-GAP-bh/2, CY0=cyFor(H);
   try{ Sound.pop(); }catch(e){}
   const FILL=3800, IN=700, DRAIN=1300, t0=performance.now(); let covered=false, tCover=0;
   const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
@@ -3795,17 +3798,19 @@ function SAUCE(done){
     if(!ov.isConnected) return;
     const t=now-t0; g.clearRect(0,0,W,H);
     // 1. the bottle drops in and turns nozzle-down
-    if(t<IN){ const u=t/IN, y=u<.55?(-bh*1.2+(bh*1.2+top)*ease(u/.55)):top, r=u<.55?0:180*ease((u-.55)/.45);
+    if(t<IN){ const u=t/IN, y=u<.55?(-bh*1.2+(bh*1.2+CY0-bh/2)*ease(u/.55)):CY0-bh/2, r=u<.55?0:180*ease((u-.55)/.45);
       btl.style.transform=`translate(${W/2-bw/2}px,${y}px) rotate(${r}deg)`; requestAnimationFrame(frame); return; }
     const tp=t-IN;
     if(!covered){
       // 2. pouring: the level rises, slowly at first, faster as the sauce spreads
-      const u=Math.min(1,tp/FILL), lvl=H-(H+40)*(u*u*(3-2*u)), x=W/2+(bx(tp)-W/2)*Math.min(1,tp/500);
-      place(x,180-8*Math.cos(tp/650));
+      const u=Math.min(1,tp/FILL), lvl=H-(H+40)*(u*u*(3-2*u)), ramp=Math.min(1,tp/500);
+      const cx=W/2+(bx(tp)-W/2)*ramp, cy=cyFor(lvl), phi=35*Math.cos(tp/650)*ramp;   // it climbs with the sauce and tilts with its sweep
+      place(cx,cy,phi);
+      const nz=nozzleAt(cx,cy,phi), x=nz.x;
       liquid(lvl,tp,x,10+6*Math.sin(tp*.02),false);
-      // the thin stream, wobbling a little as it falls
-      const yEnd=surf(x,lvl,tp,x,10)+2; g.beginPath(); g.moveTo(x,nozzle);
-      for(let y=nozzle;y<=yEnd;y+=10){ const k=(y-nozzle)/Math.max(1,yEnd-nozzle); g.lineTo(x+Math.sin(y*.05+tp*.02)*1.6*k+(-Math.cos(tp/650))*k*14,y); }
+      // the thin stream from the tilted nozzle, falling and wobbling a little
+      const yEnd=surf(x,lvl,tp,x,10)+2; g.beginPath(); g.moveTo(nz.x,nz.y);
+      for(let y=nz.y;y<=yEnd;y+=10){ const k=(y-nz.y)/Math.max(1,yEnd-nz.y); g.lineTo(x+Math.sin(y*.05+tp*.02)*1.6*k-Math.sin(phi*Math.PI/180)*(1-k)*k*30,y); }
       g.lineCap="round"; g.strokeStyle="#8E120A"; g.lineWidth=Math.max(7,W*.006); g.stroke();      // dark edge
       g.strokeStyle="#E8361F"; g.lineWidth=Math.max(5,W*.0045); g.stroke();                          // the sauce
       g.strokeStyle="rgba(255,200,180,.7)"; g.lineWidth=1.6; g.stroke();                              // shine
@@ -3813,8 +3818,7 @@ function SAUCE(done){
       if(Math.random()<.5) drops.push({x:x+(Math.random()-.5)*10,y:yEnd,vx:(Math.random()-.5)*2.4,vy:-2-Math.random()*2.5,r:2+Math.random()*3});
       for(let i=drops.length-1;i>=0;i--){ const d=drops[i]; d.x+=d.vx; d.y+=d.vy; d.vy+=.25; if(d.y>surf(d.x,lvl,tp,x,10)+4){ drops.splice(i,1); continue; }
         g.beginPath(); g.arc(d.x,d.y,d.r,0,6.3); g.fillStyle="#D9281B"; g.fill(); }
-      if(u>=1){ covered=true; tCover=now; done();
-        btl.animate([{transform:btl.style.transform},{transform:`translate(${x-bw/2}px,${-bh*1.6}px) rotate(160deg)`}],{duration:500,easing:"ease-in",fill:"forwards"}); }
+      if(u>=1){ covered=true; tCover=now; done(); btl.remove(); }   // by now the bottle has climbed out through the top
       requestAnimationFrame(frame); return;
     }
     // 3. covered: a short hold, then the sauce drains down off the screen
