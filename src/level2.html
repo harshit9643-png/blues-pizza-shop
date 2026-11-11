@@ -2841,12 +2841,13 @@ function l2Pizza(d,{lit=[],gone=[],all=false}={}){
   const R=92, C=100, step=2*Math.PI/d, a0=-Math.PI/2; let g=`<circle cx="${C}" cy="${C}" r="${R+4}" fill="#FFF7E6" stroke="#E2C9A0" stroke-width="3"/>`;
   for(let i=0;i<d;i++){ const s=a0+i*step, e=s+step;
     if(gone.includes(i)){ g+=`<path d="${sector(C,C,R,s,e)}" fill="rgba(255,230,180,.25)" stroke="#C8402E" stroke-width="2.5" stroke-dasharray="6 5"/>`; continue; }
-    g+=wedge(C,C,R,s,e,(all||lit.includes(i))?'class="l2lit"':''); }
+    g+=wedge(C,C,R,s,e,lit.includes(i)?'class="l2lit"':''); }
   return `<svg class="l2pz" viewBox="0 0 200 200" aria-hidden="true">${g}</svg>`;
 }
 /* the slice each one ate, lifted out and laid side by side at the same scale */
 function l2Slice(d){ const R=92, step=2*Math.PI/d, a0=-Math.PI/2-step/2;
   return `<svg class="l2sl" viewBox="0 0 200 110" aria-hidden="true"><g transform="translate(0 102)">${wedge(100,0,R,a0,a0+step,'class="l2lit"')}</g></svg>`; }
+const l2Card=(n,d)=>`<div class="l2f"><b>${n}</b><i></i><b>${d}</b></div>`;
 async function runLearning2(ok){
   const page=document.querySelector(".tut .page"), duel=$("t2duel"), ttl=document.querySelector(".tut .ttl");
   duel.style.display="none"; ttl.innerHTML="Let's learn: <b>Who ate more?</b>"; ttl.style.display="none";
@@ -2858,7 +2859,7 @@ async function runLearning2(ok){
   stage(`<div class="l2row">${side("monty",l2Pizza(1,{}),"")}${side("ant",l2Pizza(1,{}),"")}</div>`);
   await say("noori","First, both pizzas are the same size. That’s important!"); if(!ok()) return;
   // 2. cut into 8 and 4; the slice each one ate glows
-  stage(`<div class="l2row">${side("monty",l2Pizza(8,{lit:[0]}),fracify("1/8"),"l2a")}${side("ant",l2Pizza(4,{lit:[0]}),fracify("1/4"),"l2b")}</div>`);
+  stage(`<div class="l2row">${side("monty",l2Pizza(8,{lit:[0]}),l2Card(1,8),"l2a")}${side("ant",l2Pizza(4,{lit:[0]}),l2Card(1,4),"l2b")}</div>`);
   await say("noori","Monty ate 1 slice out of 8. The ant ate 1 slice out of 4."); if(!ok()) return;
   // 3. the learner taps the plate of whoever ate more
   ["l2a","l2b"].forEach(id=>$(id).classList.add("pick"));
@@ -2866,7 +2867,7 @@ async function runLearning2(ok){
   const pick=await new Promise(r=>{ ["l2a","l2b"].forEach(id=>$(id).onclick=()=>r(id)); }); if(!ok()) return;
   ["l2a","l2b"].forEach(id=>{ $(id).classList.remove("pick"); $(id).onclick=null; }); Sound.pop&&Sound.pop();
   // 4. the two eaten slices side by side
-  stage(`<div class="l2row">${side("monty",l2Slice(8),fracify("1/8"))}${side("ant",l2Slice(4),fracify("1/4"),"l2big")}</div>`);
+  stage(`<div class="l2row">${side("monty",l2Slice(8),l2Card(1,8))}${side("ant",l2Slice(4),l2Card(1,4),"l2big")}</div>`);
   $("l2big").classList.add("glow");
   await say("noori",pick==="l2b"?"Yes! The ant’s piece is bigger.":"Look closely. The ant’s piece is bigger."); if(!ok()) return;
   // 5. both pizzas glow: 8 parts and 4 parts
@@ -2877,11 +2878,11 @@ async function runLearning2(ok){
   Sound.win&&Sound.win(); confetti();
   await say("noori","The ant is the winner!"); if(!ok()) return;
   // 7. the rule card: same numerator, different denominators
-  stage(`<div class="l2rules">${ruleCard("n").replace(/ id="rule-\w+"/,"")}</div><div class="l2more">${fracify("1/4")} is more than ${fracify("1/8")}</div>`);
+  stage(`<div class="l2rules">${ruleCard("n").replace(/ id="rule-\w+"/,"")}</div><div class="l2more">${l2Card(1,4)}<span>is more than</span>${l2Card(1,8)}</div>`);
   await say("noori","Same number of parts, but different denominators? Then compare the size of the parts. A bigger denominator means smaller parts."); if(!ok()) return;
   // 8. the second match: Tez 3/8 and Jhumru 5/8; the second rule card joins the first
-  L.classList.add("tight"); stage(`<div class="l2row">${side("tez",l2Pizza(8,{lit:[0,1,2]}),fracify("3/8"))}${side("jhumru",l2Pizza(8,{lit:[0,1,2,3,4]}),fracify("5/8"))}</div>
-    <div class="l2more">${fracify("5/8")} is more than ${fracify("3/8")}</div>
+  L.classList.add("tight"); stage(`<div class="l2row">${side("tez",l2Pizza(8,{lit:[0,1,2]}),l2Card(3,8))}${side("jhumru",l2Pizza(8,{lit:[0,1,2,3,4]}),l2Card(5,8))}</div>
+    <div class="l2more">${l2Card(5,8)}<span>is more than</span>${l2Card(3,8)}</div>
     <div class="l2rules two">${ruleCard("n").replace(/ id="rule-\w+"/,"")}${ruleCard("d").replace(/ id="rule-\w+"/,"")}</div>`);
   await say("noori","Same denominator? Then the parts are the same size. Just compare the numerators."); if(!ok()) return;
   // 9. more contestants line up
@@ -3280,4 +3281,21 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 #t2learn .l2win .l2ava{overflow:visible!important}
 #t2learn.tight .l2ava{width:clamp(70px,calc(11*var(--vh)),110px)!important;height:clamp(70px,calc(11*var(--vh)),110px)!important}
 #t2learn .l2line .l2ava{width:clamp(80px,calc(13*var(--vh)),120px)!important;height:clamp(80px,calc(13*var(--vh)),120px)!important}
+</style>
+<style>
+/* Learning 2 pizzas look like Tutorial 1's: the pizza itself, dark cut lines; a talked-about slice gets a soft white edge, no gold fill */
+#t2learn .l2pz path,#t2learn .l2sl path{stroke:#3A1A08!important;stroke-opacity:.85!important;stroke-width:2.2!important;fill:none}
+#t2learn .l2pz .l2lit,#t2learn .l2sl .l2lit{fill:rgba(255,255,255,.12)!important;stroke:#FFFFFF!important;stroke-opacity:1!important;stroke-width:4!important;
+  filter:drop-shadow(0 0 5px rgba(255,255,255,.85))!important}
+#t2learn .l2pz path[stroke-dasharray]{stroke:#C8402E!important;fill:rgba(255,230,180,.18)!important}
+#t2learn .l2pz circle{fill:#F3E3C4!important;stroke:#3A1A08!important;stroke-opacity:.5!important;stroke-width:2!important}
+/* the wooden fraction card (Tutorial 1) */
+#t2learn .l2f{display:inline-grid;justify-items:center;align-content:center;padding:8px 18px 10px;border-radius:16px;min-width:clamp(62px,calc(8.5*var(--vh)),90px);
+  background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A);box-shadow:0 0 0 4px #4A2610,inset 0 3px 0 rgba(255,220,170,.35),0 10px 16px rgba(0,0,0,.35);
+  font-family:var(--display);font-weight:800;line-height:.95;font-size:clamp(28px,calc(5*var(--vh)),44px);color:#FFE08A;text-shadow:0 2px 0 rgba(0,0,0,.35);animation:lIn .45s cubic-bezier(.3,1.6,.5,1) both}
+#t2learn .l2f i{display:block;width:120%;height:5px;border-radius:9px;background:currentColor;margin:4px 0}
+#t2learn .l2f b{display:block}
+#t2learn .l2cap{min-height:0}
+#t2learn .l2more{display:flex;align-items:center;gap:14px}
+#t2learn.tight .l2f{font-size:clamp(22px,calc(3.6*var(--vh)),34px);padding:5px 14px 7px}
 </style>
