@@ -1573,14 +1573,14 @@ const STEPS=[
     quotes:[["bijli","Sssorry, twin!"],["badal","Next time!"]]},
   {kind:"match",set:"A",label:"Match 4",a:{k:"jhumru",n:3,d:10},b:{k:"hippo",n:7,d:10},win:"b",intro:"Match 4: the two biggest eaters, Jhumru and the hippo!",
     quotes:[["hippo","Hip hip hooray!"],["jhumru","Well eaten, hippo!"]]},
-  {kind:"intro",set:"B",label:"Set B",text:"Now the pizzas are cut into different numbers of parts. Same numerator? The smaller denominator means bigger parts.",rules:["n"]},
+  {kind:"intro",set:"B",label:"Set B",text:"Now the pizzas are cut into different numbers of parts. Watch the size of the slices!",rules:["n"]},
   {kind:"match",set:"B",label:"Match 5",a:{k:"ant",n:1,d:3},b:{k:"madhu",n:1,d:10},win:"a",intro:"Match 5: the ant and Madhu!",quotes:[["ant","One big slice for me!"]]},
   {kind:"match",set:"B",label:"Match 6",a:{k:"monty",n:2,d:9},b:{k:"tez",n:2,d:5},win:"b",intro:"Match 6: Monty and Tez!",quotes:[["tez","Slow… but steady!"]]},
   {kind:"match",set:"B",label:"Match 7",a:{k:"squirrel",n:3,d:4},b:{k:"mouse",n:3,d:8},win:"a",intro:"Match 7: the squirrel and the mouse!",
     quotes:[["squirrel","Quick, quick, I win!"],["mouse","Squeak! Good match!"]]},
   {kind:"match",set:"B",label:"Match 8",a:{k:"peacock",n:5,d:12},b:{k:"bijli",n:5,d:6},win:"b",intro:"Match 8: the peacock and Bijli!",
     quotes:[["bijli","Hisss-tory made!"],["peacock","Hmph! Well done."]]},
-  {kind:"intro",set:"C",label:"Set C",text:"Now just the fractions, no pizza! Same denominator? Compare the numerators. Same numerator? The smaller denominator means bigger parts.",rules:["d","n"]},
+  {kind:"intro",set:"C",label:"Set C",text:"Now just the fractions, no pizza! Use the rules to find who ate more.",rules:["d","n"]},
   {kind:"cards",set:"C",label:"Round 9",shape:"round",a:{k:"monty",n:4,d:7},b:{k:"peacock",n:6,d:7},win:"b",intro:"Monty or the peacock: who ate more?",
     yes:"Yes! Same denominator, and 6 is more than 4."},
   {kind:"cards",set:"C",label:"Round 10",shape:"square",a:{k:"mouse",n:1,d:6},b:{k:"ant",n:1,d:4},win:"b",intro:"The mouse or the ant: who ate more?",
@@ -1893,7 +1893,7 @@ async function checkPlates(st){
   if(okA&&okB){
     S.phase="checked"; button("check",false,false);
     ["a","b"].forEach(sd=>{ $("side-"+sd).classList.add("ok"); const s=$("stack-"+sd); if(s) s.classList.add("off"); });
-    Sound.good(); guideMood("cheer"); say("Both plates are right!","good","noori");
+    Sound.good(); guideMood("cheer");
     await wait(1300); if(!live(g)) return;
     const act=activeRule(st); const r=$("rule-"+act); if(r){ r.classList.add("on"); r.classList.remove("dim"); }
     if(st.guided || S.tries===0 && st.set==="T"){
@@ -1908,7 +1908,7 @@ async function checkPlates(st){
   const bad=!okA?"a":"b", o=st[bad], first=S.tries===1;
   const side=$("side-"+bad); bump(side,"bad",600);
   // the sheet: 1st wrong attempt "Oops! Try again."; 2nd and later the numerator hint (the numerator blinks, the plate clears)
-  if(first) say("Oops! Try again. Check the slices on the plates.","bad","noori");
+  if(first) say("Oops! Try again.","bad","noori");
   else if(S.tries===2){ say("Check the numerator. How many slices did each one eat?","bad","noori");
     bump($("num-"+bad),"blink",2800); }
   else say(`Let me show you! ${Who(o.k)} ate ${o.n}/${o.d}: that's ${o.n} ${o.n===1?"slice":"slices"} of 1/${o.d}.`,"bad","noori");
@@ -1955,6 +1955,20 @@ function showWinner(st){ const w=$("side-"+st.win); w.classList.add("glow");
   say(`Let me show you! ${Who(st[st.win].k)} ate more: ${st[st.win].n}/${st[st.win].d} is more than ${st[st.win==="a"?"b":"a"].n}/${st[st.win==="a"?"b":"a"].d}. Tap ${who(st[st.win].k)}.`,"bad","noori");
   const g=S.gen; guide(()=>live(g)&&S.phase==="winner"?(w.querySelector(".ava")||w):null); }
 
+/* inactivity (sheet: Inactivity VO): after a while with no tap, the reminder line and its animation */
+let IDLE2={t:0,key:""};
+function armIdle2(){ const key=S.gen+":"+S.phase; IDLE2.key=key; clearTimeout(IDLE2.t);
+  IDLE2.t=setTimeout(function nudge(){
+    if(IDLE2.key!==S.gen+":"+S.phase) return;
+    if(!$("tut").hidden||!$("story").hidden||PAUSE.on||document.getElementById("phand")){ IDLE2.t=setTimeout(nudge,4000); return; }
+    if(S.phase==="build"){ say("Tap a stack to add a slice.","","noori"); ["a","b"].forEach(sd=>{ const s=$("stack-"+sd); if(s) bump(s,"hint",2600); }); }
+    else if(S.phase==="winner"||S.phase==="finalPick"){ say("Tap the winner.","","noori"); document.querySelectorAll(".side.pick,.fline .slot>.fin").forEach(e=>bump(e,"glow",2200)); }
+    else if(S.phase==="order"){ say("Drag the cards into order, from smallest to greatest.","","noori"); document.querySelectorAll(".fline .slot").forEach(e=>bump(e,"over",2200)); }
+    else return;
+    IDLE2.t=setTimeout(nudge,20000); },14000); }
+addEventListener("pointerdown",()=>{ if(IDLE2.key) armIdle2(); },true);
+(()=>{ let last=""; setInterval(()=>{ const k=S.gen+":"+S.phase; if(k!==last){ last=k; if(["build","winner","order","finalPick"].includes(S.phase)) armIdle2(); else clearTimeout(IDLE2.t); } },400); })();
+
 /* ---------- Set C: fraction cards only ---------- */
 function cardSide(sd,o,shape){
   return `<section class="side ${sd}" id="side-${sd}">
@@ -1978,13 +1992,14 @@ function pickCard(st,sd){ stopGuide();
     ["a","b"].forEach(x=>{ const s=$("side-"+x); s.classList.remove("pick","glow"); s.onclick=null; });
     $("view").classList.remove("focus");
     const s=$("side-"+sd); s.classList.add("ok","win","spot"); hangMedal(s,st[sd].k);
-    Sound.win(); confetti(); guideMood("cheer"); say(st.yes,"good","noori"); speak(st.yes);
-    if(st.quotes) setTimeout(()=>{ if(live(g)) say(st.quotes.map(([k,q])=>`${NAMES[k]}: “${q}”`).join("  ")+"  "+st.yes,"good","billu"); },2400);
+    Sound.win(); confetti(); guideMood("cheer");
+    if(st.quotes){ const q=st.quotes.map(([k,q])=>`${NAMES[k]}: “${q}”`).join("  ")+"  "+st.yes; say(q,"good","noori"); speak(q,"noori"); }   // the contestant, then Noori
+    else { say(st.yes,"good","noori"); speak(st.yes); }
     button("next",true,true,next); return;
   }
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump($("side-"+sd),"bad",600);
   document.querySelectorAll(".diag").forEach(d=>d.classList.add("show"));
-  if(S.wTries===1) say("Oops! Try again. Look at the pictures.","bad","noori");
+  if(S.wTries===1) say("Oops! Try again.","bad","noori");
   else if(S.wTries===2){ sayRule(activeRule(st)); const w=$("side-"+st.win); w.classList.add("glow"); const dg=w.querySelector(".diag"); if(dg) dg.classList.add("glowd"); }   // the winner's diagram glows
   else showWinner(st);
 }
@@ -2114,7 +2129,7 @@ async function checkOrder(){
 }
 function finalWinner(){
   S.phase="finalPick"; S.wTries=0; $("stage").classList.add("dim"); Sound.drum();
-  say("And the golden trophy goes to…? Tap the winner!","","billu"); button("Tap the champion",false,false);
+  say("And the golden trophy goes to…?","","billu"); button("Tap the champion",false,false);
   placed().forEach(i=>{ const c=$("fin-"+i); c.classList.remove("lock"); c.classList.add("pick");
     c.onclick=()=>pickChampion(i); c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickChampion(i); } }; });
   document.querySelectorAll(".slot").forEach(s=>s.style.zIndex=2);
@@ -2802,6 +2817,60 @@ function t2Build(){
 const t2wait=test=>new Promise(r=>{ TUT2.onCount=()=>{ if(test()){ TUT2.onCount=null; r(); } }; });
 function t2Blink(sd,on){ const b=$("t2n-"+sd); if(b) b.classList.toggle("blink",on); }
 /* plays Tutorial 2; resolves when the scroll has rolled up again */
+/* a round pizza of d equal slices; `lit` slices glow, `gone` slices are eaten (empty, dashed) */
+function l2Pizza(d,{lit=[],gone=[],all=false}={}){
+  const R=92, C=100, step=2*Math.PI/d, a0=-Math.PI/2; let g=`<circle cx="${C}" cy="${C}" r="${R+4}" fill="#FFF7E6" stroke="#E2C9A0" stroke-width="3"/>`;
+  for(let i=0;i<d;i++){ const s=a0+i*step, e=s+step;
+    if(gone.includes(i)){ g+=`<path d="${sector(C,C,R,s,e)}" fill="rgba(255,230,180,.25)" stroke="#C8402E" stroke-width="2.5" stroke-dasharray="6 5"/>`; continue; }
+    g+=wedge(C,C,R,s,e,(all||lit.includes(i))?'class="l2lit"':''); }
+  return `<svg class="l2pz" viewBox="0 0 200 200" aria-hidden="true">${g}</svg>`;
+}
+/* the slice each one ate, lifted out and laid side by side at the same scale */
+function l2Slice(d){ const R=92, step=2*Math.PI/d, a0=-Math.PI/2-step/2;
+  return `<svg class="l2sl" viewBox="0 0 200 110" aria-hidden="true"><g transform="translate(0 102)">${wedge(100,0,R,a0,a0+step,'class="l2lit"')}</g></svg>`; }
+async function runLearning2(ok){
+  const page=document.querySelector(".tut .page"), duel=$("t2duel"), ttl=document.querySelector(".tut .ttl");
+  duel.style.display="none"; ttl.innerHTML="Let's learn: <b>Who ate more?</b>"; ttl.style.display="none";
+  const L=document.createElement("div"); L.id="t2learn"; page.insertBefore(L,duel);
+  const stage=html=>{ L.innerHTML=html; };
+  const side=(k,svg,cap,id)=>`<div class="l2side" ${id?`id="${id}"`:""}><div class="l2ava"><img src="${A}${k}.webp" alt="${NAMES[k]}"></div>${svg}<div class="l2cap">${cap||""}</div></div>`;
+  const say=(w,t,o)=>tutSay(w,t,Object.assign({extra:3500},o||{}));
+  // 1. two whole pizzas, the same size
+  stage(`<div class="l2row">${side("monty",l2Pizza(1,{}),"")}${side("ant",l2Pizza(1,{}),"")}</div>`);
+  await say("noori","First, both pizzas are the same size. That’s important!"); if(!ok()) return;
+  // 2. cut into 8 and 4; the slice each one ate glows
+  stage(`<div class="l2row">${side("monty",l2Pizza(8,{lit:[0]}),fracify("1/8"),"l2a")}${side("ant",l2Pizza(4,{lit:[0]}),fracify("1/4"),"l2b")}</div>`);
+  await say("noori","Monty ate 1 slice out of 8. The ant ate 1 slice out of 4."); if(!ok()) return;
+  // 3. the learner taps the plate of whoever ate more
+  ["l2a","l2b"].forEach(id=>$(id).classList.add("pick"));
+  tutSay("noori","Who ate more? Tap their plate.",{wait:true});
+  const pick=await new Promise(r=>{ ["l2a","l2b"].forEach(id=>$(id).onclick=()=>r(id)); }); if(!ok()) return;
+  ["l2a","l2b"].forEach(id=>{ $(id).classList.remove("pick"); $(id).onclick=null; }); Sound.pop&&Sound.pop();
+  // 4. the two eaten slices side by side
+  stage(`<div class="l2row">${side("monty",l2Slice(8),fracify("1/8"))}${side("ant",l2Slice(4),fracify("1/4"),"l2big")}</div>`);
+  $("l2big").classList.add("glow");
+  await say("noori",pick==="l2b"?"Yes! The ant’s piece is bigger.":"Look closely. The ant’s piece is bigger."); if(!ok()) return;
+  // 5. both pizzas glow: 8 parts and 4 parts
+  stage(`<div class="l2row">${side("monty",l2Pizza(8,{all:true}),"8 equal parts")}${side("ant",l2Pizza(4,{all:true}),"4 equal parts")}</div>`);
+  await say("noori","Monty’s pizza has 8 equal parts. The ant’s has 4. More parts means smaller parts."); if(!ok()) return;
+  // 6. the trophy goes to the ant
+  stage(`<div class="l2row">${side("monty",l2Pizza(8,{gone:[0]}),"")}<div class="l2side l2win">${`<div class="l2ava"><img src="${A}ant.webp" alt="Ant"><img class="l2medal" src="${A}medal.webp" alt=""></div>`}<img class="l2trophy" src="${A}trophy.webp" alt="Golden trophy"></div></div>`);
+  Sound.win&&Sound.win(); confetti();
+  await say("noori","The ant is the winner!"); if(!ok()) return;
+  // 7. the rule card: same numerator, different denominators
+  stage(`<div class="l2rules">${ruleCard("n").replace(/ id="rule-\w+"/,"")}</div><div class="l2more">${fracify("1/4")} is more than ${fracify("1/8")}</div>`);
+  await say("noori","Same number of parts, but different denominators? Then compare the size of the parts. A bigger denominator means smaller parts."); if(!ok()) return;
+  // 8. the second match: Tez 3/8 and Jhumru 5/8; the second rule card joins the first
+  L.classList.add("tight"); stage(`<div class="l2row">${side("tez",l2Pizza(8,{lit:[0,1,2]}),fracify("3/8"))}${side("jhumru",l2Pizza(8,{lit:[0,1,2,3,4]}),fracify("5/8"))}</div>
+    <div class="l2more">${fracify("5/8")} is more than ${fracify("3/8")}</div>
+    <div class="l2rules two">${ruleCard("n").replace(/ id="rule-\w+"/,"")}${ruleCard("d").replace(/ id="rule-\w+"/,"")}</div>`);
+  await say("noori","Same denominator? Then the parts are the same size. Just compare the numerators."); if(!ok()) return;
+  // 9. more contestants line up
+  stage(`<div class="l2line">${["squirrel","peacock","madhu","hippo","mouse","bijli"].map((k,i)=>`<div class="l2ava" style="animation-delay:${i*.12}s"><img src="${A}${k}.webp" alt=""></div>`).join("")}</div>`);
+  L.classList.remove("tight");
+  await say("billu","More matches are coming! Help me pick the winners!"); if(!ok()) return;
+  L.remove(); duel.style.display=""; ttl.style.display="";
+}
 async function runTutorial2(){
   const gen=++TUT2.gen, ok=()=>gen===TUT2.gen, T=TUT2;
   T.cnt={a:0,b:0}; T.open={a:false,b:false}; T.onCount=null; tutNext=null;
@@ -2810,16 +2879,17 @@ async function runTutorial2(){
   const finish=new Promise(res=>{ $("tutSkip").addEventListener("click",()=>{ TUT2.gen++; res(); }); T.end=res; });
   (async()=>{
     await rollScroll(true,gen); if(!ok()) return;
+    await runLearning2(ok); if(!ok()) return;
     // 1. the match
     Sound.drum();
-    await tutSay("billu","Next match: the squirrel and the peacock! Ready… eat!"); if(!ok()) return;
+    await tutSay("billu","The squirrel and the peacock! Ready… eat!"); if(!ok()) return;
     // 2. read the scoreboard
     ["a","b"].forEach(sd=>$("t2tag-"+sd).classList.add("glow"));
-    await tutSay("noori","Let's find the winner together! First, read the scoreboard."); if(!ok()) return;
+    await tutSay("noori","Let’s find the winner! First, read the scoreboard."); if(!ok()) return;
     ["a","b"].forEach(sd=>$("t2tag-"+sd).classList.remove("glow"));
     // 3. two boards and their slice stacks
     ["a","b"].forEach(sd=>{ $("t2board-"+sd).classList.add("in"); $("t2stack-"+sd).classList.add("on","off2"); });
-    await tutSay("noori","Let's show how much each one ate. Tap a stack to put a slice on a plate. Tap a slice on the plate to take it off."); if(!ok()) return;
+    await tutSay("noori","Tap a stack to add a slice to a plate. Tap a slice to take it off."); if(!ok()) return;
     // 4. the squirrel: 2 slices
     T.open.a=true; $("t2stack-a").classList.remove("off2"); $("t2stack-a").classList.add("hint"); t2Blink("a",true);
     tutSay("noori",`The squirrel ate ${T.a.n}/${T.a.d}. Put ${T.a.n} slices on its plate.`,{wait:true});
@@ -2832,7 +2902,6 @@ async function runTutorial2(){
     T.open.b=false; $("t2stack-b").classList.remove("hint"); $("t2stack-b").classList.add("off2","gone"); t2Blink("b",false);
     // 6. check plates
     $("t2check").classList.add("on");
-    tutSay("noori","Now tap Check plates.",{wait:true});
     await new Promise(r=>$("t2check").addEventListener("click",r,{once:true})); if(!ok()) return;
     $("t2check").classList.remove("on");
     ["a","b"].forEach(sd=>{ $("t2-"+sd).classList.add("ok"); $("t2stack-"+sd).classList.remove("on"); });
@@ -2842,11 +2911,11 @@ async function runTutorial2(){
     // 7. the 7s glow and the rule card lights up
     ["a","b"].forEach(sd=>{ const d=$("t2tag-"+sd).querySelectorAll(".fr b")[1]; d.classList.add("blink"); setTimeout(()=>d.classList.remove("blink"),2800); });
     $("t2rule").classList.add("in","on");
-    await tutSay("noori",`Both pizzas were cut into ${T.a.d} equal parts, so the parts are the same size. Compare the numerators.`); if(!ok()) return;
+    await tutSay("noori",`Both pizzas have ${T.a.d} equal parts. Same denominator? Compare the numerators.`); if(!ok()) return;
     // 8. drumroll, spotlights, who ate more?
     Sound.drum(); $("t2duel").classList.add("dim"); $("t2ask").classList.add("in");
     ["a","b"].forEach(sd=>$("t2-"+sd).classList.add("pick"));
-    tutSay("billu","And the winner is…? Tap the winner!",{wait:true});
+    tutSay("billu","And the winner is…?",{wait:true});
     let tries=0;
     await new Promise(r=>["a","b"].forEach(sd=>$("t2-"+sd).addEventListener("click",function f(){
       if(!$("t2-"+sd).classList.contains("pick")) return;
@@ -2859,7 +2928,7 @@ async function runTutorial2(){
     $("t2duel").classList.remove("dim"); $("t2ask").classList.remove("in");
     const win=$("t2-"+T.win); win.classList.add("win"); hangMedal(win,T[T.win].k);
     Sound.win(); confetti();
-    await tutSay("noori","Yes! 5 parts are more than 2 parts. The peacock ate more!"); if(!ok()) return;
+    await tutSay("noori","Yes! 5 parts are more than 2. The peacock wins!"); if(!ok()) return;
     // 10. over to the learner
     await tutSay("billu","Your turn to find the winners!",{label:"LET'S PLAY"}); if(!ok()) return;
     T.end();
@@ -3097,4 +3166,33 @@ button.stack{gap:3px!important}
 /* words sit in the middle of their boxes */
 .story .ssub p,.say,#say,.tut .talk p,#tutLine,.servelayer figcaption,.orderc,.tut .tray .lbl{text-align:center!important}
 .story .ssub p,.tut .talk p{display:block}
+</style>
+<style>
+/* Learning 2 */
+@keyframes lIn{from{opacity:0;transform:translateY(14px) scale(.9)}}
+#t2learn{grid-row:2/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(2*var(--vh));min-height:0;width:100%}
+#t2learn .l2row{display:flex;justify-content:center;align-items:flex-end;gap:clamp(30px,calc(8*var(--vw)),140px)}
+#t2learn .l2side{display:flex;flex-direction:column;align-items:center;gap:calc(1*var(--vh));border-radius:24px;padding:8px;transition:transform .2s}
+#t2learn .l2side.pick{cursor:pointer;animation:ready 1.2s ease-in-out infinite}
+#t2learn .l2side.glow{filter:drop-shadow(0 0 16px rgba(255,214,90,.95))}
+#t2learn .l2ava{position:relative;width:clamp(70px,calc(12*var(--vh)),110px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 50% 40%,#E9F7D9,#BFE3A0);
+  border:4px solid #FFFFFF;display:grid;place-items:center;overflow:visible;animation:lIn .45s both}
+#t2learn .l2ava img{width:82%;height:82%;object-fit:contain}
+#t2learn .l2medal{position:absolute;width:44%!important;height:auto!important;right:-12%;bottom:-10%}
+#t2learn .l2pz{width:clamp(130px,calc(30*var(--vh)),260px);height:auto}
+#t2learn .l2sl{width:clamp(130px,calc(30*var(--vh)),260px);height:auto}
+#t2learn .l2pz .l2lit,#t2learn .l2sl .l2lit{fill:rgba(255,214,70,.38)!important;stroke:#FFD23C!important;stroke-opacity:1!important;stroke-width:5!important;filter:drop-shadow(0 0 6px rgba(255,210,60,.9))}
+#t2learn .l2cap{font-family:var(--display);font-weight:800;font-size:clamp(18px,calc(3.2*var(--vh)),30px);color:#FFF3D6;min-height:1.3em}
+#t2learn .l2cap .fr{color:#FFD23C}
+#t2learn .l2trophy{width:clamp(110px,calc(24*var(--vh)),200px);height:auto;animation:trophyIn .6s cubic-bezier(.3,1.6,.5,1) both}
+#t2learn .l2more{font-family:var(--display);font-weight:800;font-size:clamp(20px,calc(3.6*var(--vh)),34px);color:#FFF3D6}
+#t2learn .l2more .fr{color:#FFD23C}
+#t2learn .l2rules{display:flex;gap:clamp(12px,calc(2*var(--vw)),30px);justify-content:center}
+#t2learn .l2rules .rule{opacity:1!important;filter:none!important;max-width:min(46%,520px)}
+#t2learn .l2rules:not(.two) .rule{max-width:min(80%,640px);transform:scale(1.15)}
+#t2learn.tight{gap:calc(1*var(--vh));padding-top:calc(3*var(--vh))}
+#t2learn.tight .l2pz{width:clamp(100px,calc(21*var(--vh)),190px)}
+#t2learn.tight .l2ava{width:clamp(50px,calc(8*var(--vh)),80px)}
+#t2learn.tight .l2rules .rule{transform:scale(.88);transform-origin:50% 0}
+#t2learn .l2line{display:flex;gap:clamp(10px,calc(1.6*var(--vw)),26px);justify-content:center}
 </style>

@@ -110,7 +110,7 @@ def level1(b):
     pg = new_page(b)
     pg.goto(BASE)
     pg.wait_for_timeout(1500)
-    tap(pg, ".mainplay")
+    pg.evaluate("$('mainPlay').click()")
     log("story 1")
     until(pg, "!$('tut').hidden && $('tut').classList.contains('open')", 300)
     log("tutorial 1.1")
@@ -122,15 +122,29 @@ def level1(b):
         pg.wait_for_timeout(300)
     pg.locator("#tutServe").click(force=True)
     until(pg, "$('tut').hidden && S.lv==='1.1'", 120)
-    for lv in ("1.1", "1.2"):
-        for i in range(8):
+    counts = pg.evaluate("[LEVELS['1.1'].orders.length, LEVELS['1.2'].orders.length]")
+    for lv, n in zip(("1.1", "1.2"), counts):
+        for i in range(n):
             pg.evaluate(f"jumpTo('{lv}',{i})")
             pg.wait_for_timeout(1500)
             topping_order(pg)
             pg.wait_for_timeout(2500)
             log("level", lv, "order", i + 1)
+    # Tutorial 1.2: the parrot's order, made together
+    pg.evaluate("$('jump').value='T2'; $('jump').dispatchEvent(new Event('change'))")
+    until(pg, "/Which mould/.test(S.sayPlain) && !S.busy", 90)
+    tap(pg, '.mould[data-m="3"]')
+    until(pg, "S.phase==='top' && !S.busy", 90)
+    pg.locator('.katori[data-top="corn"]').click(force=True)
+    for k in range(2):
+        tap(pg, f'.hit[data-i="{k}"]'); pg.wait_for_timeout(400)
+    pg.wait_for_timeout(800); tap(pg, "#done")
+    until(pg, "!S.tut && cur().cust==='frog'", 90)
+    log("tutorial 1.2")
     # the end screen
-    pg.evaluate("jumpTo('1.2',7)")
+    pg.evaluate("jumpTo('1.1',LEVELS['1.1'].orders.length-1)")
+    pg.wait_for_timeout(1500); topping_order(pg); pg.wait_for_timeout(1500); tap(pg, "#done"); pg.wait_for_timeout(4000)
+    pg.evaluate("jumpTo('1.2',LEVELS['1.2'].orders.length-1)")
     pg.wait_for_timeout(1500)
     topping_order(pg)
     pg.wait_for_timeout(1500)
@@ -138,8 +152,8 @@ def level1(b):
     pg.wait_for_timeout(4000)
     save()
     log("wrong answers, level 1")
-    for lv in ("1.1", "1.2"):
-        for i in range(8):
+    for lv, n in zip(("1.1", "1.2"), counts):
+        for i in range(n):
             pg.evaluate(f"jumpTo('{lv}',{i})")
             pg.wait_for_timeout(1500)
             topping_order(pg, wrong=True)
@@ -152,6 +166,7 @@ def level2(b):
     pg.goto(BASE + "level2")
     pg.wait_for_timeout(2000)
     pg.evaluate("$('play').click()")
+    pg.evaluate("setInterval(()=>{ const b=document.getElementById('l2b'); if(b&&b.classList.contains('pick')) b.click(); },700)")   # Learning 2: tap the ant's plate
     log("story 2")
     until(pg, "!$('tut').hidden && $('tut').classList.contains('open')", 300)
     log("tutorial 2")
