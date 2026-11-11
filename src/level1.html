@@ -3778,9 +3778,9 @@ function SAUCE(done){
   const nozzleAt=(cx,cy,phi)=>{ const r=phi*Math.PI/180; return {x:cx-(bh/2-4)*Math.sin(r), y:cy+(bh/2-4)*Math.cos(r)}; };
   const GAP=H*.2, cyFor=lvl=>lvl-GAP-bh/2, CY0=cyFor(H);
   try{ Sound.pop(); }catch(e){}
-  const FILL=3800, IN=700, DRAIN=1300, t0=performance.now(); let covered=false, tCover=0;
+  const FILL=2600, IN=550, DRAIN=1000, t0=performance.now(); let covered=false, tCover=0;
   const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
-  const bx=t=>W/2+W*.36*Math.sin(t/650);                       // the bottle sweeps from side to side
+  const bx=t=>W/2+W*.36*Math.sin(t/450);                       // the bottle sweeps from side to side
   const surf=(x,lvl,t,sx,amp)=>lvl+5*Math.sin(x*.018+t*.004)+3.5*Math.sin(x*.047-t*.006)-amp*Math.exp(-(((x-sx)/46)**2));
   const drops=[];
   function liquid(lvl,t,sx,amp,fromTop){
@@ -3804,7 +3804,7 @@ function SAUCE(done){
     if(!covered){
       // 2. pouring: the level rises, slowly at first, faster as the sauce spreads
       const u=Math.min(1,tp/FILL), lvl=H-(H+40)*(u*u*(3-2*u)), ramp=Math.min(1,tp/500);
-      const cx=W/2+(bx(tp)-W/2)*ramp, cy=cyFor(lvl), phi=35*Math.cos(tp/650)*ramp;   // it climbs with the sauce and tilts with its sweep
+      const cx=W/2+(bx(tp)-W/2)*ramp, cy=cyFor(lvl), phi=35*Math.cos(tp/450)*ramp;   // it climbs with the sauce and tilts with its sweep
       place(cx,cy,phi);
       const nz=nozzleAt(cx,cy,phi), x=nz.x;
       liquid(lvl,tp,x,10+6*Math.sin(tp*.02),false);
@@ -3822,7 +3822,7 @@ function SAUCE(done){
       requestAnimationFrame(frame); return;
     }
     // 3. covered: a short hold, then the sauce drains down off the screen
-    const td=now-tCover-350;
+    const td=now-tCover-200;
     if(td<0){ g.fillStyle="#C21E14"; liquid(-40,tp,0,0,true); requestAnimationFrame(frame); return; }
     const u=Math.min(1,td/DRAIN), lvl=-40+(H+80)*(u*u);
     ov.style.pointerEvents="none"; liquid(lvl,tp,0,0,true);
