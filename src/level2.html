@@ -2140,7 +2140,7 @@ function showFinal(){
     <div class="row5 diags5" id="diags">${FINALISTS.map((_,i)=>`<div class="cell" id="dg-${i}"></div>`).join("")}</div>
     <div>
       <div class="row5">${(()=>{ const up=[...FINALISTS].sort((x,y)=>x.n/x.d-y.n/y.d);   // each column's plate shows how much was eaten
-        return [0,1,2,3,4].map(i=>`<div class="slot" id="slot-${i}" data-s="${i}"><b class="no">${i+1}</b><div class="sface">${faceImg(up[i].k)}</div><div class="splate">${eatenPlate(up[i].n,up[i].d)}</div><i class="ph phm"></i></div>`).join(""); })()}</div>
+        return [0,1,2,3,4].map(i=>`<div class="slot" id="slot-${i}" data-s="${i}"><div class="sbig"><img src="${A}${up[i].k}.webp" alt="${NAMES[up[i].k]}"></div><div class="sfr">${frac(up[i].n,up[i].d)}</div></div>`).join(""); })()}</div>
     </div>`);
   pinColumns(); [60,250,600,1200].forEach(t=>setTimeout(pinColumns,t));
   S.phase="order"; S.sel=null; S.oTries=0;
@@ -3447,4 +3447,18 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 /* Tutorial 2 on the tablecloth: the score card being talked about glows */
 .side .eat.t2lit{border-radius:14px;box-shadow:0 0 0 4px #FFD24A,0 0 24px 6px rgba(255,206,60,.9);animation:t2lit 1.2s ease-in-out infinite}
 @keyframes t2lit{50%{box-shadow:0 0 0 6px #FFE27A,0 0 34px 10px rgba(255,214,60,1)}}
+</style>
+<style>
+/* Final cards v2: no slice cards on top, no numbers, no pizza, no empty circle.
+   Each card: the character big, and under it a small card with the fraction it ate */
+.fline .home5{display:none!important}
+.view.fline{grid-template-rows:auto!important;gap:0!important;align-content:center!important;padding-top:0!important;--bw:clamp(150px,min(calc(17.5*var(--vw)),calc(36*var(--vh))),270px)!important}
+.fline .diags5{position:absolute}
+.fline .slot{height:calc(var(--bw) * 1.3)!important;display:flex!important;flex-direction:column;align-items:center;justify-content:flex-end;gap:calc(var(--bw) * .05);padding-bottom:calc(var(--bw) * .08)}
+.fline .slot .sbig{flex:1 1 auto;min-height:0;width:100%;display:flex;align-items:flex-end;justify-content:center;padding-top:calc(var(--bw) * .08)}
+.fline .slot .sbig img{display:block;max-width:86%;max-height:calc(var(--bw) * .82);width:auto;height:auto;object-fit:contain;filter:drop-shadow(0 5px 4px rgba(60,30,8,.25))}
+.fline .slot .sfr{flex:0 0 auto;padding:calc(var(--bw) * .03) calc(var(--bw) * .07);border-radius:14px;background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A);
+  box-shadow:0 0 0 3px var(--wood-dark),inset 0 3px 0 rgba(255,220,170,.35),0 4px 8px rgba(0,0,0,.28)}
+.fline .slot .sfr .fr{font-size:calc(var(--bw) * .11);color:#FFE08A;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.fline .slot .sfr .fr b:first-child{border-bottom-color:#FFE08A}
 </style>
