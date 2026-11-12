@@ -2076,7 +2076,7 @@ let GUIDE=0;
 function guide(target){ const id=++GUIDE; let last=null;
   (function tick(){ if(id!==GUIDE) return; let el=null; try{ el=target(); }catch(e){}
     if(!el){ unpoint(); return; }
-    LOCK=el;
+    LOCK=el._lockTo||el;   // what may be tapped (the hand still points at el)
     const r=el.getBoundingClientRect(), key=el; if(key!==last||!document.getElementById("phand")){ last=key; pointAt(el); }
     else { const h=document.getElementById("phand"); h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; }
     setTimeout(tick,150); })(); }
@@ -2385,7 +2385,7 @@ function showSlices(n,quiet){
   for(let i=0;i<n&&i<G.parts.length;i++) setTimeout(()=>{ const h=partEl(i)&&partEl(i).querySelector(".hit"); if(h&&S.phase==="top") h.classList.add("showme"); },i*260);
   const key=S.lv+":"+S.i;
   guide(()=>{ if(S.phase!=="top"||S.lv+":"+S.i!==key) return null;
-    if(!S.topping) return quiet?$("slots"):document.querySelector(".katori");      // first a topping (guided: any bowl)
+    if(!S.topping){ const k=document.querySelector(".katori"); if(k&&quiet) k._lockTo=$("slots"); return k; }   // first a topping: the hand on a bowl (guided: any bowl may be picked)
     if(S.covered.size<n){ let i=[...Array(n).keys()].find(i=>!S.covered.has(i));   // then the glowing slices, one by one
       if(i===undefined) i=G.parts.findIndex((_,j)=>!S.covered.has(j)); const h=partEl(i)&&partEl(i).querySelector(".hit"); return h; }
     if(S.covered.size===n) return $("done");                                    // then DONE
