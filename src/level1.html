@@ -2837,8 +2837,12 @@ async function runLearning(ok){
   lLit($("lA"),0); lHi($("lB").firstChild);
   await say("noori","Each part is one-half. We write it as 1/2. This is a fraction."); if(!ok()) return;
   // 4. two halves make one whole
-  { const A=$("lA"); lLit(A,0,false); $("lB").innerHTML=`<div class="lsum">${lCard(1,2)}<em>+</em>${lCard(1,2)}<em>=</em>${lCard(2,2,"big")}</div>`;
-    lHi($("lB").querySelector(".lf.big")); const s=say("noori","Two halves make one whole: 2/2."); lLit(A,0); await wait(700); lLit(A,0,false); lLit(A,1); await wait(700); lLit(A,0); await s; if(!ok()) return; }
+  // the left half with 1/2 under it, + the right half with 1/2, = the whole pizza on its board with 2/2 (our own fraction cards)
+  { lStage(`<div class="li hl2">${lPizzaHTML("lA")}${lCard(1,2)}</div><em class="lop">+</em><div class="li hl2">${lPizzaHTML("lB")}${lCard(1,2)}</div><em class="lop">=</em><div class="li">${lPizzaHTML("lC")}${lCard(2,2,"","lC2")}</div>`,"three halves");
+    const A=$("lA"), B=$("lB"), C=$("lC"); lDraw(A,2,{cut:true}); lDraw(B,2,{cut:true}); lDraw(C,2,{cut:true});
+    lPart(A,0).classList.add("gone"); lPart(B,1).classList.add("gone");   // part 1 is the left half, part 0 the right
+    A.setAttribute("viewBox","-14 0 324 600"); B.setAttribute("viewBox","290 0 324 600");   // each half drawn on its own, centred over its card
+    const s=say("noori","Two halves make one whole: 2/2."); lLit(A,1); await wait(700); lLit(A,1,false); lLit(B,0); await wait(700); lLit(B,0,false); lLit(C,0); lLit(C,1); lHi($("lC2")); await s; if(!ok()) return; }
   // 5. one pizza at a time: 4/5 first (cut, top, serve), then 3/8 on its own screen
   for(const [n,d,top,line] of [[4,5,"tomato","For 4/5 of a pizza, cut 5 equal parts and serve 4."],[3,8,"corn","For 3/8, cut 8 equal parts and serve 3."]]){
     lStage(`<div class="li">${lPizzaHTML("lA")}<div id="lAc"></div></div>`); lDraw($("lA"),d,{top});
@@ -3667,12 +3671,12 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
 :is(.pk-green,.pk-orange).ready{animation:pkReady 1.3s ease-in-out infinite!important}
 @keyframes pkReady{50%{transform:scale(1.07);filter:drop-shadow(0 0 12px rgba(255,214,90,.95)) brightness(1.06)}}
 #sSkip,#tutSkip{font-size:15px!important;color:#FFFCEB!important}
-/* the Served / Left labels under the plates: the orange plank for Served, the grey plank for Left */
+/* the Served / Left labels under the plates: the same orange plank for both (like NEXT) */
 .servelayer figcaption{background:none!important;box-shadow:none!important;border-radius:0!important;border-style:solid!important;border-color:transparent!important;
   border-width:14px 26px!important;border-image-slice:28 52 28 52 fill!important;border-image-width:14px 26px!important;border-image-repeat:stretch!important;
   padding:2px 10px!important;filter:drop-shadow(0 5px 6px rgba(50,25,0,.35))}
 .servelayer figure.a figcaption{border-image-source:url("assets/ui/plank_orange.webp")!important;color:#FFF8E6!important;text-shadow:0 2px 3px rgba(90,40,0,.55)!important}
-.servelayer figure.b figcaption{border-image-source:url("assets/ui/plank_grey.webp")!important;color:#FFFCF2!important;text-shadow:0 2px 3px rgba(40,32,24,.6)!important}
+.servelayer figure.b figcaption{border-image-source:url("assets/ui/plank_orange.webp")!important;color:#FFF8E6!important;text-shadow:0 2px 3px rgba(90,40,0,.55)!important}   /* Left: the same orange plank as Served and NEXT */
 .servelayer figcaption .fr{color:#FFFFFF!important;text-shadow:0 2px 3px rgba(0,0,0,.4)!important}
 /* Level 2: the slice stacks sit on the square parchment */
 .stack{background:none!important;box-shadow:none!important;border-style:solid!important;border-color:transparent!important;border-width:14px!important;
@@ -4051,4 +4055,14 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .qap.qa2 .chip3 .av{display:inline-flex;flex:0 0 auto}
 .qap.qa2 .chip3 .av img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 12%;background:radial-gradient(circle at 50% 40%,#E9F7D9,#BFE3A0);box-shadow:0 0 0 2px #FFFFFF}
 .qap.qa2 .chip3 .av.two img+img{margin-left:-8px}
+</style>
+<style>
+/* "two halves make one whole": half + half = the whole pizza on its board, each with its fraction card under it */
+.tut .learn.halves{gap:clamp(18px,calc(3.2*var(--vw)),64px)!important;--ls:min(calc(40*var(--vh)),calc(22*var(--vw)))!important;align-items:flex-start!important;align-content:center}
+.tut .learn.halves .li.hl2 .tpaddle{display:none!important}   /* a half on its own, no board */
+.tut .learn.halves .li.hl2 .pz{aspect-ratio:324/600!important;width:calc(var(--ls) * .54)!important;height:auto!important}   /* only the half that is there */
+.tut .learn.halves .part.gone{display:none}
+.tut .learn.halves .li:not(.hl2) .tpzw>.tpaddle{display:block!important}   /* the whole pizza sits on its board */
+.tut .learn .lop{font-style:normal;font-family:var(--display);font-weight:800;font-size:clamp(40px,calc(6.4*var(--vh)),68px);line-height:1;color:#FFE08A;align-self:flex-start;
+  text-shadow:0 3px 0 rgba(0,0,0,.35);margin-top:calc(var(--ls) * .5 - .5em)}
 </style>
