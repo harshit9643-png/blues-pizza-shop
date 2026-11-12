@@ -2742,7 +2742,7 @@ function tutBuild(){
         ${["tl","tr","bl","br"].map(c=>`<div class="corner ${c}">${cornerSVG()}</div>`).join("")}
         <div class="teacher"><img src="${A}noori_point.webp" alt=""></div>
         <div class="page">
-          <div class="ttl">Let's learn: <b>Top and serve</b></div>
+          <div class="ttl"><b>Top and serve</b></div>
           <div class="learn" id="tutLearn"></div>
           <div class="scene">
             <div class="guest">
@@ -2823,7 +2823,7 @@ const lGlow=(card,which,on=true)=>card.querySelector(which==="n"?"b.n":"b.d").cl
 
 async function runLearning(ok){
   const page=document.querySelector(".tut .page"), ttl=document.querySelector(".tut .ttl");
-  page.classList.add("learning"); ttl.innerHTML="Let's learn: <b>What is a fraction?</b>"; ttl.classList.remove("gone"); ttl._n=0;
+  page.classList.add("learning"); ttl.innerHTML="<b>What is a fraction?</b>"; ttl.classList.remove("gone"); ttl._n=0;
   const say=(who,t)=>{ TUT.fast=false; return tutSay(who,t,{extra:3500}); };   // the lesson goes slower: 3.5 s to look after each line
   const wait=ms=>TUT.fast?sleep(1):sleep(ms*3.2);
   // 1. one whole
@@ -2892,7 +2892,7 @@ async function runLearning(ok){
   await say("noori","So many customers! Can you help us?"); if(!ok()) return;
   // over to the giraffe's order on the same board
   page.classList.remove("learning"); $("tutLearn").innerHTML="";
-  ttl.innerHTML="Let's learn: <b>Top and serve</b>"; ttl.classList.remove("gone"); ttl._n=0;
+  ttl.innerHTML="<b>Top and serve</b>"; ttl.classList.remove("gone"); ttl._n=0;
 }
 
 /* Tutorial 1.1: drag a topping bowl and drop it on a slice (same as picking the bowl, then tapping the slice) */
@@ -4080,4 +4080,39 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .rc-frac{font-size:calc(var(--u)*168)!important;margin-top:calc(var(--u)*-52)!important}
 .rc-frac.wide{font-size:calc(var(--u)*134)!important}
 .rc-of{top:calc(var(--u)*1134)!important;height:calc(var(--u)*92)!important;padding:0 calc(var(--u)*52)!important;font-size:calc(var(--u)*62)!important}
+</style>
+<style>
+/* ===== the dialogue box at the top (orders, lesson, Level 2, story narrator): the supplied cream panel with a gold-and-orange rim
+   and a round slot on the left for the speaker's photo. The left end (with the slot) and the right end keep their shape,
+   only the middle stretches; the height is fixed so the slot stays round. (The bubbles over the characters' heads are unchanged.) ===== */
+:root{--dh:clamp(70px,calc(13.5*var(--vh)),96px);--dk:calc(var(--dh) / 226)}
+.card,.tut .talk,#ssub:not(.bub){box-sizing:border-box!important;height:var(--dh)!important;min-height:0!important;max-height:none!important;min-width:calc(var(--dk) * 520)!important;
+  background:none!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-radius:0!important;
+  border-style:solid!important;border-color:transparent!important;
+  border-width:calc(var(--dk) * 30) calc(var(--dk) * 100) calc(var(--dk) * 30) calc(var(--dk) * 186)!important;
+  border-image:url("assets/ui/dialog_box.webp") 30 100 30 186 fill stretch!important;
+  padding:0 0 0 calc(var(--dk) * 6)!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:0!important;overflow:visible!important;
+  filter:drop-shadow(0 6px 8px rgba(50,25,0,.35))}
+.card::before,.card::after,.tut .talk::before,.tut .talk::after,#ssub:not(.bub)::before,#ssub:not(.bub)::after{display:none!important}
+/* the speaker's photo sits in the round slot */
+.card .guide,.tut .talk .who,#ssub:not(.bub) .who{position:absolute!important;left:calc(var(--dk) * -168)!important;top:calc(50% + var(--dk) * 4)!important;translate:0 -50%!important;
+  width:calc(var(--dk) * 140)!important;height:calc(var(--dk) * 140)!important;margin:0!important;padding:0!important;border-radius:50%!important;overflow:hidden!important;
+  background:radial-gradient(circle at 50% 35%,#A0582A,#6E3412 70%,#5A2A0E)!important;box-shadow:none!important;border:0!important}
+/* head and shoulders: the picture drawn big, from the top, centred */
+.card .guide img,.tut .talk .who img,#ssub:not(.bub) .who img{position:absolute!important;left:50%!important;top:6%!important;translate:-50% 0!important;transform:none!important;
+  width:auto!important;height:200%!important;max-width:none!important;max-height:none!important;object-fit:contain!important;margin:0!important;animation:none!important}
+#ssub:not(.bub) .who.narr{background:radial-gradient(circle at 50% 40%,#A0582A,#6E3412)!important}
+#ssub:not(.bub) .who.narr svg{width:56%!important;height:56%!important;margin:22%!important}
+/* the words: dark brown on the cream, the speaker's name in orange-red */
+.card .say,.tut .talk p,#ssub:not(.bub) p{color:#4A2A10!important;text-shadow:none!important;margin:0!important;padding:0 calc(var(--dk) * 10) 0 0!important;text-align:left!important;
+  max-height:100%;overflow:hidden}
+.card .say .nm,.tut .talk p .nm,#ssub:not(.bub) p .nm,.tut .talk p b,#ssub:not(.bub) p b.nm{color:#B5481C!important}
+</style>
+<style>
+.tut .talk{position:relative!important}   /* the photo is placed in the box's own slot */
+body .tut .talk>.who.who{position:absolute!important;display:block!important;left:calc(var(--dk) * -168)!important;top:calc(50% + var(--dk) * 4)!important;translate:0 -50%!important;transform:none!important;
+  width:calc(var(--dk) * 140)!important;height:calc(var(--dk) * 140)!important;margin:0!important;border-radius:50%!important;overflow:hidden!important;box-shadow:none!important;border:0!important}
+.tut .talk .who.who img.still{translate:none!important}   /* the lesson's own face crops (above) place each speaker */
+.tut .talk .who,.tut .talk .who.isnoori,.tut .talk .who[class]{background:radial-gradient(circle at 50% 35%,#A0582A,#6E3412 70%,#5A2A0E)!important}
+.tut .talk p{flex:1 1 auto!important;text-align:left!important}
 </style>
