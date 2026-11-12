@@ -2145,7 +2145,7 @@ function showFinal(){
   // Billu announces the Final on this screen (no separate empty screen), then Noori says what to do
   const g=S.gen, ORDER="They each ate one piece, but from pizzas cut differently. Put them in order, from smallest to greatest!";
   Sound.drum(); say("The Golden Trophy Final! Our top medal winners eat one more time!","","billu");
-  let said=false; const next=()=>{ if(said||!live(g)||S.phase!=="order") return; said=true; setTimeout(()=>{ if(live(g)&&S.phase==="order"){ say(ORDER,"","noori"); speak(ORDER); } },600); };
+  let said=false; const next=()=>{ if(said||!live(g)||S.phase!=="order") return; said=true; setTimeout(()=>{ if(live(g)&&S.phase==="order"){ say(ORDER,"","noori"); speak(ORDER); document.querySelectorAll(".fl2 .scale5 span").forEach(e=>bump(e,"lit",5200)); } },600); };
   VOICE.play("billu",S.sayPlain,next); setTimeout(next,5200);   // after Billu's line (or 5 s at most)
   button("order",false,false,checkOrder);
   wireFinal();
@@ -3489,6 +3489,12 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .fl2 .slot.glow{box-shadow:inset 0 0 0 4px var(--marigold),0 0 22px rgba(242,166,44,.9)}
 .fl2 .scale5{display:flex;align-items:center;gap:12px;width:100%;padding:0 4px;font-family:var(--display);font-weight:800;font-size:clamp(14px,calc(2.3*var(--vh)),20px);color:#6A3A14;
   text-transform:uppercase;letter-spacing:.04em}
+/* Smallest / Greatest: wooden name tags with gold letters; they glow while Noori says "from smallest to greatest" */
+.fl2 .scale5 span{flex:0 0 auto;padding:5px 14px 4px;border-radius:10px;font-size:clamp(15px,calc(2.6*var(--vh)),22px);color:#FFE08A;
+  background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A);box-shadow:0 0 0 2px #5A2E12,inset 0 2px 0 rgba(255,220,170,.35),0 3px 6px rgba(0,0,0,.25);
+  text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.fl2 .scale5 span.lit{animation:scaleLit 1.3s ease-in-out infinite}
+@keyframes scaleLit{50%{transform:scale(1.12);box-shadow:0 0 0 2px #5A2E12,0 0 0 5px var(--marigold),0 0 22px rgba(255,200,40,1)}}
 .fl2 .scale5 i{flex:1;height:6px;border-radius:3px;background:linear-gradient(90deg,rgba(122,74,34,.25),#7A4A22);position:relative}
 .fl2 .scale5 i::after{content:"";position:absolute;right:-4px;top:50%;translate:0 -50%;border:9px solid transparent;border-left:14px solid #7A4A22;border-right:0}
 </style>
