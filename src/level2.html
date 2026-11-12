@@ -3512,8 +3512,8 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
   filter:drop-shadow(0 6px 8px rgba(50,25,0,.35))}
 .card::before,.card::after,.tut .talk::before,.tut .talk::after,#ssub:not(.bub)::before,#ssub:not(.bub)::after{display:none!important}
 /* the speaker's photo sits in the round slot */
-.card .guide,.tut .talk .who,#ssub:not(.bub) .who{position:absolute!important;left:calc(var(--dk) * -168)!important;top:calc(50% + var(--dk) * 4)!important;translate:0 -50%!important;
-  width:calc(var(--dk) * 140)!important;height:calc(var(--dk) * 140)!important;margin:0!important;padding:0!important;border-radius:50%!important;overflow:hidden!important;
+.card .guide,.tut .talk .who,#ssub:not(.bub) .who{position:absolute!important;left:calc(var(--dk) * -166)!important;top:calc(50% + var(--dk) * 5.5)!important;translate:0 -50%!important;
+  width:calc(var(--dk) * 138)!important;height:calc(var(--dk) * 138)!important;margin:0!important;padding:0!important;border-radius:50%!important;overflow:hidden!important;
   background:radial-gradient(circle at 50% 35%,#A0582A,#6E3412 70%,#5A2A0E)!important;box-shadow:none!important;border:0!important}
 /* head and shoulders: the picture drawn big, from the top, centred */
 .card .guide img,.tut .talk .who img,#ssub:not(.bub) .who img{position:absolute!important;left:50%!important;top:6%!important;translate:-50% 0!important;transform:none!important;
@@ -3529,4 +3529,16 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .tut .talk{position:relative!important}   /* the photo is placed in the box's own slot */
 .tut .talk .who,.tut .talk .who.isnoori,.tut .talk .who[class]{background:radial-gradient(circle at 50% 35%,#A0582A,#6E3412 70%,#5A2A0E)!important}
 .tut .talk p{flex:1 1 auto!important;text-align:left!important}
+</style>
+
+<style>
+/* the dialogue box sits in the middle of the screen, everywhere */
+.card{justify-self:center!important;margin-left:0!important;margin-right:0!important}
+.tut .talk{justify-self:center!important;margin-left:0!important;margin-right:0!important}
+#ssub:not(.bub){left:50%!important;right:auto!important;translate:-50% 0!important}
+</style>
+
+<style>
+/* the box is always exactly its set height, so the round slot stays where the photo is */
+body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){height:var(--dh)!important;min-height:var(--dh)!important;max-height:var(--dh)!important;box-sizing:border-box!important}
 </style>
