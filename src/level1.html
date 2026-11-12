@@ -2874,15 +2874,14 @@ async function runLearning(ok){
       $("lNc"+d).innerHTML=lCard(n,d); lGlow($("lNc"+d).firstChild,"n"); await wait(500); if(!ok()) return; }
     await s; if(!ok()) return; }
   // 10. 2/3, read two ways
-  lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(2,3,"big")}<div class="lread" id="lR"></div></div></div><img class="lbillu" src="${A}billu_happy.webp" alt="Billu">`);
+  lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(2,3,"big")}</div></div><img class="lbillu" src="${A}billu_happy.webp" alt="Billu">`);
   lDraw($("lA"),3,{cut:true,tops:[0,1]});
   lHi($("tutLearn").querySelector(".lf")); await say("billu","I get it! For 2/3, I cut 3 equal parts and serve 2."); if(!ok()) return;
-  $("lR").innerHTML=`<span class="hi">two upon three</span><span class="hi">two by three</span>`;
   await say("noori","Yes! We read it as ‘two upon three’ or ‘two by three’."); if(!ok()) return;
   // 11. 5/8
-  lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(5,8,"big")}<div class="lread"><span>five upon eight</span><span>five by eight</span></div></div></div>`);
+  lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(5,8,"big")}</div></div>`);
   lDraw($("lA"),8,{cut:true,tops:[0,1,2,3,4],top:"mushroom"});
-  lHi($("tutLearn").querySelector(".lf")); $("tutLearn").querySelectorAll(".lread span").forEach(e=>e.classList.add("hi"));
+  lHi($("tutLearn").querySelector(".lf"));
   await say("noori","5/8 means 5 parts out of 8. We read it as ‘five upon eight’ or ‘five by eight’."); if(!ok()) return;
   // 12. Billu is ready
   lStage(`<img class="lbillu" src="${A}billu_happy.webp" alt="Billu">`); if(window.SFX&&SFX.ding) SFX.ding();
@@ -4001,5 +4000,4 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 .tut .lf.hi{position:relative}
 .tut .lf.hi::after{content:"";position:absolute;inset:-7px;border-radius:24px;pointer-events:none;box-shadow:0 0 0 4px #FFD24A,0 0 26px 6px rgba(255,206,60,.85);animation:lfHi 1.2s ease-in-out infinite}
 @keyframes lfHi{50%{box-shadow:0 0 0 6px #FFE27A,0 0 38px 12px rgba(255,214,60,1)}}
-.tut .lread span.hi{color:#3A2208!important;background:#FFD24A!important;box-shadow:0 0 18px rgba(255,210,60,.9)}
 </style>
