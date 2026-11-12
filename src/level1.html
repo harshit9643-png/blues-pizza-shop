@@ -2851,7 +2851,7 @@ async function runLearning(ok){
     $("lAc").innerHTML=lCard(n,d); lHi($("lAc").firstChild); await wait(400); lServeRow(P,[...Array(n).keys()]);
     await s; if(!ok()) return; }
   // 6 and 7: each fraction card with its cut pizza above it; the served parts are topped and glow
-  const pzCards=list=>{ lStage(list.map(([n,d],k)=>`<div class="li pzc">${lPizzaHTML("lQ"+k)}${lCard(n,d,"","lQc"+k)}</div>`).join(""),"pzcards");
+  const pzCards=list=>{ lStage(list.map(([n,d],k)=>`<div class="li pzc">${lPizzaHTML("lQ"+k)}${lCard(n,d,"","lQc"+k)}</div>`).join(""),"pzcards pz"+list.length);
     list.forEach(([n,d,top],k)=>{ const P=$("lQ"+k); lDraw(P,d,{cut:true,top});
       for(let i=0;i<n;i++){ lPart(P,i).querySelector(".tops").innerHTML=piecesSVG(P._g,i,P._d,P._top,true); lLit(P,i); } lHi($("lQc"+k)); }); };
   // 6. Billu is puzzled
@@ -4152,4 +4152,14 @@ body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){height:var(--dh)!
 .tut .learn.pzcards{--ls:min(calc(36*var(--vh)),calc(20*var(--vw)))!important;gap:clamp(30px,calc(6*var(--vw)),110px)!important;align-items:flex-start!important;margin-top:calc(2*var(--vh))}
 .tut .learn.pzcards .li.pzc{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,calc(2*var(--vh)),22px)}
 .tut .learn.pzcards .lf{font-size:clamp(26px,calc(4.6*var(--vh)),44px)!important}
+</style>
+<style>
+/* two pizzas: one well to the left, one well to the right, a wide gap between them */
+.tut .learn.pzcards.pz2{gap:clamp(120px,calc(24*var(--vw)),420px)!important}
+.tut .learn.pzcards.pz3{gap:clamp(40px,calc(9*var(--vw)),160px)!important}
+</style>
+<style>
+/* more room between each pizza and its fraction card */
+.tut .learn.pzcards{--ls:min(calc(32*var(--vh)),calc(19*var(--vw)))!important;margin-top:0!important}
+.tut .learn.pzcards .li.pzc{gap:clamp(22px,calc(5.5*var(--vh)),56px)!important}
 </style>
