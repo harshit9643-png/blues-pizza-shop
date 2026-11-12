@@ -1,4 +1,9 @@
 <script>
+/* Level 2 opens only from the game (Level 1 hands over with #play, the QA panel with #qa=...); a refresh or a direct visit
+   goes back to the very start of the game, the main screen */
+if(!/^#(play|qa=)/.test(location.hash)) location.replace(new URL(location.protocol==="file:"?"index.html":"./",location.href).href);
+</script>
+<script>
 /* another tab or window: every sound stops (music, sound effects, voices), every animation holds still, and the game
    waits; on return all of it carries on from the same moment */
 (()=>{ const AC=window.AudioContext||window.webkitAudioContext, all=new Set();
@@ -3005,7 +3010,7 @@ let _rz; window.addEventListener("resize",()=>{ clearTimeout(_rz); _rz=setTimeou
   .forEach(src=>{ const im=new Image(); im.src=src; });
 renderTop();
 /* arriving from the end of Level 1.2: start the Level 2 tutorial straight away */
-if(location.hash==="#play") startLevel2();
+if(location.hash==="#play"){ history.replaceState(null,"",location.pathname); startLevel2(); }   // used once: a refresh goes back to the start
 
 /* Noori comes alive on every screen: her pictures play the supplied 36-frame sheet (blinks, talking, waving) */
 (()=>{ const OPEN=[7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,27,28,29,30,31];   // only the frames with her eyes open
