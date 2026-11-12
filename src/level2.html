@@ -3387,12 +3387,12 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 
 <style>
 /* one fraction card for the whole game: the square parchment tile with a wooden frame and dark brown numbers */
-.tut .lf,#t2learn .l2f,.final .fin .mini,.fline .fin .mini{background:url("assets/ui/tile_parch.webp") center/100% 100% no-repeat!important;box-shadow:none!important;border:0!important;
+.tut .lf,#t2learn .l2f,.final .fin .mini,.fline .fin .mini,.fl2 .fin .mini{background:url("assets/ui/tile_parch.webp") center/100% 100% no-repeat!important;box-shadow:none!important;border:0!important;
   border-radius:0!important;color:#5A3210!important;text-shadow:0 1px 0 rgba(255,250,235,.7)!important;-webkit-text-stroke:0!important;
   filter:drop-shadow(0 4px 5px rgba(50,25,0,.35));padding:.32em .62em .36em!important}
-.tut .lf b,#t2learn .l2f b,.final .fin .mini b,.fline .fin .mini b,.final .fin .mini .fr,.fline .fin .mini .fr{color:#5A3210!important;text-shadow:0 1px 0 rgba(255,250,235,.7)!important}
+.tut .lf b,#t2learn .l2f b,.final .fin .mini b,.fline .fin .mini b,.final .fin .mini .fr,.fline .fin .mini .fr,.fl2 .fin .mini b,.fl2 .fin .mini .fr{color:#5A3210!important;text-shadow:0 1px 0 rgba(255,250,235,.7)!important}
 .tut .lf i,#t2learn .l2f i{background:#5A3210!important;height:.09em!important;border-radius:0!important;width:110%!important}
-.final .fin .mini .fr b:first-child,.fline .fin .mini .fr b:first-child{border-bottom-color:#5A3210!important}
+.final .fin .mini .fr b:first-child,.fline .fin .mini .fr b:first-child,.fl2 .fin .mini .fr b:first-child{border-bottom-color:#5A3210!important}
 .tut .lf b.lit{background:var(--marigold)!important;color:#FFFFFF!important;text-shadow:0 1px 0 rgba(0,0,0,.3)!important}
 </style>
 
@@ -3457,10 +3457,8 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
   box-shadow:0 0 0 1.5px #D98A00,0 5px 0 #C27600,0 10px 18px rgba(90,50,0,.28);transition:box-shadow .2s,transform .2s}
 .fl2 .fin .cimg{flex:1 1 auto;min-height:0;width:100%;display:flex;align-items:flex-end;justify-content:center}
 .fl2 .fin .cimg img{display:block;max-width:84%;max-height:100%;width:auto;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 3px rgba(60,30,8,.25))}
-.fl2 .fin .mini{flex:0 0 auto;padding:calc(var(--cw) * .025) calc(var(--cw) * .07);border-radius:12px;background:linear-gradient(180deg,#A8683A,#7C4520 60%,#64361A)!important;
-  box-shadow:0 0 0 3px var(--wood-dark),inset 0 3px 0 rgba(255,220,170,.35),0 4px 8px rgba(0,0,0,.28)!important}
-.fl2 .fin .mini .fr{font-size:calc(var(--cw) * .12);color:#FFE08A;text-shadow:0 2px 0 rgba(0,0,0,.35)}
-.fl2 .fin .mini .fr b:first-child{border-bottom-color:#FFE08A}
+.fl2 .fin .mini{flex:0 0 auto}   /* the game's wooden-framed parchment tile (shared rule above) */
+.fl2 .fin .mini .fr{font-size:calc(var(--cw) * .13)}
 .fl2 .fin:hover{transform:translateY(-3px)}
 .fl2 .fin.sel{box-shadow:0 0 0 4px #FFFFFF,0 0 0 7px var(--marigold),0 10px 22px rgba(242,166,44,.7);transform:translateY(-4px)}
 .fl2 .fin.dragging{z-index:50;cursor:grabbing;pointer-events:none;box-shadow:0 0 0 1.5px #D98A00,0 18px 26px rgba(40,20,5,.4)}
