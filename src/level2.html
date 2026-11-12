@@ -2785,7 +2785,7 @@ let tutNext=null;
 const ARROW_T='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const [img,name]=SPEAK[who], w=$("tutWho");
-  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":""); w.innerHTML=`<img src="${A}${img}.webp" alt="${name}">`;
+  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":""); w.innerHTML=`<img class="still" src="${A}${img}.webp" alt="${name}">`;
   // the "Let's learn" title shows with the first line only, then gives its space back
   const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
@@ -3015,7 +3015,7 @@ if(location.hash==="#play") startLevel2();
   setInterval(()=>{ const now=performance.now(), voice=!!(window.speechSynthesis&&speechSynthesis.speaking);
     const talking=NT.on && (now<NT.until || voice); if(NT.on && !talking) NT.on=false;
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
-    document.querySelectorAll("img").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
+    document.querySelectorAll("img:not(.still)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 </script>
 <script>
 /* QA panel: built from the jump menu's groups; picking a chip makes the same jump the dropdown did */
@@ -3369,4 +3369,16 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 .tut .lf i,#t2learn .l2f i{background:#5A3210!important;height:.09em!important;border-radius:0!important;width:110%!important}
 .final .fin .mini .fr b:first-child,.fline .fin .mini .fr b:first-child{border-bottom-color:#5A3210!important}
 .tut .lf b.lit{background:var(--marigold)!important;color:#FFFFFF!important;text-shadow:0 1px 0 rgba(0,0,0,.3)!important}
+</style>
+
+<style>
+/* tutorials: no standing Noori on the board; whoever speaks has a round photo inside the line box (a still picture, no talking) */
+.tut .teacher{display:none!important}
+.tut .talk .who,.tut .talk .who.isnoori,.tut .talk .who.billu,.tut .talk .who.guestc{display:block!important;position:relative!important;overflow:hidden!important;
+  width:clamp(46px,calc(4.4*var(--vw)),56px)!important;height:clamp(46px,calc(4.4*var(--vw)),56px)!important;flex:0 0 auto!important;border-radius:50%!important;
+  background:radial-gradient(circle at 50% 40%,#E9F7D9,#BFE3A0)!important;box-shadow:0 0 0 3px #FFFFFF,0 3px 8px rgba(0,0,0,.35)!important}
+.tut .talk .who.who img.still{position:absolute!important;max-width:none!important;height:auto!important;margin:0!important;transform:none!important;filter:none!important;animation:none!important}
+.tut .talk .who.who img.still[src*="noori"]{left:-34%!important;top:3%!important;width:168%!important}
+.tut .talk .who.who img.still[src*="billu"]{left:-36%!important;top:4%!important;width:165%!important}
+.tut .talk .who.who img.still[src*="giraffe"]{left:-30%!important;top:0!important;width:160%!important}
 </style>

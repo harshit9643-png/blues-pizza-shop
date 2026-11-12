@@ -2641,7 +2641,7 @@ const SPEAK={noori:["noori","Noori"],billu:["billu_idle","Billu"],guest:["giraff
 let tutNext=null;
 function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const [img,name]=SPEAK[who], w=$("tutWho");
-  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":who==="guest"?" guestc":""); w.innerHTML=`<img src="${A}${img}.webp" alt="${name}">`;
+  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":who==="guest"?" guestc":""); w.innerHTML=`<img class="still" src="${A}${img}.webp" alt="${name}">`;
   // the "Let's learn" title shows with the first line only, then gives its space back
   const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
@@ -2754,7 +2754,16 @@ function lDraw(svg,d,o={}){
     ${!cut&&d>1?`<g clip-path="url(#${id}o)">${full.cuts.map(([x1,y1,x2,y2])=>{ const L=Math.hypot(x2-x1,y2-y1).toFixed(1);
       return `<line class="dot" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><line class="cutl" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-dasharray="${L}" stroke-dashoffset="${L}"/>`; }).join("")}</g>`:""}
     <g class="over"></g>`;
+  if(cut) lSpread(svg,!!o.open);
 }
+/* once cut, the parts sit a little apart (a thin gap along each cut), so the equal parts read as separate pieces;
+   open: they slide apart now (straight after the cutter), otherwise they are drawn already apart */
+function lSpread(svg,open){ const g=svg._g, n=g.parts.length; if(n<2) return;
+  const mx=g.parts.reduce((s,p)=>s+p.cx,0)/n, my=g.parts.reduce((s,p)=>s+p.cy,0)/n, GAP=10;
+  g.parts.forEach((p,i)=>{ const el=lPart(svg,i); if(!el) return; const dx=p.cx-mx, dy=p.cy-my, L=Math.hypot(dx,dy)||1;
+    const t=`translate(${(dx/L*GAP).toFixed(1)}px,${(dy/L*GAP).toFixed(1)}px)`;
+    el.style.transition=open?"transform .6s cubic-bezier(.3,1.3,.5,1)":"none"; if(!open) el.style.transform=t;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.transform=t; setTimeout(()=>{ el.style.transition=""; },open?650:0); })); }); }
 /* roll the cutter along the lines, then show the pizza in equal parts */
 async function lCut(svg,o={}){
   svg.querySelectorAll(".dot").forEach(e=>e.classList.add("on"));
@@ -2766,7 +2775,7 @@ async function lCut(svg,o={}){
     const a=Math.atan2(y2-y1,x2-x1)*180/Math.PI+180; if(Sound.cut) Sound.cut();
     await tw((o.ms||520)*1.7,t=>{ cu.setAttribute("transform",`translate(${x1+(x2-x1)*t} ${y1+(y2-y1)*t}) rotate(${a})`); L.setAttribute("stroke-dashoffset",len*(1-t)); },easeInOut);
   }
-  lDraw(svg,svg._d,{cut:true});
+  lDraw(svg,svg._d,{cut:true,open:true});
 }
 const lPart=(svg,i)=>svg.querySelector(`.part[data-i="${i}"]`);
 function lTop(svg,i){ lPart(svg,i).querySelector(".tops").innerHTML=piecesSVG(svg._g,i,svg._d,svg._top,true); if(Sound.plop) Sound.plop(); }
@@ -3512,7 +3521,7 @@ if(location.hash==="#story") startLevel("1.1",true);
   setInterval(()=>{ const now=performance.now(), voice=!!(window.speechSynthesis&&speechSynthesis.speaking);
     const talking=NT.on && (now<NT.until || voice); if(NT.on && !talking) NT.on=false;
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
-    document.querySelectorAll("img").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
+    document.querySelectorAll("img:not(.still)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 
 /* Noori and Billu blink every 3 seconds on the main screen (open, half, shut, half, open), Billu between Noori's blinks;
    one picture per pairing: prelbd_n<Noori eyes>_b<Billu eyes>.webp */
@@ -3977,3 +3986,15 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 .tut .lf b.lit{background:var(--marigold)!important;color:#FFFFFF!important;text-shadow:0 1px 0 rgba(0,0,0,.3)!important}
 </style>
 <style>#tutTray.gone,#tutCount.gone{opacity:0!important;transform:translateY(16px) scale(.92)!important;pointer-events:none!important;transition:opacity .45s ease,transform .45s ease!important}</style>
+
+<style>
+/* tutorials: no standing Noori on the board; whoever speaks has a round photo inside the line box (a still picture, no talking) */
+.tut .teacher{display:none!important}
+.tut .talk .who,.tut .talk .who.isnoori,.tut .talk .who.billu,.tut .talk .who.guestc{display:block!important;position:relative!important;overflow:hidden!important;
+  width:clamp(46px,calc(4.4*var(--vw)),56px)!important;height:clamp(46px,calc(4.4*var(--vw)),56px)!important;flex:0 0 auto!important;border-radius:50%!important;
+  background:radial-gradient(circle at 50% 40%,#E9F7D9,#BFE3A0)!important;box-shadow:0 0 0 3px #FFFFFF,0 3px 8px rgba(0,0,0,.35)!important}
+.tut .talk .who.who img.still{position:absolute!important;max-width:none!important;height:auto!important;margin:0!important;transform:none!important;filter:none!important;animation:none!important}
+.tut .talk .who.who img.still[src*="noori"]{left:-34%!important;top:3%!important;width:168%!important}
+.tut .talk .who.who img.still[src*="billu"]{left:-36%!important;top:4%!important;width:165%!important}
+.tut .talk .who.who img.still[src*="giraffe"]{left:-30%!important;top:0!important;width:160%!important}
+</style>
