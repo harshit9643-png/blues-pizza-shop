@@ -1947,7 +1947,7 @@ async function checkPlates(st){
   const bad=!okA?"a":"b", o=st[bad], first=S.tries===1;
   const side=$("side-"+bad); bump(side,"bad",600);
   // the sheet: 1st wrong attempt "Oops! Try again."; 2nd and later the numerator hint (the numerator blinks, the plate clears)
-  if(first) say("Oops! Try again.","bad","noori");
+  if(first){ say("Oops! Try again.","bad","noori"); bump($("num-"+bad),"blink",2400); }   // the number to look at lights up
   else if(S.tries===2){ say("Check the numerator. How many slices did each one eat?","bad","noori");
     bump($("num-"+bad),"blink",2800); }
   else say(`Let me show you! ${Who(o.k)} ate ${o.n}/${o.d}: that's ${o.n} ${o.n===1?"slice":"slices"} of 1/${o.d}.`,"bad","noori");
@@ -1985,7 +1985,7 @@ async function pickWinner(st,sd){ stopGuide();
   }
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm");
   bump($("side-"+sd),"bad",600);
-  if(S.wTries===1) say("Hmm, look at the plates again. Who ate more?","bad","noori");
+  if(S.wTries===1){ say("Hmm, look at the plates again. Who ate more?","bad","noori"); ["a","b"].forEach(x=>bump($("side-"+x),"glow",2400)); }   // both plates light up
   else if(S.wTries===2){ sayRule(activeRule(st)); $("side-"+st.win).classList.add("glow"); }
   else showWinner(st);
 }
@@ -2038,7 +2038,7 @@ function pickCard(st,sd){ stopGuide();
   }
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump($("side-"+sd),"bad",600);
   document.querySelectorAll(".diag").forEach(d=>d.classList.add("show"));
-  if(S.wTries===1) say("Oops! Try again.","bad","noori");
+  if(S.wTries===1){ say("Oops! Try again.","bad","noori"); ["a","b"].forEach(x=>bump($("side-"+x),"glow",2400)); }
   else if(S.wTries===2){ sayRule(activeRule(st)); const w=$("side-"+st.win); w.classList.add("glow"); const dg=w.querySelector(".diag"); if(dg) dg.classList.add("glowd"); }   // the winner's diagram glows
   else showWinner(st);
 }
@@ -2151,7 +2151,7 @@ async function checkOrder(){
   S.oTries++; S.tries++; Sound.bad(); guideMood("hmm");
   const wrong=p.map((v,s)=>v!==want[s]?v:null).filter(v=>v!==null);
   wrong.forEach(i=>bump($("fin-"+i),"bad",600));
-  if(S.oTries===1) say("Oops! Try again.","bad","noori");
+  if(S.oTries===1){ say("Oops! Try again.","bad","noori"); document.querySelectorAll(".fin .mini .fr b:last-child").forEach(b=>bump(b,"blink",2400)); }   // the denominators light up
   else { say("Same numerator? The smaller denominator means bigger parts. Start with the biggest denominator: that's the smallest piece.","bad","noori");
     // the sheet: "round diagrams of all five fractions, from 1/6 to 1/2". Shown on the cards' own pizzas instead:
     // they light up one by one, smallest piece first, twice
@@ -2189,7 +2189,7 @@ function pickChampion(i){ stopGuide();
     return;
   }
   S.wTries++; Sound.bad(); guideMood("hmm"); bump($("fin-"+i),"bad",600);
-  if(S.wTries===1) say("Hmm, look at the order again. Who ate the most?","bad","noori");
+  if(S.wTries===1){ say("Hmm, look at the order again. Who ate the most?","bad","noori"); document.querySelectorAll(".final .slot").forEach(x=>bump(x,"glow",2400)); }
   else if(S.wTries===2){ say("The greatest fraction is at the end of the row.","bad","noori"); bump($("slot-4"),"glow",2400); bump($("fin-"+best),"sel",2400); }
   else { say(`Let me show you! The greatest fraction is at the end of the row: ${FINALISTS[best].n}/${FINALISTS[best].d}. Tap ${who(FINALISTS[best].k)}.`,"bad","noori");
     $("fin-"+best).classList.add("showme"); const g=S.gen; guide(()=>live(g)&&S.phase==="finalPick"?$("fin-"+best):null); }
@@ -3381,4 +3381,8 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 .tut .talk .who.who img.still[src*="noori"]{left:-34%!important;top:3%!important;width:168%!important}
 .tut .talk .who.who img.still[src*="billu"]{left:-31%!important;top:7%!important;width:128%!important}   /* his whole head and chef hat, centred */
 .tut .talk .who.who img.still[src*="giraffe"]{left:-30%!important;top:0!important;width:160%!important}
+</style>
+<style>
+/* a number being pointed out (numerator or denominator) lights up with a gold ring and glow, so it stands out on the small cards */
+.fr b.blink{background:#FFD24A!important;color:#3A2208!important;box-shadow:0 0 0 2px #FFF3C4,0 0 16px 4px rgba(255,206,60,1)!important;position:relative;z-index:2}
 </style>

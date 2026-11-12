@@ -2227,6 +2227,7 @@ async function useMould(k,btn){
     // wrong moulds for this order: 1st try again, 2nd a hint, 3rd the hand points at the right mould
     const key=S.lv+":"+S.i; if(S.mwKey!==key){ S.mwKey=key; S.mw=0; } S.mw++;
     say(S.mw===1?"Hmm, is that how many parts the order needs? Try again.":(o.mhint||"Check the denominator and pick the correct mould."),"bad");
+    if(S.mw===1) blinkNum("d",4);
     if(S.mw>=2){ blinkNum("d",3); const rm=document.querySelector(`.mould[data-m="${o.d}"]`); if(rm){ rm.classList.remove("pulseok"); void rm.offsetWidth; rm.classList.add("pulseok"); setTimeout(()=>rm.classList.remove("pulseok"),3200); } }
     await wait(1600); if(!live(gen)) return;
     btn.classList.remove("wrong"); PZ.classList.remove("bad");
@@ -2363,7 +2364,7 @@ async function miss(){
   S.tries++; S.busy=true; Sound.bad(); guideMood("hmm"); custMood("sad");
   // the sheet: 1st wrong attempt "Try again" (red glow and wiggle); 2nd and later the hint, and the numerator blinks
   const key=S.lv+":"+S.i; if(S.twKey!==key){ S.twKey=key; S.tw=0; } S.tw++;
-  if(S.tw===1) say(`Is that how much ${custWho(o)} ${o.duo?"want":"wants"}? Try again.`,"bad");
+  if(S.tw===1){ say(`Is that how much ${custWho(o)} ${o.duo?"want":"wants"}? Try again.`,"bad"); blinkNum("n",4); }
   else if(S.tw===2){ say(`Check the numerator. That’s how many pieces ${custWho(o)} ${o.duo?"want":"wants"}.`,"bad"); blinkNum("n",o.n); }
   else say(`Let me show you! The numerator is ${o.n}, so ${custWho(o)} ${o.duo?"want":"wants"} ${o.n} ${o.n===1?"piece":"pieces"}.`,"bad");
   S.covered.forEach((_,i)=>partEl(i).querySelector(".hit").classList.add("bad"));
@@ -2818,6 +2819,7 @@ function lServeRow(svg,parts){ const g=svg._g; parts.forEach((i,k)=>{ const el=l
     const tx=300+(k-(parts.length-1)/2)*165-p.cx, ty=560-p.cy; el.style.transform=`translate(${tx}px,${ty}px) scale(.55)`; el.classList.add("served"); if(Sound.plop) Sound.plop(); },(TUT.fast?0:k*450)); }); }
 function lServe(svg,parts,dx,dy){ parts.forEach((i,k)=>{ const el=lPart(svg,i); setTimeout(()=>{ el.style.transform=`translate(${dx}px,${dy}px) scale(.35)`; el.classList.add("gone"); },k*300); }); }
 const lStage=(html,cls="")=>{ const s=$("tutLearn"); s.className="learn "+cls; s.innerHTML=html; return s; };
+const lHi=(...els)=>els.forEach(e=>e&&e.classList.add("hi"));   // the fraction card being talked about glows
 const lGlow=(card,which,on=true)=>card.querySelector(which==="n"?"b.n":"b.d").classList.toggle("lit",on);
 
 async function runLearning(ok){
@@ -2832,27 +2834,27 @@ async function runLearning(ok){
   { const s=say("noori","To make a half, we cut it into 2 equal parts."); await lCut($("lA")); if(!ok()) return; lPulse($("lA")); await wait(300); lLit($("lA"),0); await s; if(!ok()) return; }   // once cut, one half lights up
   // 3. one half is 1/2
   lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li" id="lB">${lCard(1,2,"big")}</div></div>`); lDraw($("lA"),2,{cut:true});
-  lLit($("lA"),0);
+  lLit($("lA"),0); lHi($("lB").firstChild);
   await say("noori","Each part is one-half. We write it as 1/2. This is a fraction."); if(!ok()) return;
   // 4. two halves make one whole
   { const A=$("lA"); lLit(A,0,false); $("lB").innerHTML=`<div class="lsum">${lCard(1,2)}<em>+</em>${lCard(1,2)}<em>=</em>${lCard(2,2,"big")}</div>`;
-    const s=say("noori","Two halves make one whole: 2/2."); lLit(A,0); await wait(700); lLit(A,0,false); lLit(A,1); await wait(700); lLit(A,0); await s; if(!ok()) return; }
+    lHi($("lB").querySelector(".lf.big")); const s=say("noori","Two halves make one whole: 2/2."); lLit(A,0); await wait(700); lLit(A,0,false); lLit(A,1); await wait(700); lLit(A,0); await s; if(!ok()) return; }
   // 5. 4/5 and 3/8: cut, top and serve
   lStage(`<div class="li">${lPizzaHTML("lA")}<div id="lAc"></div></div><div class="li">${lPizzaHTML("lB")}<div id="lBc"></div></div>`,"two");
   lDraw($("lA"),5); lDraw($("lB"),8,{top:"corn"});
   { const s=say("noori","For 4/5 of a pizza, cut 5 equal parts and serve 4. For 3/8, cut 8 equal parts and serve 3.");
     const A=$("lA"), B=$("lB");
-    await lCut(A,{ms:380}); if(!ok()) return; for(const i of [0,1,2,3]){ lTop(A,i); await wait(220); } $("lAc").innerHTML=lCard(4,5); await wait(400); lServeRow(A,[0,1,2,3]);
+    await lCut(A,{ms:380}); if(!ok()) return; for(const i of [0,1,2,3]){ lTop(A,i); await wait(220); } $("lAc").innerHTML=lCard(4,5); lHi($("lAc").firstChild); await wait(400); lServeRow(A,[0,1,2,3]);
     await wait(1200); if(!ok()) return;
-    await lCut(B,{ms:300}); if(!ok()) return; for(const i of [0,1,2]){ lTop(B,i); await wait(220); } $("lBc").innerHTML=lCard(3,8); await wait(400); lServeRow(B,[0,1,2]);
+    await lCut(B,{ms:300}); if(!ok()) return; for(const i of [0,1,2]){ lTop(B,i); await wait(220); } $("lBc").innerHTML=lCard(3,8); lHi($("lBc").firstChild); $("lAc").firstChild.classList.remove("hi"); await wait(400); lServeRow(B,[0,1,2]);
     await s; if(!ok()) return; }
   // 6. Billu is puzzled
   lStage(`<div class="li">${lCard(4,5,"big")}</div><img class="lbillu" src="${A}billu_idle.webp" alt="Billu"><div class="li">${lCard(3,8,"big")}</div>`);
-  await say("billu","What are 4/5 and 3/8?"); if(!ok()) return;
+  lHi(...$("tutLearn").querySelectorAll(".lf")); await say("billu","What are 4/5 and 3/8?"); if(!ok()) return;
   // 7. these are fractions
   lStage(`<div class="li row">${lPizzaHTML("lA")}${lCard(4,5,"big")}</div><div class="li row">${lPizzaHTML("lB")}${lCard(3,8,"big")}</div>`,"two");
   lDraw($("lA"),5,{cut:true,tops:[0,1,2,3]}); lDraw($("lB"),8,{cut:true,tops:[0,1,2],top:"corn"});
-  await say("noori","They are fractions too, just like 1/2."); if(!ok()) return;
+  lHi(...$("tutLearn").querySelectorAll(".lf")); await say("noori","They are fractions too, just like 1/2."); if(!ok()) return;
   // 8. the denominator
   lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Denominator</div></div>`+
     [3,5,8].map(d=>`<div class="li">${lPizzaHTML("lD"+d)}<div id="lDc${d}"></div></div>`).join(""),"three");
@@ -2874,12 +2876,13 @@ async function runLearning(ok){
   // 10. 2/3, read two ways
   lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(2,3,"big")}<div class="lread" id="lR"></div></div></div><img class="lbillu" src="${A}billu_happy.webp" alt="Billu">`);
   lDraw($("lA"),3,{cut:true,tops:[0,1]});
-  await say("billu","I get it! For 2/3, I cut 3 equal parts and serve 2."); if(!ok()) return;
-  $("lR").innerHTML=`<span>two upon three</span><span>two by three</span>`;
+  lHi($("tutLearn").querySelector(".lf")); await say("billu","I get it! For 2/3, I cut 3 equal parts and serve 2."); if(!ok()) return;
+  $("lR").innerHTML=`<span class="hi">two upon three</span><span class="hi">two by three</span>`;
   await say("noori","Yes! We read it as ‘two upon three’ or ‘two by three’."); if(!ok()) return;
   // 11. 5/8
   lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(5,8,"big")}<div class="lread"><span>five upon eight</span><span>five by eight</span></div></div></div>`);
   lDraw($("lA"),8,{cut:true,tops:[0,1,2,3,4],top:"mushroom"});
+  lHi($("tutLearn").querySelector(".lf")); $("tutLearn").querySelectorAll(".lread span").forEach(e=>e.classList.add("hi"));
   await say("noori","5/8 means 5 parts out of 8. We read it as ‘five upon eight’ or ‘five by eight’."); if(!ok()) return;
   // 12. Billu is ready
   lStage(`<img class="lbillu" src="${A}billu_happy.webp" alt="Billu">`); if(window.SFX&&SFX.ding) SFX.ding();
@@ -3992,4 +3995,11 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 /* Chintu (the monkey with the cap and the gold chain, from Story 1) as a round photo in the lesson */
 .tut .lava.lphoto{align-items:stretch!important;justify-content:stretch!important;padding:0!important}
 .tut .lava.lphoto img{width:100%!important;height:100%!important;object-fit:cover!important;margin:0!important;filter:none!important}
+</style>
+<style>
+/* the lesson: the fraction card (and the way to read it) being talked about glows, a gold ring that breathes */
+.tut .lf.hi{position:relative}
+.tut .lf.hi::after{content:"";position:absolute;inset:-7px;border-radius:24px;pointer-events:none;box-shadow:0 0 0 4px #FFD24A,0 0 26px 6px rgba(255,206,60,.85);animation:lfHi 1.2s ease-in-out infinite}
+@keyframes lfHi{50%{box-shadow:0 0 0 6px #FFE27A,0 0 38px 12px rgba(255,214,60,1)}}
+.tut .lread span.hi{color:#3A2208!important;background:#FFD24A!important;box-shadow:0 0 18px rgba(255,210,60,.9)}
 </style>
