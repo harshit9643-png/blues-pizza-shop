@@ -2839,39 +2839,36 @@ async function runLearning(ok){
   // 4. two halves make one whole
   { const A=$("lA"); lLit(A,0,false); $("lB").innerHTML=`<div class="lsum">${lCard(1,2)}<em>+</em>${lCard(1,2)}<em>=</em>${lCard(2,2,"big")}</div>`;
     lHi($("lB").querySelector(".lf.big")); const s=say("noori","Two halves make one whole: 2/2."); lLit(A,0); await wait(700); lLit(A,0,false); lLit(A,1); await wait(700); lLit(A,0); await s; if(!ok()) return; }
-  // 5. 4/5 and 3/8: cut, top and serve
-  lStage(`<div class="li">${lPizzaHTML("lA")}<div id="lAc"></div></div><div class="li">${lPizzaHTML("lB")}<div id="lBc"></div></div>`,"two");
-  lDraw($("lA"),5); lDraw($("lB"),8,{top:"corn"});
-  { const s=say("noori","For 4/5 of a pizza, cut 5 equal parts and serve 4. For 3/8, cut 8 equal parts and serve 3.");
-    const A=$("lA"), B=$("lB");
-    await lCut(A,{ms:380}); if(!ok()) return; for(const i of [0,1,2,3]){ lTop(A,i); await wait(220); } $("lAc").innerHTML=lCard(4,5); lHi($("lAc").firstChild); await wait(400); lServeRow(A,[0,1,2,3]);
-    await wait(1200); if(!ok()) return;
-    await lCut(B,{ms:300}); if(!ok()) return; for(const i of [0,1,2]){ lTop(B,i); await wait(220); } $("lBc").innerHTML=lCard(3,8); lHi($("lBc").firstChild); $("lAc").firstChild.classList.remove("hi"); await wait(400); lServeRow(B,[0,1,2]);
+  // 5. one pizza at a time: 4/5 first (cut, top, serve), then 3/8 on its own screen
+  for(const [n,d,top,line] of [[4,5,"tomato","For 4/5 of a pizza, cut 5 equal parts and serve 4."],[3,8,"corn","For 3/8, cut 8 equal parts and serve 3."]]){
+    lStage(`<div class="li">${lPizzaHTML("lA")}<div id="lAc"></div></div>`); lDraw($("lA"),d,{top});
+    const s=say("noori",line), P=$("lA");
+    await lCut(P,{ms:d>6?300:380}); if(!ok()) return;
+    for(let i=0;i<n;i++){ lTop(P,i); await wait(220); }
+    $("lAc").innerHTML=lCard(n,d); lHi($("lAc").firstChild); await wait(400); lServeRow(P,[...Array(n).keys()]);
     await s; if(!ok()) return; }
-  // 6. Billu is puzzled
+  // 6. Billu is puzzled: the two cards only
   lStage(`<div class="li">${lCard(4,5,"big")}</div><img class="lbillu" src="${A}billu_idle.webp" alt="Billu"><div class="li">${lCard(3,8,"big")}</div>`);
   lHi(...$("tutLearn").querySelectorAll(".lf")); await say("billu","What are 4/5 and 3/8?"); if(!ok()) return;
-  // 7. these are fractions
-  lStage(`<div class="li row">${lPizzaHTML("lA")}${lCard(4,5,"big")}</div><div class="li row">${lPizzaHTML("lB")}${lCard(3,8,"big")}</div>`,"two");
-  lDraw($("lA"),5,{cut:true,tops:[0,1,2,3]}); lDraw($("lB"),8,{cut:true,tops:[0,1,2],top:"corn"});
+  // 7. these are fractions, just like 1/2: the cards, no pizzas
+  lStage(`<div class="li">${lCard(4,5,"big")}</div><div class="li">${lCard(3,8,"big")}</div><div class="li">${lCard(1,2,"big","lH")}</div>`);
   lHi(...$("tutLearn").querySelectorAll(".lf")); await say("noori","They are fractions too, just like 1/2."); if(!ok()) return;
-  // 8. the denominator
-  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Denominator</div></div>`+
-    [3,5,8].map(d=>`<div class="li">${lPizzaHTML("lD"+d)}<div id="lDc${d}"></div></div>`).join(""),"three");
-  lGlow($("lH"),"d"); [3,5,8].forEach(d=>lDraw($("lD"+d),d));
+  // 8. the denominator: one pizza at a time, in the same place (3, then 5, then 8 equal parts)
+  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Denominator</div></div><div class="li" id="lSlot"></div>`);
+  lGlow($("lH"),"d");
   { const s=say("noori","The bottom number is the denominator. It tells us how many equal parts to cut.");
-    for(const d of [3,5,8]){ await lCut($("lD"+d),{ms:260,pause:250}); if(!ok()) return; $("lDc"+d).innerHTML=lCard("?",d); lGlow($("lDc"+d).firstChild,"d"); await wait(300); }
+    for(const d of [3,5,8]){ $("lSlot").innerHTML=`${lPizzaHTML("lD")}<div id="lDc"></div>`; lDraw($("lD"),d);
+      await lCut($("lD"),{ms:260,pause:250}); if(!ok()) return; $("lDc").innerHTML=lCard("?",d); lGlow($("lDc").firstChild,"d"); await wait(700); if(!ok()) return; }
     await s; if(!ok()) return; }
-  // 9. the numerator: one half goes to Chintu, then 2/3 and 3/5
-  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Numerator</div></div>
-    <div class="li">${lPizzaHTML("lN2")}<div class="lava lphoto"><img src="${A}chintu_face.webp" alt="Chintu"></div></div>
-    <div class="li">${lPizzaHTML("lN3")}<div id="lNc3"></div></div><div class="li">${lPizzaHTML("lN5")}<div id="lNc5"></div></div>`,"three");
-  lGlow($("lH"),"n"); lDraw($("lN2"),2,{cut:true}); lDraw($("lN3"),3,{cut:true}); lDraw($("lN5"),5,{cut:true});
-  $("lN3").style.visibility="hidden"; $("lN5").style.visibility="hidden";
+  // 9. the numerator: one pizza at a time: one half goes to Chintu, then 2/3, then 3/5
+  lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Numerator</div></div><div class="li" id="lSlot"></div>`);
+  lGlow($("lH"),"n");
   { const s=say("noori","The top number is the numerator. It tells us how many parts the customer wants.");
-    const P=$("lN2"); await wait(500); lTop(P,0); await wait(500); lServe(P,[0],0,560); await wait(1000); if(!ok()) return;
-    for(const [d,n] of [[3,2],[5,3]]){ const S=$("lN"+d); S.style.visibility=""; for(let i=0;i<n;i++){ lTop(S,i); await wait(240); }
-      $("lNc"+d).innerHTML=lCard(n,d); lGlow($("lNc"+d).firstChild,"n"); await wait(500); if(!ok()) return; }
+    $("lSlot").innerHTML=`${lPizzaHTML("lN")}<div class="lava lphoto"><img src="${A}chintu_face.webp" alt="Chintu"></div>`; lDraw($("lN"),2,{cut:true});
+    let P=$("lN"); await wait(500); lTop(P,0); await wait(500); lServe(P,[0],0,560); await wait(1000); if(!ok()) return;
+    for(const [d,n] of [[3,2],[5,3]]){ $("lSlot").innerHTML=`${lPizzaHTML("lN")}<div id="lNc"></div>`; lDraw($("lN"),d,{cut:true}); P=$("lN");
+      await wait(300); for(let i=0;i<n;i++){ lTop(P,i); await wait(240); }
+      $("lNc").innerHTML=lCard(n,d); lGlow($("lNc").firstChild,"n"); await wait(700); if(!ok()) return; }
     await s; if(!ok()) return; }
   // 10. 2/3, read two ways
   lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(2,3,"big")}</div></div><img class="lbillu" src="${A}billu_happy.webp" alt="Billu">`);
