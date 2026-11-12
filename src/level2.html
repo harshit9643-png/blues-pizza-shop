@@ -1961,6 +1961,56 @@ async function checkPlates(st){
       return $("done"); });
   }
 }
+/* says a line, then resolves once it has been spoken (or after a reading time), plus a short pause */
+function sayW2(text,tone,who,g){ say(text,tone,who); const t0=performance.now(), est=Math.max(1600,String(text).split(/\s+/).length*330+500);
+  return new Promise(r=>{ let spoke=false; (function t(){ if(!live(g)) return r();
+    const talking=VOICE.busy(); if(talking) spoke=true; const el=performance.now()-t0;
+    if(PAUSE.on) return setTimeout(t,150);
+    if((spoke&&!talking&&el>600)||(!spoke&&el>est)||el>est+9000) return setTimeout(r,900); setTimeout(t,120); })(); }); }
+/* Tutorial 2, second half (sheet: Tutorial 2): the squirrel and the peacock on the tablecloth. The lines from the sheet;
+   the hand shows each step (the squirrel's stack twice, the peacock's five times, Check plates, the winner); then Match 1 */
+const TUTM={kind:"match",set:"T",label:"Tutorial",a:{k:"squirrel",n:2,d:7},b:{k:"peacock",n:5,d:7},win:"b"};
+async function tutorialMatch(){
+  const st=TUTM; S.i=0; S.gen++; S.tries=0; S.phase="talk"; S.g=0; renderTop(); stopGuide(); $("start").hidden=true; $("end").hidden=true;
+  const g=S.gen, until=c=>new Promise(r=>{ (function t(){ if(!live(g)||c()) return r(); setTimeout(t,120); })(); });
+  setView("match",sideHTML("a",st.a,true)+midHTML(st)+sideHTML("b",st.b,true)); S.cnt={a:0,b:0};
+  ["a","b"].forEach(sd=>$("stack-"+sd).addEventListener("click",()=>{ if(S.phase==="build"&&S.cnt[sd]<st[sd].n){ S.cnt[sd]++; drawPie(st,sd,true); Sound.plop(); } }));
+  button("check",false,false);
+  const lit=(sd,on)=>{ const e=$("side-"+sd).querySelector(".eat"); if(e) e.classList.toggle("t2lit",on); };
+  Sound.drum(); await sayW2("The squirrel and the peacock! Ready… eat!","","billu",g); if(!live(g)) return;
+  ["a","b"].forEach(sd=>lit(sd,true));
+  await sayW2("Let’s find the winner! First, read the scoreboard.","","noori",g); if(!live(g)) return;
+  ["a","b"].forEach(sd=>lit(sd,false));
+  await sayW2("Tap a stack to add a slice to a plate. Tap a slice to take it off.","","noori",g); if(!live(g)) return;
+  for(const sd of ["a","b"]){ const o=st[sd];
+    lit(sd,true); $("num-"+sd).classList.add("blink"); S.phase="build";
+    say(`The ${NAMES[o.k].toLowerCase()} ate ${o.n}/${o.d}. Put ${o.n} slices on its plate.`,"","noori");
+    guide(()=>live(g)&&S.cnt[sd]<o.n?$("stack-"+sd):null);
+    await until(()=>S.cnt[sd]>=o.n); if(!live(g)) return;
+    S.phase="talk"; lit(sd,false); $("num-"+sd).classList.remove("blink"); $("stack-"+sd).classList.add("off"); }
+  await wait(500); if(!live(g)) return;
+  let checked=false; button("check",true,true,()=>{ checked=true; });
+  say("When both plates look right, tap Check plates.","","noori");
+  guide(()=>live(g)&&!checked?$("done"):null); await until(()=>checked); if(!live(g)) return;
+  stopGuide(); button("",false,false);   // checked: the button steps away
+  ["a","b"].forEach(sd=>$("side-"+sd).classList.add("ok")); Sound.good(); guideMood("cheer");
+  await sayW2("Both plates are right!","good","noori",g); if(!live(g)) return;
+  ["a","b"].forEach(sd=>{ $("side-"+sd).classList.remove("ok"); const d=$("side-"+sd).querySelectorAll(".fr b")[1]; if(d) bump(d,"blink",3200); });
+  await sayW2(`Both pizzas have ${st.a.d} equal parts. Same denominator? Compare the numerators.`,"","noori",g); if(!live(g)) return;
+  ["a","b"].forEach(sd=>bump($("num-"+sd),"blink",3000));
+  // who ate more: the hand points at the winner
+  Sound.drum(); $("stage").classList.add("dim"); $("askbox").innerHTML=`<div class="ask">Who ate more?</div>`;
+  ["a","b"].forEach(sd=>$("side-"+sd).classList.add("spot","pick"));
+  let picked=false; const w=$("side-"+st.win); w.onclick=()=>{ picked=true; };
+  say("And the winner is…?","","billu"); await wait(1200); if(!live(g)) return;
+  S.phase="winner"; guide(()=>live(g)&&!picked?(w.querySelector(".ava")||w):null); await until(()=>picked); if(!live(g)) return;
+  stopGuide(); S.phase="won"; w.onclick=null; $("stage").classList.remove("dim"); $("askbox").innerHTML="";
+  ["a","b"].forEach(x=>{ const e=$("side-"+x); e.classList.remove("pick"); if(x!==st.win) e.classList.remove("spot"); });
+  w.classList.add("win"); hangMedal(w,st[st.win].k); Sound.win(); confetti(); guideMood("cheer");
+  await sayW2("Yes! 5 parts are more than 2. The peacock wins!","good","noori",g); if(!live(g)) return;
+  await sayW2("Your turn to find the winners!","","billu",g); if(!live(g)) return;
+  go(0);
+}
 function winnerPhase(st){
   S.phase="winner"; S.wTries=0; Sound.drum();
   $("stage").classList.add("dim");
@@ -2921,57 +2971,7 @@ async function runTutorial2(){
   (async()=>{
     await rollScroll(true,gen); if(!ok()) return;
     await runLearning2(ok); if(!ok()) return;
-    // 1. the match
-    Sound.drum();
-    await tutSay("billu","The squirrel and the peacock! Ready… eat!"); if(!ok()) return;
-    // 2. read the scoreboard
-    ["a","b"].forEach(sd=>$("t2tag-"+sd).classList.add("glow"));
-    await tutSay("noori","Let’s find the winner! First, read the scoreboard."); if(!ok()) return;
-    ["a","b"].forEach(sd=>$("t2tag-"+sd).classList.remove("glow"));
-    // 3. two boards and their slice stacks
-    ["a","b"].forEach(sd=>{ $("t2board-"+sd).classList.add("in"); $("t2stack-"+sd).classList.add("on","off2"); });
-    await tutSay("noori","Tap a stack to add a slice to a plate. Tap a slice to take it off."); if(!ok()) return;
-    // 4. the squirrel: 2 slices
-    T.open.a=true; $("t2stack-a").classList.remove("off2"); $("t2stack-a").classList.add("hint"); t2Blink("a",true);
-    tutSay("noori",`The squirrel ate ${T.a.n}/${T.a.d}. Put ${T.a.n} slices on its plate.`,{wait:true});
-    await t2wait(()=>T.cnt.a===T.a.n); if(!ok()) return;
-    T.open.a=false; $("t2stack-a").classList.remove("hint"); $("t2stack-a").classList.add("off2","gone"); t2Blink("a",false);
-    // 5. the peacock: 5 slices
-    T.open.b=true; $("t2stack-b").classList.remove("off2"); $("t2stack-b").classList.add("hint"); t2Blink("b",true);
-    tutSay("noori",`The peacock ate ${T.b.n}/${T.b.d}. Put ${T.b.n} slices on its plate.`,{wait:true});
-    await t2wait(()=>T.cnt.b===T.b.n); if(!ok()) return;
-    T.open.b=false; $("t2stack-b").classList.remove("hint"); $("t2stack-b").classList.add("off2","gone"); t2Blink("b",false);
-    // 6. check plates
-    $("t2check").classList.add("on");
-    await new Promise(r=>$("t2check").addEventListener("click",r,{once:true})); if(!ok()) return;
-    $("t2check").classList.remove("on");
-    ["a","b"].forEach(sd=>{ $("t2-"+sd).classList.add("ok"); $("t2stack-"+sd).classList.remove("on"); });
-    Sound.good();
-    await tutSay("noori","Both plates are right!"); if(!ok()) return;
-    ["a","b"].forEach(sd=>$("t2-"+sd).classList.remove("ok"));
-    // 7. the 7s glow and the rule card lights up
-    ["a","b"].forEach(sd=>{ const d=$("t2tag-"+sd).querySelectorAll(".fr b")[1]; d.classList.add("blink"); setTimeout(()=>d.classList.remove("blink"),2800); });
-    $("t2rule").classList.add("in","on");
-    await tutSay("noori",`Both pizzas have ${T.a.d} equal parts. Same denominator? Compare the numerators.`); if(!ok()) return;
-    // 8. drumroll, spotlights, who ate more?
-    Sound.drum(); $("t2duel").classList.add("dim"); $("t2ask").classList.add("in");
-    ["a","b"].forEach(sd=>$("t2-"+sd).classList.add("pick"));
-    tutSay("billu","And the winner is…?",{wait:true});
-    let tries=0;
-    await new Promise(r=>["a","b"].forEach(sd=>$("t2-"+sd).addEventListener("click",function f(){
-      if(!$("t2-"+sd).classList.contains("pick")) return;
-      if(sd===T.win){ ["a","b"].forEach(x=>$("t2-"+x).classList.remove("pick","glow2")); r(); return; }
-      tries++; Sound.bad(); const el=$("t2-"+sd); el.classList.remove("bad"); void el.offsetWidth; el.classList.add("bad"); setTimeout(()=>el.classList.remove("bad"),600);
-      if(tries===1) tutSay("noori","Hmm, look at the plates again. Who ate more?",{wait:true,bad:true});
-      else { tutSay("noori",RULE_SAME_D,{wait:true,bad:true}); $("t2-"+T.win).classList.add("glow2"); }
-    }))); if(!ok()) return;
-    // 9. the medal
-    $("t2duel").classList.remove("dim"); $("t2ask").classList.remove("in");
-    const win=$("t2-"+T.win); win.classList.add("win"); hangMedal(win,T[T.win].k);
-    Sound.win(); confetti();
-    await tutSay("noori","Yes! 5 parts are more than 2. The peacock wins!"); if(!ok()) return;
-    // 10. over to the learner
-    await tutSay("billu","Your turn to find the winners!",{label:"LET'S PLAY"}); if(!ok()) return;
+    // the board part ends here; the squirrel and the peacock's match is played on the tablecloth, with the hand (tutorialMatch)
     T.end();
   })();
   await finish;
@@ -2980,7 +2980,7 @@ async function runTutorial2(){
   await rollScroll(false,TUT2.gen);
 }
 function startLevel2(story=true){ $("start").hidden=true; $("end").hidden=true; S.gen++; $("jump").value=story?"S":"T";
-  const fl=FLOW; (story?playStory(storyContext2):Promise.resolve()).then(()=>fl===FLOW&&runTutorial2()).then(()=>{ if(fl===FLOW) go(0); }); }
+  const fl=FLOW; (story?playStory(storyContext2):Promise.resolve()).then(()=>fl===FLOW&&runTutorial2()).then(()=>{ if(fl===FLOW) tutorialMatch(); }); }
 $("play").addEventListener("click",startLevel2);
 /* Level 1 is the previous page of the same game (online it is served at /) */
 function goLevel1(lv){ CURTAIN.cover().then(()=>{ location.href=new URL((location.protocol==="file:"?"index.html":"./")+"#"+lv,location.href).href; }); }
@@ -3437,4 +3437,9 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .qap.qa2 .chip3 .av{display:inline-flex;flex:0 0 auto}
 .qap.qa2 .chip3 .av img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 12%;background:radial-gradient(circle at 50% 40%,#E9F7D9,#BFE3A0);box-shadow:0 0 0 2px #FFFFFF}
 .qap.qa2 .chip3 .av.two img+img{margin-left:-8px}
+</style>
+<style>
+/* Tutorial 2 on the tablecloth: the score card being talked about glows */
+.side .eat.t2lit{border-radius:14px;box-shadow:0 0 0 4px #FFD24A,0 0 24px 6px rgba(255,206,60,.9);animation:t2lit 1.2s ease-in-out infinite}
+@keyframes t2lit{50%{box-shadow:0 0 0 6px #FFE27A,0 0 34px 10px rgba(255,214,60,1)}}
 </style>

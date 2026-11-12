@@ -3456,19 +3456,11 @@ async function storyContext1(){
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   await sLine("chintu","Half a pizza, please!");
-  // Billu cuts it (the supplied 4 frames): a close-up over the dimmed scene, cutter up, down, rolling, cut
-  await W(sleep(700));
-  { const CUT=i=>`assets/story/billu_cut${i}.webp?v=__BUILD__`; [0,1,2,3].forEach(i=>{ new Image().src=CUT(i); });
-    const cu=document.createElement("div"); cu.className="scutaway"; cu.innerHTML=`<img src="${CUT(0)}" alt="Billu cuts the pizza">`;
-    $("sworld").appendChild(cu); void cu.offsetWidth; cu.classList.add("in"); const im=cu.querySelector("img");
-    try{ await W(sleep(900));
-      for(const [i,ms] of [[1,650],[2,900],[3,1600]]){ im.src=CUT(i); if(i===2&&SFX.roll) SFX.roll(); await W(sleep(ms)); }
-    } finally { cu.classList.remove("in"); setTimeout(()=>cu.remove(),400); }
-    await W(sleep(350)); }
+  await W(sleep(2200));   // a moment on the picture before it changes
   // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
   await W(sceneBook(open2,cut2)); open2=cut2;
-  STORY.noSpot=true; await sLine("billu","Easy! Two pieces!"); STORY.noSpot=false;
+  STORY.noSpot=true; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
@@ -4058,11 +4050,4 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .qap.qa2 .chip3 .av{display:inline-flex;flex:0 0 auto}
 .qap.qa2 .chip3 .av img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 12%;background:radial-gradient(circle at 50% 40%,#E9F7D9,#BFE3A0);box-shadow:0 0 0 2px #FFFFFF}
 .qap.qa2 .chip3 .av.two img+img{margin-left:-8px}
-</style>
-<style>
-/* Story 1: Billu cutting the pizza, a close-up over the dimmed scene (the supplied four frames) */
-.story .scutaway{position:absolute;inset:0;z-index:60;display:grid;place-items:center;background:rgba(20,12,4,.72);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);opacity:0;transition:opacity .35s ease;pointer-events:none}
-.story .scutaway.in{opacity:1}
-.story .scutaway img{height:86%;width:auto;max-width:90%;object-fit:contain;filter:drop-shadow(0 14px 20px rgba(0,0,0,.5));transform:scale(.88);transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
-.story .scutaway.in img{transform:none}
 </style>
