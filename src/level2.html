@@ -3471,15 +3471,17 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .fl2 .fin .medal{position:absolute;width:42%;height:auto;z-index:5;left:50%!important;right:auto!important;top:-30%!important;translate:-50% 0}
 /* the board: the game's wooden-framed parchment tile (like the fraction tiles), a long rectangle, little padding;
    five wide dashed spaces; the arrow under them runs smallest -> greatest */
-.fl2{--sw:calc(var(--cw) * 1.3)}
+.fl2{--sw:var(--cw)}   /* the spaces are exactly the cards' size and shape */
 .fl2 .board5{position:relative;display:grid;justify-items:center;gap:6px;padding:4px 8px 2px;border:16px solid transparent;border-radius:0;
   border-image:url("assets/ui/tile_parch.webp") 34 fill / 16px stretch;background:none;filter:drop-shadow(0 10px 14px rgba(60,25,0,.35))}
-.fl2 .board5 .row5{grid-template-columns:repeat(5,var(--sw));gap:10px}
-.fl2 .slot{position:relative;width:var(--sw);height:var(--ch);border-radius:12px;background:rgba(122,74,34,.08);
-  box-shadow:inset 0 2px 6px rgba(90,50,16,.25);transition:box-shadow .2s,background .2s,transform .2s}
-.fl2 .slot::before{content:"";position:absolute;inset:6px;border-radius:9px;border:3px dashed rgba(122,74,34,.5);pointer-events:none}
+.fl2 .board5 .row5{grid-template-columns:repeat(5,var(--sw));gap:calc(var(--cw) * .36 + 10px)}
+.fl2 .slot{position:relative;width:var(--sw);height:var(--ch);border-radius:18px;background:rgba(122,74,34,.1);border:3px dashed rgba(122,74,34,.55);
+  box-shadow:inset 0 2px 6px rgba(90,50,16,.2);transition:box-shadow .2s,background .2s,transform .2s}
+.fl2 .slot::before{display:none}
 .fl2 .slot::after{content:"+";position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:calc(var(--cw) * .3);color:rgba(122,74,34,.35);pointer-events:none}
-.fl2 .slot:has(.fin)::before,.fl2 .slot:has(.fin)::after{display:none}
+.fl2 .slot:has(.fin)::after{display:none}
+.fl2 .slot:has(.fin){border-color:transparent}
+.fl2 .slot>.fin{inset:-3px!important}
 .fl2 .slot>.fin{position:absolute;inset:0;width:auto;height:auto}
 .fl2 .slot.over{background:rgba(255,206,80,.35);box-shadow:inset 0 0 0 4px var(--marigold),0 0 22px rgba(242,166,44,.9);transform:translateY(-3px)}
 .fl2 .slot.glow{box-shadow:inset 0 0 0 4px var(--marigold),0 0 22px rgba(242,166,44,.9)}
