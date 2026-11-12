@@ -3016,7 +3016,7 @@ if(location.hash==="#play"){ history.replaceState(null,"",location.pathname); st
   setInterval(()=>{ const now=performance.now(), voice=!!(window.speechSynthesis&&speechSynthesis.speaking);
     const talking=NT.on && (now<NT.until || voice); if(NT.on && !talking) NT.on=false;
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
-    document.querySelectorAll("img:not(.still)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
+    document.querySelectorAll("img:not(.still):not(.guide img)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 </script>
 <script>
 /* QA panel: the whole game on one map, on both pages. Tap a step to jump there; a step on the other page opens that page
@@ -3541,4 +3541,17 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 <style>
 /* the box is always exactly its set height, so the round slot stays where the photo is */
 body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){height:var(--dh)!important;min-height:var(--dh)!important;max-height:var(--dh)!important;box-sizing:border-box!important}
+</style>
+<style>
+/* Tutorial 2 line box: a little thinner (it sat on the characters' pictures) */
+.tut .talk{--dh:clamp(56px,calc(10*var(--vh)),72px);--dk:calc(var(--dh) / 226)}
+/* the speaker's photo sits in the box's round slot, face in the middle */
+body .tut .talk>.who.who{position:absolute!important;display:block!important;left:calc(var(--dk) * -166)!important;top:calc(50% + var(--dk) * 5.5)!important;translate:0 -50%!important;transform:none!important;
+  width:calc(var(--dk) * 138)!important;height:calc(var(--dk) * 138)!important;margin:0!important;border-radius:50%!important;overflow:hidden!important;box-shadow:none!important;border:0!important;
+  background:radial-gradient(circle at 50% 35%,#A0582A,#6E3412 70%,#5A2A0E)!important}
+body .tut .talk>.who.who>img{position:absolute!important;translate:none!important;transform:none!important;height:auto!important;max-width:none!important;margin:0!important;filter:none!important;animation:none!important;left:-30%!important;top:2%!important;width:160%!important}
+body .tut .talk>.who.who>img[src*="noori"]{left:-34%!important;top:3%!important;width:168%!important}
+body .tut .talk>.who.who>img[src*="billu"]{left:-31%!important;top:7%!important;width:128%!important}
+body .tut .talk>.who.who>img[src*="monty"]{left:-22.5%!important;top:6.25%!important;width:143.75%!important}
+body .tut .talk>.who.who>img[src*="ant."]{left:-27.3%!important;top:-18.2%!important;width:157%!important}
 </style>

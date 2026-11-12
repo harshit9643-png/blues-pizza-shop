@@ -2850,12 +2850,16 @@ async function runLearning(ok){
     for(let i=0;i<n;i++){ lTop(P,i); await wait(220); }
     $("lAc").innerHTML=lCard(n,d); lHi($("lAc").firstChild); await wait(400); lServeRow(P,[...Array(n).keys()]);
     await s; if(!ok()) return; }
-  // 6. Billu is puzzled: the two cards only
-  lStage(`<div class="li">${lCard(4,5,"big")}</div><img class="lbillu" src="${A}billu_idle.webp" alt="Billu"><div class="li">${lCard(3,8,"big")}</div>`);
-  lHi(...$("tutLearn").querySelectorAll(".lf")); await say("billu","What are 4/5 and 3/8?"); if(!ok()) return;
-  // 7. these are fractions, just like 1/2: the cards, no pizzas
-  lStage(`<div class="li">${lCard(4,5,"big")}</div><div class="li">${lCard(3,8,"big")}</div><div class="li">${lCard(1,2,"big","lH")}</div>`);
-  lHi(...$("tutLearn").querySelectorAll(".lf")); await say("noori","They are fractions too, just like 1/2."); if(!ok()) return;
+  // 6 and 7: each fraction card with its cut pizza above it; the served parts are topped and glow
+  const pzCards=list=>{ lStage(list.map(([n,d],k)=>`<div class="li pzc">${lPizzaHTML("lQ"+k)}${lCard(n,d,"","lQc"+k)}</div>`).join(""),"pzcards");
+    list.forEach(([n,d,top],k)=>{ const P=$("lQ"+k); lDraw(P,d,{cut:true,top});
+      for(let i=0;i<n;i++){ lPart(P,i).querySelector(".tops").innerHTML=piecesSVG(P._g,i,P._d,P._top,true); lLit(P,i); } lHi($("lQc"+k)); }); };
+  // 6. Billu is puzzled
+  pzCards([[4,5,"tomato"],[3,8,"corn"]]);
+  await say("billu","What are 4/5 and 3/8?"); if(!ok()) return;
+  // 7. these are fractions, just like 1/2
+  pzCards([[4,5,"tomato"],[3,8,"corn"],[1,2,"mushroom"]]);
+  await say("noori","They are fractions too, just like 1/2."); if(!ok()) return;
   // 8. the denominator: one pizza at a time, in the same place (3, then 5, then 8 equal parts)
   lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Denominator</div></div><div class="li" id="lSlot"></div>`);
   lGlow($("lH"),"d");
@@ -2864,18 +2868,22 @@ async function runLearning(ok){
       await lCut($("lD"),{ms:260,pause:250}); if(!ok()) return; $("lDc").innerHTML=lCard("?",d); lGlow($("lDc").firstChild,"d"); await wait(700); if(!ok()) return; }
     await s; if(!ok()) return; }
   // 9. the numerator: one pizza at a time: one half goes to Chintu, then 2/3, then 3/5
-  // Chintu (the customer) big on the left, up high; the card and the pizza to his right. His half flies over to him
-  lStage(`<div class="li lcust"><div class="lava lphoto lchintu" id="lChintu"><img src="${A}chintu_face.webp" alt="Chintu"></div></div><div class="li">${lCard(1,2,"big","lH")}<div class="lword">Numerator</div></div><div class="li" id="lSlot"></div>`,"withcust");
+  // the card on the left, the pizza in the middle, Chintu (the whole monkey) on the right: his half flies over to him.
+  // Then 2/3 and 3/5: Chintu leaves and the big card always shows the pizza's own fraction
+  lStage(`<div class="li" id="lHw">${lCard(1,2,"big","lH")}<div class="lword">Numerator</div></div><div class="li" id="lSlot"></div><div class="li lcust" id="lCw"><img class="lchintu" id="lChintu" src="${A}chintu_full.webp" alt="Chintu"></div>`,"withcust");
   lGlow($("lH"),"n");
   { const s=say("noori","The top number is the numerator. It tells us how many parts the customer wants.");
     $("lSlot").innerHTML=`${lPizzaHTML("lN")}`; lDraw($("lN"),2,{cut:true});
     let P=$("lN"); await wait(500); lTop(P,0); await wait(500);
-    { const pr=P.getBoundingClientRect(), cr=$("lChintu").getBoundingClientRect(), k=600/pr.width;   // from the pizza to Chintu, in the pizza's own units
-      lServe(P,[0],((cr.left+cr.width/2)-(pr.left+pr.width*.75))*k,((cr.top+cr.height/2)-(pr.top+pr.height/2))*k); }
-    await wait(1000); if(!ok()) return;
-    for(const [d,n] of [[3,2],[5,3]]){ $("lSlot").innerHTML=`${lPizzaHTML("lN")}<div id="lNc"></div>`; lDraw($("lN"),d,{cut:true}); P=$("lN");
+    { const pr=P.getBoundingClientRect(), cr=$("lChintu").getBoundingClientRect(), k=600/pr.width;   // from the topped half to Chintu's hands, in the pizza's own units
+      lServe(P,[0],((cr.left+cr.width/2)-(pr.left+pr.width*.75))*k,((cr.top+cr.height*.55)-(pr.top+pr.height/2))*k); }
+    await wait(1200); if(!ok()) return;
+    $("lCw").classList.add("gone"); await wait(350); $("lCw").remove();
+    for(const [d,n] of [[3,2],[5,3]]){
+      $("lHw").firstElementChild.outerHTML=lCard(n,d,"big","lH"); lGlow($("lH"),"n");
+      $("lSlot").innerHTML=`${lPizzaHTML("lN")}`; lDraw($("lN"),d,{cut:true}); P=$("lN");
       await wait(300); for(let i=0;i<n;i++){ lTop(P,i); await wait(240); }
-      $("lNc").innerHTML=lCard(n,d); lGlow($("lNc").firstChild,"n"); await wait(700); if(!ok()) return; }
+      await wait(900); if(!ok()) return; }
     await s; if(!ok()) return; }
   // 10. 2/3, read two ways
   lStage(`<div class="li row">${lPizzaHTML("lA")}<div class="li">${lCard(2,3,"big")}</div></div><img class="lbillu" src="${A}billu_happy.webp" alt="Billu">`);
@@ -3519,7 +3527,7 @@ if(h==="#story") startLevel("1.1",true); }
   setInterval(()=>{ const now=performance.now(), voice=!!(window.speechSynthesis&&speechSynthesis.speaking);
     const talking=NT.on && (now<NT.until || voice); if(NT.on && !talking) NT.on=false;
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
-    document.querySelectorAll("img:not(.still)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
+    document.querySelectorAll("img:not(.still):not(.guide img)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 
 /* Noori and Billu blink every 3 seconds on the main screen (open, half, shut, half, open), Billu between Noori's blinks;
    one picture per pairing: prelbd_n<Noori eyes>_b<Billu eyes>.webp */
@@ -4133,8 +4141,15 @@ body .tut .talk>.who.who{position:absolute!important;display:block!important;lef
 body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){height:var(--dh)!important;min-height:var(--dh)!important;max-height:var(--dh)!important;box-sizing:border-box!important}
 </style>
 <style>
-/* numerator step: Chintu big on the left, raised; everything else shifts right */
-.tut .learn.withcust #lSlot{position:relative;z-index:5}   /* the half flies over the card to Chintu */
-.tut .learn.withcust .lcust{align-self:flex-start!important;margin-top:calc(-2*var(--vh))}
-.tut .learn.withcust .lchintu{width:clamp(150px,calc(30*var(--vh)),240px)!important;box-shadow:0 0 0 6px #FFFFFF,0 10px 20px rgba(0,0,0,.35)}
+/* numerator step: the card, the pizza, and Chintu standing on the right (the whole monkey, no circle) */
+.tut .learn.withcust #lSlot{position:relative;z-index:5}   /* the half flies over to Chintu */
+.tut .learn.withcust .lcust{align-self:center!important;transition:opacity .35s,transform .35s}
+.tut .learn.withcust .lcust.gone{opacity:0;transform:translateX(30px)}
+.tut .learn.withcust .lchintu{display:block;height:clamp(200px,calc(52*var(--vh)),400px);width:auto;filter:drop-shadow(0 10px 12px rgba(0,0,0,.4))}
+</style>
+<style>
+/* 4/5, 3/8 (and 1/2): the cut pizza above each card, a clear gap between them */
+.tut .learn.pzcards{--ls:min(calc(36*var(--vh)),calc(20*var(--vw)))!important;gap:clamp(30px,calc(6*var(--vw)),110px)!important;align-items:flex-start!important;margin-top:calc(2*var(--vh))}
+.tut .learn.pzcards .li.pzc{display:flex;flex-direction:column;align-items:center;gap:clamp(10px,calc(2*var(--vh)),22px)}
+.tut .learn.pzcards .lf{font-size:clamp(26px,calc(4.6*var(--vh)),44px)!important}
 </style>
