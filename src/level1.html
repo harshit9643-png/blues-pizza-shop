@@ -2068,7 +2068,7 @@ let LOCK=null, MLOCK=null;
 ["pointerdown","mousedown","touchstart","click"].forEach(t=>document.addEventListener(t,e=>{
   const L=(LOCK&&LOCK.isConnected)?LOCK:(MLOCK&&MLOCK.isConnected)?MLOCK:null; if(!L) return;
   const tg=e.target; if(!(tg instanceof Element)) return;
-  if(L.contains(tg)||tg.closest("#home,#qa,.qa,.qabtn,.qap,#jump,header.top,.skip,#sSkip,#tutSkip")) return;
+  if(L.contains(tg)||tg.closest("#home,#qa,.qa,.qabtn,.qap,.qaveil,#jump,header.top,.skip,#sSkip,#tutSkip")) return;
   e.stopPropagation(); e.preventDefault();
   const h=document.getElementById("phand")||document.getElementById("mhand"); if(h){ h.classList.remove("nudge"); void h.offsetWidth; h.classList.add("nudge"); }
 },{capture:true,passive:false}));
@@ -3480,7 +3480,7 @@ $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=tr
 function goLevel2(){ CURTAIN.cover().then(()=>{ location.href=new URL((location.protocol==="file:"?"level2.html":"level2")+"#play",location.href).href; }); }
 /* the main screen's PLAY: the story, then Tutorial 1.1, then Level 1.1 -> 1.2 -> Level 2 */
 $("mainPlay").addEventListener("click",()=>{ const go=()=>SAUCE(()=>startLevel("1.1",true)); TITLE.said?go():TITLE.say(go); });   // the sauce bottle pours over the screen, then the story   // the pre-LBD screen zooms into the plate, then the story
-$("jump").innerHTML=`<optgroup label="Story"><option value="S">Story · Billu’s Pizza Kitchen</option></optgroup><optgroup label="Tutorial"><option value="T">Tutorial 1.1 · Top and serve</option><option value="T2">Tutorial 1.2 · Cut, top and serve</option></optgroup>`+Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
+$("jump").innerHTML=`<optgroup label="Story"><option value="S">Story · Billu’s Pizza Kitchen</option></optgroup><optgroup label="Tutorial"><option value="T">Tutorial 1.1 · Top and serve</option><option value="TG">Tutorial 1.1 · Giraffe on the tablecloth</option><option value="T2">Tutorial 1.2 · Cut, top and serve</option></optgroup>`+Object.entries(LEVELS).map(([lv,L])=>`<optgroup label="Level ${lv} · ${L.title}">${L.orders.map((o,i)=>
   `<option value="${lv}:${i}">Level ${lv} · ${i+1}. ${custName(o)} · ${o.n}/${o.d}</option>`).join("")}</optgroup>`).join("")
   +`<optgroup label="Level 2 · Big Eater Contest"><option value="L2">Level 2 · Big Eater Contest ▸</option></optgroup>`;
 /* the level menu works at any moment: whatever story or tutorial is running stops first */
@@ -3494,6 +3494,7 @@ function stopOverlays(){
 $("jump").addEventListener("change",e=>{ stopOverlays(); if(e.target.value==="L2"){ goLevel2(); return; }
   if(e.target.value==="T"){ e.target.blur(); startLevel("1.1","tut"); return; }
   if(e.target.value==="T2"){ e.target.blur(); startLevel("1.2"); return; }
+  if(e.target.value==="TG"){ e.target.blur(); S.lv="1.1"; S.i=0; S.stars=0; S.done=[]; S.tut=TUT11; loadOrder(); return; }   // the giraffe's order with the hand
   if(e.target.value==="S"){ e.target.blur(); startLevel("1.1",true); return; }
   const [lv,i]=e.target.value.split(":"); jumpTo(lv,+i); e.target.blur(); });
 /* arriving from Level 2 with #1.1 or #1.2 starts that level straight away */
@@ -3537,25 +3538,49 @@ const S1=(()=>{ let b="billu0", n=0, el=null; const P=()=>`assets/story/scene1_n
 })();
 </script>
 <script>
-/* QA panel: built from the jump menu's groups; picking a chip makes the same jump the dropdown did */
+/* QA panel: the whole game on one map, on both pages. Tap a step to jump there; a step on the other page opens that page
+   and jumps there (address#qa=<step>). Orders and matches show their characters. */
 (()=>{ const sel=document.getElementById("jump"), top=document.querySelector(".top"); if(!sel||!top) return;
+  const PAGE=/level2/.test(location.pathname)?"l2":"l1";
   const btn=document.createElement("button"); btn.className="qa"; btn.textContent="QA"; btn.setAttribute("aria-label","Open the QA panel");
   top.appendChild(btn);
-  const pan=document.createElement("aside"); pan.className="qap"; pan.setAttribute("aria-label","QA panel"); document.body.appendChild(pan);
-  const short=t=>{ const seg=t.split(" · "); let m=seg[0].match(/^(Match|Round) (\d+)$/); if(m) return [m[2],1];
-    const rest=seg.slice(1).join(" · "); m=rest.match(/^(\d+)\. /); if(m) return [m[1],1];
-    if(/[▸◂]$/.test(t)) return [seg[0]+(t.endsWith("▸")?" ▸":" ◂"),0];
-    return [rest||t,0]; };
-  const build=()=>{ const cur=sel.value, curT=(sel.selectedOptions[0]||{}).text||"";
-    pan.innerHTML=`<div class="hd"><div><h2>QA panel</h2><div class="now">Now: ${curT}</div></div><button class="x" aria-label="Close">✕</button></div>`+
-      [...sel.querySelectorAll("optgroup")].map(g=>`<div class="grp"><h3>${g.label}</h3><div class="chips">${[...g.querySelectorAll("option")].map(o=>{
-        const [lab,num]=short(o.text); return `<button class="chip2${num?" n":""}${o.value===cur?" cur":""}" data-v="${o.value}" title="${o.text.replace(/"/g,"&quot;")}">${lab}</button>`; }).join("")}</div></div>`).join("");
-  };
-  const open=v=>{ if(v) build(); pan.classList.toggle("open",v); btn.classList.toggle("on",v); };
+  const pan=document.createElement("aside"); pan.className="qap qa2"; pan.setAttribute("aria-label","QA panel"); document.body.appendChild(pan);
+  const veil=document.createElement("div"); veil.className="qaveil"; document.body.appendChild(veil);
+  const vs=(a,b)=>[a,b];
+  const MAP=[
+    {lvl:"Level 1", page:"l1", groups:[
+      {t:"Start", items:[["HOME","Main screen",["noori"]],["S","Story 1",["billu_idle"]]]},
+      {t:"Tutorial 1.1", items:[["T","Lesson: What is a fraction?",["noori"]],["TG","Giraffe 3/4 · with the hand",["giraffe"]]]},
+      {t:"Level 1.1 · Top and serve", items:[["1.1:0","Tez 2/7",["tez"]],["1.1:1","Monty 3/4",["monty"]],["1.1:2","Squirrel 2/5",["squirrel"]],["1.1:3","Jhumru 9/10",["jhumru"]]]},
+      {t:"Tutorial 1.2", items:[["T2","Parrot 2/3 · moulds",["parrot"]]]},
+      {t:"Level 1.2 · Cut, top and serve", items:[["1.2:0","Frog 1/4",["frog"]],["1.2:1","Gorilla 4/5",["gorilla"]],["1.2:2","Mouse 1/6",["mouse"]],["1.2:3","Sloth 3/10",["sloth"]],["1.2:4","Hippo 11/12",["hippo"]]]}]},
+    {lvl:"Level 2 · Big Eater Contest", page:"l2", groups:[
+      {t:"Start", items:[["S","Story 2",["billu_idle"]],["T","Tutorial 2 · Who ate more?",["noori"]]]},
+      {t:"Set A · Same denominator", items:[["0","Match 1",vs("tez","monty")],["1","Match 2",vs("madhu","ant")],["2","Match 3",vs("bijli","badal")],["3","Match 4",vs("jhumru","hippo")]]},
+      {t:"Set B · Same numerator", items:[["4","Set B intro",["noori"]],["5","Match 5",vs("ant","madhu")],["6","Match 6",vs("monty","tez")],["7","Match 7",vs("squirrel","mouse")],["8","Match 8",vs("peacock","bijli")]]},
+      {t:"Set C · Fractions only", items:[["9","Set C intro",["noori"]],["10","Round 9",vs("monty","peacock")],["11","Round 10",vs("mouse","ant")],["12","Round 11",vs("hippo","jhumru")],["13","Round 12",vs("madhu","squirrel")],["14","Round 13",vs("bijli","badal")]]},
+      {t:"Golden Trophy Final", items:[["15","Final · put in order",["trophy"]],["16","Champion",["trophy"]]]}]}];
+  const pic=k=>`<img src="assets/web/${k}.webp" alt="" loading="lazy">`;
+  const label=v=>{ for(const L of MAP) if(L.page===PAGE) for(const g of L.groups) for(const it of g.items) if(it[0]===v) return `${/^Level/.test(g.t)?"":L.lvl.split(" · ")[0]+" · "}${g.t} · ${it[1]}`; return (sel.selectedOptions[0]||{}).text||""; };
+  const build=()=>{ const cur=sel.value;
+    pan.innerHTML=`<div class="hd"><div><h2>QA panel</h2><div class="now">Now: ${label(cur)}</div></div><button class="x" aria-label="Close">✕</button></div><div class="bd">`+
+      MAP.map(L=>`<section class="lvl${L.page===PAGE?" here":""}"><h3 class="lv">${L.lvl}${L.page===PAGE?"":` <span class="go">opens ${L.page==="l1"?"Level 1":"Level 2"} ▸</span>`}</h3>`+
+        L.groups.map(g=>`<div class="grp"><h4>${g.t}</h4><div class="chips">${g.items.map(([v,lab,ks])=>
+          `<button class="chip3${L.page===PAGE&&v===cur?" cur":""}" data-p="${L.page}" data-v="${v}"><span class="av${ks.length>1?" two":""}">${ks.map(pic).join("")}</span><span class="lb">${lab}</span></button>`).join("")}</div></div>`).join("")+`</section>`).join("")+`</div>`;
+    const c=pan.querySelector(".chip3.cur"); if(c) c.scrollIntoView({block:"center"}); };
+  const open=v=>{ if(v) build(); pan.classList.toggle("open",v); veil.classList.toggle("on",v); btn.classList.toggle("on",v); };
   btn.addEventListener("click",()=>open(!pan.classList.contains("open")));
+  veil.addEventListener("click",()=>open(false));
+  const go=v=>{ if(v==="HOME"){ location.href=PAGE==="l1"?location.pathname:"./"; return; }
+    if(!sel.querySelector(`option[value="${CSS.escape(v)}"]`)) sel.insertAdjacentHTML("beforeend",`<option value="${v}" hidden>${v}</option>`);
+    sel.value=v; sel.dispatchEvent(new Event("change")); };
   pan.addEventListener("click",e=>{ if(e.target.closest(".x")){ open(false); return; }
-    const c=e.target.closest(".chip2"); if(!c) return; open(false);
-    sel.value=c.dataset.v; sel.dispatchEvent(new Event("change")); });
+    const c=e.target.closest(".chip3"); if(!c) return; open(false);
+    if(c.dataset.p===PAGE) go(c.dataset.v);
+    else location.href=(PAGE==="l1"?"level2":"./")+"#qa="+encodeURIComponent(c.dataset.v); });
+  // arriving from the other page's QA panel: jump straight to the step
+  const m=/^#qa=(.+)$/.exec(location.hash);
+  if(m){ const v=decodeURIComponent(m[1]); history.replaceState(null,"",location.pathname); setTimeout(()=>go(v),300); }
 })();
 </script>
 
@@ -4000,4 +4025,32 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 .tut .lf.hi{position:relative}
 .tut .lf.hi::after{content:"";position:absolute;inset:-7px;border-radius:24px;pointer-events:none;box-shadow:0 0 0 4px #FFD24A,0 0 26px 6px rgba(255,206,60,.85);animation:lfHi 1.2s ease-in-out infinite}
 @keyframes lfHi{50%{box-shadow:0 0 0 6px #FFE27A,0 0 38px 12px rgba(255,214,60,1)}}
+</style>
+
+<style>
+/* QA panel, in the game's look: a wooden header, a parchment sheet, cream chips with the characters; the current step in gold */
+.qaveil{position:fixed;inset:0;z-index:399;background:rgba(20,10,0,.35);opacity:0;pointer-events:none;transition:opacity .25s}
+.qaveil.on{opacity:1;pointer-events:auto}
+aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;flex-direction:column;background:#FBF1DC!important;color:#4A2A10!important;
+  border-left:6px solid #8A5426;box-shadow:-12px 0 34px rgba(30,12,0,.45)!important;overflow:hidden}
+.qap.qa2 .hd{flex:0 0 auto;display:flex;align-items:center;gap:10px;margin:0!important;padding:14px 16px 12px;background:linear-gradient(180deg,#A0632E,#7A4320 70%,#5E3416);
+  box-shadow:inset 0 2px 0 rgba(255,220,170,.35),0 4px 10px rgba(0,0,0,.25)}
+.qap.qa2 h2{margin:0;font-family:var(--display);font-size:24px;color:#FFE7A6!important;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+.qap.qa2 .now{font-family:var(--body);font-weight:800;font-size:13px;color:#FFF3D6;opacity:.95;margin-top:2px}
+.qap.qa2 .x{margin-left:auto;width:40px;height:40px;border-radius:50%;border:3px solid #FFE7A6;background:rgba(0,0,0,.18);color:#FFE7A6;font-size:18px;font-weight:800;cursor:pointer}
+.qap.qa2 .bd{flex:1 1 auto;overflow-y:auto;padding:6px 14px 96px;overscroll-behavior:contain}
+.qap.qa2 .lvl{margin-top:12px;border-radius:16px;background:#FFF9EA;box-shadow:0 0 0 2px #E2C9A0,0 3px 8px rgba(120,70,20,.12);padding:4px 12px 10px}
+.qap.qa2 .lvl.here{box-shadow:0 0 0 3px #C9A27A,0 3px 10px rgba(120,70,20,.18)}
+.qap.qa2 h3.lv{margin:6px 0 2px;font-family:var(--display);font-size:19px;color:#8A3A12}
+.qap.qa2 h3.lv .go{font-family:var(--body);font-size:12px;font-weight:800;color:#4E8A3A;margin-left:6px}
+.qap.qa2 .grp{border:0!important;padding:6px 0 2px!important}
+.qap.qa2 h4{margin:4px 0 6px;font-family:var(--body);font-weight:900;font-size:13px;letter-spacing:.02em;color:#7A5A3A;text-transform:uppercase}
+.qap.qa2 .chips{display:flex;flex-wrap:wrap;gap:7px}
+.qap.qa2 .chip3{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:3px 12px 3px 4px;border-radius:999px;border:2px solid #D8B98C;background:#FFFFFF;
+  color:#4A2A10;font-family:var(--display);font-weight:800;font-size:14px;cursor:pointer;transition:transform .12s,background .12s}
+.qap.qa2 .chip3:hover{background:#FFF1CC;transform:translateY(-1px)}
+.qap.qa2 .chip3.cur{background:#F6C34A;border-color:#B97410;color:#3A2208;box-shadow:0 0 0 3px rgba(246,195,74,.35)}
+.qap.qa2 .chip3 .av{display:inline-flex;flex:0 0 auto}
+.qap.qa2 .chip3 .av img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 12%;background:radial-gradient(circle at 50% 40%,#E9F7D9,#BFE3A0);box-shadow:0 0 0 2px #FFFFFF}
+.qap.qa2 .chip3 .av.two img+img{margin-left:-8px}
 </style>
