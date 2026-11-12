@@ -3452,10 +3452,10 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .fl2 .row5{display:grid;grid-template-columns:repeat(5,var(--cw));gap:var(--gp)}
 .fl2 .home5 .cell{width:var(--cw);height:var(--ch)}
 .fl2 .fin{position:relative;width:var(--cw);height:var(--ch);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:calc(var(--cw) * .05);
-  padding:calc(var(--cw) * .05) 0 calc(var(--cw) * .07);border-radius:12px;touch-action:none;cursor:grab;user-select:none;
-  /* the wooden frame of the game's tiles (the edge of tile_parch), a little wide; the inside stays cream */
-  border:12px solid transparent;border-image:url("assets/ui/tile_parch.webp") 14 / 12px stretch;
-  background:linear-gradient(180deg,#FFFDF3,#FFF7E0) padding-box;filter:drop-shadow(0 6px 6px rgba(60,25,0,.3));
+  padding:calc(var(--cw) * .01) 0 calc(var(--cw) * .03);border-radius:12px;touch-action:none;cursor:grab;user-select:none;
+  /* the wooden frame of the game's tiles (tile_parch), a little wide, with its parchment inside */
+  border:19px solid transparent;border-image:url("assets/ui/tile_parch.webp") 22 fill / 19px stretch;
+  background:none;   /* the inside: the same parchment as the board below */filter:drop-shadow(0 6px 6px rgba(60,25,0,.3));
   box-shadow:none;transition:box-shadow .2s,transform .2s}
 .fl2 .fin .cimg{flex:1 1 auto;min-height:0;width:100%;display:flex;align-items:flex-end;justify-content:center}
 .fl2 .fin .cimg img{display:block;max-width:84%;max-height:100%;width:auto;height:auto;object-fit:contain;pointer-events:none;filter:drop-shadow(0 4px 3px rgba(60,30,8,.25))}
