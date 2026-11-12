@@ -773,6 +773,12 @@
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },
+"68bc3645": {
+"file": "68bc3645-532c91.mp3",
+"text": "Giraffe: “Yummy! Just what I ordered!”",
+"voice": "en-GB-LibbyNeural",
+"who": "giraffe"
+},
 "6b199a95": {
 "file": "6b199a95-94581c.mp3",
 "text": "I’m ready to cook!",
@@ -844,6 +850,12 @@
 "text": "Yes! Same denominator, and 6 is more than 4.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
+},
+"76d4a171": {
+"file": "76d4a171-519906.mp3",
+"text": "Giraffe: “3/4 of a pizza, please!”",
+"voice": "en-GB-LibbyNeural",
+"who": "giraffe"
 },
 "76ea1d99": {
 "file": "76ea1d99-82bcb4.mp3",
@@ -1832,6 +1844,12 @@
 "f588908d": {
 "file": "f588908d-7be077.mp3",
 "text": "10 equal pieces!",
+"voice": "en-IN-NeerjaExpressiveNeural",
+"who": "noori"
+},
+"f5fdc102": {
+"file": "f5fdc102-2edcb3.mp3",
+"text": "Great! Now tap CHECK to serve it.",
 "voice": "en-IN-NeerjaExpressiveNeural",
 "who": "noori"
 },

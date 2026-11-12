@@ -280,6 +280,14 @@
 "Frog: “Ribbit! 1/4 of a pizza, please!”"
 ],
 [
+"giraffe",
+"Giraffe: “3/4 of a pizza, please!”"
+],
+[
+"giraffe",
+"Giraffe: “Yummy! Just what I ordered!”"
+],
+[
 "gorilla",
 "Gorilla: “4 of 5 strips. Thank you, Chef!” ⭐"
 ],
@@ -362,6 +370,10 @@
 [
 "narr",
 "Billu’s Pizza Kitchen is open!"
+],
+[
+"narr",
+"Billu’s Pizza Kitchen!"
 ],
 [
 "narr",
@@ -453,6 +465,54 @@
 ],
 [
 "noori",
+"Check the denominator and pick the correct mould."
+],
+[
+"noori",
+"Check the denominator. Pick the mould that cuts that many equal parts."
+],
+[
+"noori",
+"Check the numerator. How many slices did each one eat?"
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces Jhumru wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces Monty wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces Tez wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces the frog wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces the gorilla wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces the hippo wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces the mouse wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces the sloth wants."
+],
+[
+"noori",
+"Check the numerator. That’s how many pieces the squirrel wants."
+],
+[
+"noori",
 "Choose the correct pizza mould. It will cut the pizza into equal parts, as many as required."
 ],
 [
@@ -521,6 +581,10 @@
 ],
 [
 "noori",
+"Drag the cards into order, from smallest to greatest."
+],
+[
+"noori",
 "Each part is one-half. This is a fraction. We write it as 1/2."
 ],
 [
@@ -537,6 +601,10 @@
 ],
 [
 "noori",
+"Great! Now tap CHECK to serve it."
+],
+[
+"noori",
 "Great! Three parts are ready. Tap Serve!"
 ],
 [
@@ -546,6 +614,10 @@
 [
 "noori",
 "Hmm, is that how many parts the order needs? Try again."
+],
+[
+"noori",
+"Hmm, look at the order again. Who ate the most?"
 ],
 [
 "noori",
@@ -597,6 +669,30 @@
 ],
 [
 "noori",
+"Is that how much the frog wants? Try again."
+],
+[
+"noori",
+"Is that how much the gorilla wants? Try again."
+],
+[
+"noori",
+"Is that how much the hippo wants? Try again."
+],
+[
+"noori",
+"Is that how much the mouse wants? Try again."
+],
+[
+"noori",
+"Is that how much the sloth wants? Try again."
+],
+[
+"noori",
+"Is that how much the squirrel wants? Try again."
+],
+[
+"noori",
 "I’ll cut the pizza for you."
 ],
 [
@@ -645,11 +741,19 @@
 ],
 [
 "noori",
+"Look closely. The ant’s piece is bigger."
+],
+[
+"noori",
 "Monty ate 1 slice out of 8. The ant ate 1 slice out of 4."
 ],
 [
 "noori",
 "Monty’s pizza has 8 equal parts. The ant’s has 4. More parts means smaller parts."
+],
+[
+"noori",
+"Next, let’s learn to cut the pizza too!"
 ],
 [
 "noori",
@@ -865,6 +969,50 @@
 ],
 [
 "noori",
+"Tap a stack to add a slice."
+],
+[
+"noori",
+"Tap the part the frog wants."
+],
+[
+"noori",
+"Tap the parts Monty wants."
+],
+[
+"noori",
+"Tap the pieces Jhumru wants."
+],
+[
+"noori",
+"Tap the pieces the hippo wants."
+],
+[
+"noori",
+"Tap the pieces the sloth wants."
+],
+[
+"noori",
+"Tap the slice the mouse wants."
+],
+[
+"noori",
+"Tap the slices Tez wants."
+],
+[
+"noori",
+"Tap the strips the gorilla wants."
+],
+[
+"noori",
+"Tap the strips the squirrel wants."
+],
+[
+"noori",
+"Tap the winner."
+],
+[
+"noori",
 "That slice already has a topping. Put it on a slice with no topping."
 ],
 [
@@ -890,6 +1038,10 @@
 [
 "noori",
 "The bottom number is the denominator. It tells us the number of equal parts the pizza will be cut into."
+],
+[
+"noori",
+"The greatest fraction is at the end of the row."
 ],
 [
 "noori",
@@ -1025,6 +1177,10 @@
 ],
 [
 "noori",
+"Which mould cuts the right number of parts?"
+],
+[
+"noori",
 "Who ate more? Tap their plate."
 ],
 [
@@ -1074,6 +1230,10 @@
 [
 "noori",
 "You can pick any topping you like!"
+],
+[
+"noori",
+"You read every fraction right!"
 ],
 [
 "parrot",
@@ -1130,153 +1290,5 @@
 [
 "tez",
 "Tez: “Take your time… 2/7 of a pizza, please.”"
-],
-[
-"noori",
-"Tap the slices Tez wants."
-],
-[
-"noori",
-"Tap the parts Monty wants."
-],
-[
-"noori",
-"Tap the strips the squirrel wants."
-],
-[
-"noori",
-"Tap the pieces Jhumru wants."
-],
-[
-"noori",
-"Tap the part the frog wants."
-],
-[
-"noori",
-"Tap the strips the gorilla wants."
-],
-[
-"noori",
-"Tap the slice the mouse wants."
-],
-[
-"noori",
-"Tap the pieces the sloth wants."
-],
-[
-"noori",
-"Tap the pieces the hippo wants."
-],
-[
-"noori",
-"Which mould cuts the right number of parts?"
-],
-[
-"noori",
-"Tap a stack to add a slice."
-],
-[
-"noori",
-"Tap the winner."
-],
-[
-"noori",
-"Drag the cards into order, from smallest to greatest."
-],
-[
-"noori",
-"Look closely. The ant’s piece is bigger."
-],
-[
-"noori",
-"Next, let’s learn to cut the pizza too!"
-],
-[
-"noori",
-"You read every fraction right!"
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces Tez wants."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces Monty wants."
-],
-[
-"noori",
-"Is that how much the squirrel wants? Try again."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces the squirrel wants."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces Jhumru wants."
-],
-[
-"noori",
-"Is that how much the frog wants? Try again."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces the frog wants."
-],
-[
-"noori",
-"Is that how much the gorilla wants? Try again."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces the gorilla wants."
-],
-[
-"noori",
-"Is that how much the mouse wants? Try again."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces the mouse wants."
-],
-[
-"noori",
-"Is that how much the sloth wants? Try again."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces the sloth wants."
-],
-[
-"noori",
-"Is that how much the hippo wants? Try again."
-],
-[
-"noori",
-"Check the numerator. That’s how many pieces the hippo wants."
-],
-[
-"noori",
-"Check the numerator. How many slices did each one eat?"
-],
-[
-"noori",
-"Hmm, look at the order again. Who ate the most?"
-],
-[
-"noori",
-"The greatest fraction is at the end of the row."
-],
-[
-"noori",
-"Check the denominator and pick the correct mould."
-],
-[
-"noori",
-"Check the denominator. Pick the mould that cuts that many equal parts."
-],
-[
-"narr",
-"Billu’s Pizza Kitchen!"
 ]
 ]

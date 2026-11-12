@@ -1312,8 +1312,10 @@ body.tutoring .trail{display:none!important}
 .tut .lbillu{display:none!important}   /* no standing Billu in the lessons */
 .story .ssub:has(#sLine:empty){visibility:hidden}   /* no empty box before the first line */
 /* wrong-attempt hints: a number on the receipt blinks; the right mould pulses */
-.rc-frac b.blinknum{animation:blinkNum .5s ease-in-out var(--blinks,2);color:#E0402E!important;text-shadow:0 0 12px rgba(255,200,60,.95)}
-@keyframes blinkNum{50%{transform:scale(1.35);opacity:.35}}
+/* a number being talked about lights up: cream tile, red number, gold ring and glow (as on the lesson's fraction cards), pulsing */
+.rc-frac b.blinknum{animation:blinkNum .5s ease-in-out var(--blinks,2);background:#FFF4D6!important;color:#C8402E!important;text-shadow:none!important;
+  border-radius:.14em;padding:0 .1em;box-shadow:0 0 0 calc(var(--u)*10) #F6C34A,0 0 calc(var(--u)*60) rgba(255,214,60,.95)!important;position:relative;z-index:2}
+@keyframes blinkNum{50%{transform:scale(1.22)}}
 .mould.pulseok{animation:mouldOk .8s ease-in-out 4!important;filter:drop-shadow(0 0 14px rgba(255,210,60,.95))}
 @keyframes mouldOk{50%{transform:scale(1.12)}}
 /* third wrong attempt: the hand shows where to tap, and the right things glow */
@@ -1443,7 +1445,7 @@ body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:op
 const A = "assets/web/", HD = "assets/web/hd/";
 const NAMES = {parrot:"Parrot",tez:"Tez",monty:"Monty",ant:"Ant",squirrel:"Squirrel",bijli:"Bijli",badal:"Badal",madhu:"Madhu",
   peacock:"Peacock",jhumru:"Jhumru",frog:"Frog",gorilla:"Gorilla",mouse:"Mouse",croc:"Crocodile",rabbit:"Rabbit",
-  bear:"Bear",sloth:"Sloth",hippo:"Hippo"};
+  bear:"Bear",sloth:"Sloth",hippo:"Hippo",giraffe:"Giraffe"};
 const LEVELS = {
   "1.1": { title:"Top and serve", cut:false, end:["4 orders served! You’re a topping star!","Next, let’s learn to cut the pizza too!"], orders:[
     {cust:"tez",      n:2,  d:7,  shape:"round",  idle:"Tap the slices Tez wants.", line:"Take your time… 2/7 of a pizza, please.",       ok:"2 of 7 slices. Slow and tasty!"},
@@ -1725,6 +1727,8 @@ const S = {lv:"1.1",i:0,stars:0,tries:0,phase:"idle",k:1,covered:new Map(),toppi
 const live = gen => gen===S.gen;
 const cur = () => S.tut || LEVELS[S.lv].orders[S.i];
 /* Tutorial 1.2 (sheet: Level 1_Final): the parrot's 2/3, made together before Level 1.2's first order */
+/* Tutorial 1.1, second half: the giraffe's order on the tablecloth, the child doing each step with the pointing hand */
+const TUT11 = {cust:"giraffe", n:3, d:4, shape:"round", line:"3/4 of a pizza, please!", ok:"Yummy! Just what I ordered!", guided:true};
 const TUT12 = {cust:"parrot", n:2, d:3, shape:"round", moulds:[2,3,4], line:"2/3 of a pizza, please!", ok:"Perfect!", tut:true};
 const fracify = s => s.replace(/(\d+)\/(\d+)/g,'<span class="fr"><b>$1</b><b>$2</b></span>');
 const custName = o => o.name || NAMES[o.cust];
@@ -2088,7 +2092,7 @@ function boardFx(cls){ const b=$("boardwrap"); b.classList.remove("in","thud","w
    FLOW
    ============================================================ */
 function startLevel(lv,tutorial){ S.lv=lv; S.i=0; S.stars=0; S.done=[]; S.hinted=false; $("start").hidden=true; $("end").hidden=true; S.tut=lv==="1.2"?TUT12:null;
-  if(tutorial && lv==="1.1"){ S.gen++; S.phase="idle"; $("jump").value=tutorial==="tut"?"T":"S"; const fl=FLOW; (tutorial==="tut"?Promise.resolve():playStory(storyContext1)).then(()=>fl===FLOW&&runTutorial()).then(()=>{ if(fl===FLOW) loadOrder(); }); } else loadOrder(); }
+  if(tutorial && lv==="1.1"){ S.gen++; S.phase="idle"; $("jump").value=tutorial==="tut"?"T":"S"; const fl=FLOW; (tutorial==="tut"?Promise.resolve():playStory(storyContext1)).then(()=>fl===FLOW&&runTutorial()).then(()=>{ if(fl===FLOW){ S.tut=TUT11; loadOrder(); } }); } else loadOrder(); }
 function jumpTo(lv,i){ if(lv!==S.lv){ S.lv=lv; S.stars=0; S.done=[]; } S.i=i; S.tut=null; $("start").hidden=true; $("end").hidden=true; loadOrder(); }
 
 async function loadOrder(){
@@ -2100,6 +2104,7 @@ async function loadOrder(){
   $("boardwrap").classList.add("onpaddle");   // every pizza sits on the dark wooden paddle (Level 1.1 and 1.2)
   $("boardwrap").dataset.shape=o.shape;   // Level 1.1: the pizza sits on a wooden pizza board
   renderTop(); showCustomer(); boardFx("in");
+  if(o.guided){ await guidedOrder(o,gen); return; }
   if(!LEVELS[S.lv].cut){
     // the pizza arrives already cut (no cutter animation in Level 1.1)
     S.k=o.d; S.phase="cutting"; G=geom(o.shape,S.k); renderParts(false); $("cuts").style.opacity=0; showKatoris();   // each part draws its own cut edge, so the loose cut lines are hidden (they stayed behind after serving)
@@ -2124,6 +2129,25 @@ async function loadOrder(){
     S.busy=false; armIdle();
   }
 }
+/* the giraffe's order, taught on the tablecloth: the lines from the tutorial sheet, the numbers on the receipt glow as they
+   are talked about, Noori cuts the pizza, then the hand shows the child each step (a topping, the 3 slices, CHECK) */
+async function guidedOrder(o,gen){
+  S.k=o.d; S.phase="cutting"; G=geom(o.shape,o.d); renderWhole(false); showKatoris(); setDone("done",false); setCount();   // whole, its cut lines not drawn yet
+  await sayW(custLine(o),"","noori",gen); if(!live(gen)) return;
+  setDock(true);
+  await sayW("Let's make this order together!","","noori",gen); if(!live(gen)) return;
+  blinkNum("d",6); const sw=sayW("I’ll cut the pizza for you.","","noori",gen);
+  await wait(500); if(!live(gen)) return;
+  await rollCutter(gen); if(!live(gen)) return;   // the cutter rolls along each cut
+  await split(gen); if(!live(gen)) return;
+  await countParts(gen); if(!live(gen)) return; await sw; if(!live(gen)) return;
+  blinkNum("d",6); await sayW("Into as many parts as the denominator says!","","billu",gen); if(!live(gen)) return;
+  await sayW("Yes, Billu!","good","noori",gen); if(!live(gen)) return;
+  blinkNum("n",6); await sayW("Now add the topping to the parts we serve.","","noori",gen); if(!live(gen)) return;
+  blinkNum("n",6); await sayW(`The numerator is ${o.n}. The giraffe wants ${o.n} parts.`,"","billu",gen); if(!live(gen)) return;
+  S.phase="top"; S.busy=false; setCount();
+  say("You can pick any topping you like!"); showSlices(o.n,true);
+}
 function beginTopping(){
   const o=cur(), gen=S.gen; S.phase="top"; S.busy=false; setDone("done",false); setCount();
   if(o.tut){ S.busy=true;
@@ -2138,7 +2162,7 @@ function beginTopping(){
 /* inactivity (sheet: Inactivity VO): after a while with no tap, the reminder line, and the number glows / the moulds shimmer */
 let IDLE={t:0,key:""};
 function armIdle(){ const key=S.gen+":"+S.phase; IDLE.key=key; clearTimeout(IDLE.t);
-  IDLE.t=setTimeout(function nudge(){ const o=cur(); if(IDLE.key!==S.gen+":"+S.phase||S.busy||!$("tut").hidden||!$("story").hidden||PAUSE.on||o.tut) { if(IDLE.key===S.gen+":"+S.phase) IDLE.t=setTimeout(nudge,4000); return; }
+  IDLE.t=setTimeout(function nudge(){ const o=cur(); if(IDLE.key!==S.gen+":"+S.phase||S.busy||!$("tut").hidden||!$("story").hidden||PAUSE.on||o.tut||o.guided) { if(IDLE.key===S.gen+":"+S.phase) IDLE.t=setTimeout(nudge,4000); return; }
     if(S.phase==="mould"){ say("Which mould cuts the right number of parts?"); document.querySelectorAll(".mould").forEach(m=>{ m.classList.remove("pulseok"); void m.offsetWidth; m.classList.add("pulseok"); setTimeout(()=>m.classList.remove("pulseok"),2400); }); }
     else if(S.phase==="top"&&o.idle){ say(o.idle); blinkNum("n",o.n); }
     else return;
@@ -2254,7 +2278,7 @@ function endDrag(e){
   window.removeEventListener("pointermove",moveDrag);
   if(!drag) return; const d=drag; drag=null;
   if(d.ghost) d.ghost.remove(); if(d.over) d.over.classList.remove("hov");
-  if(!d.moved){ pickTopping(d.kind); if(cur().tut) return; say(`Now tap the ${pieceName(cur()).toLowerCase()} to add ${TOPPINGS.find(t=>t.k===d.kind).name.toLowerCase()}.`); return; }
+  if(!d.moved){ pickTopping(d.kind); if(cur().tut||cur().guided) return; say(`Now tap the ${pieceName(cur()).toLowerCase()} to add ${TOPPINGS.find(t=>t.k===d.kind).name.toLowerCase()}.`); return; }
   let h=d.over||hitAt(e.clientX,e.clientY);
   if(!h){ const i=nearFree(e.clientX,e.clientY); if(i<0) return; h={dataset:{i}}; }   // dropped near the pizza: the nearest empty slice
   if(S.covered.has(+h.dataset.i)){ slotTaken(+h.dataset.i); return; }   // a topped slice keeps its topping
@@ -2308,6 +2332,7 @@ function uncover(i){
 }
 function afterChange(){
   const o=cur(); setCount(); setDone("done",S.covered.size>0,S.covered.size===o.n);
+  if(o.guided){ if(S.covered.size===o.n) say("Great! Now tap CHECK to serve it."); return; }
   if(o.tut){ if(S.covered.size===o.n&&!/Two parts are ready/.test(S.sayPlain)){ say("Great! Two parts are ready. Now, serve it."); pointAt($("done")); setTimeout(unpoint,3500); } return; }
   if(/^(Is that|Pick a topping|Now tap|That slice|Put the topping)/.test(S.sayPlain)) say(LEVELS[S.lv].cut?o.top:custLine(o));
 }
@@ -2354,24 +2379,30 @@ async function miss(){
   if(S.tw>=3) showSlices(o.n);   // third wrong attempt: show how
 }
 /* show how: the n slices to top glow one by one and the hand points at the first one */
-function showSlices(n){
+function showSlices(n,quiet){
   blinkNum("n",n);
   for(let i=0;i<n&&i<G.parts.length;i++) setTimeout(()=>{ const h=partEl(i)&&partEl(i).querySelector(".hit"); if(h&&S.phase==="top") h.classList.add("showme"); },i*260);
   const key=S.lv+":"+S.i;
   guide(()=>{ if(S.phase!=="top"||S.lv+":"+S.i!==key) return null;
-    if(!S.topping) return document.querySelector(".katori");                     // first a topping
+    if(!S.topping) return quiet?$("slots"):document.querySelector(".katori");      // first a topping (guided: any bowl)
     if(S.covered.size<n){ let i=[...Array(n).keys()].find(i=>!S.covered.has(i));   // then the glowing slices, one by one
       if(i===undefined) i=G.parts.findIndex((_,j)=>!S.covered.has(j)); const h=partEl(i)&&partEl(i).querySelector(".hit"); return h; }
     if(S.covered.size===n) return $("done");                                    // then DONE
     return null; });
-  say(`Follow the hand: tap ${n} ${n===1?"slice":"slices"}, one by one, then tap CHECK.`);
+  if(!quiet) say(`Follow the hand: tap ${n} ${n===1?"slice":"slices"}, one by one, then tap CHECK.`);
 }
 async function serve(){
   const o=cur(), gen=S.gen, first=S.tries===0;
-  S.phase="served"; S.busy=true; if(!o.tut){ S.done[S.i]=true; if(first) S.stars++; } renderTop(); clearTimeout(IDLE.t);
+  S.phase="served"; S.busy=true; stopGuide(); if(!o.tut&&!o.guided){ S.done[S.i]=true; if(first) S.stars++; } renderTop(); clearTimeout(IDLE.t);
   const t=TOPPINGS.find(x=>x.k===[...S.covered.values()][0]).name.toLowerCase();
   Sound.good(); guideMood("cheer"); setDone("next",false); $("count").hidden=true;
-  say(`${custName(o)}: “${o.ok.replace("{t}",t)}”${first&&!o.tut?" ⭐":""}`,"good");
+  say(`${custName(o)}: “${o.ok.replace("{t}",t)}”${first&&!o.tut&&!o.guided?" ⭐":""}`,"good");
+  if(o.guided){   // the giraffe is served: the plates, then over to the child for Level 1.1
+    document.body.classList.add("platescene"); await plateScene(gen); if(!live(gen)) return; confetti();
+    await sleep(1800); if(!live(gen)) return; document.body.classList.remove("platescene");
+    await sayW("Meow-gnificent! Your turn now!","good","billu",gen); if(!live(gen)) return;
+    await sayW("Read the order, add the topping, and serve!","","noori",gen); if(!live(gen)) return;
+    S.tut=null; S.i=0; loadOrder(); return; }
   if(o.tut){   // Tutorial 1.2: the plates, Noori's line about them, then Billu brings in the first real order
     await plateScene(gen); if(!live(gen)) return; confetti();
     await sleep(1200); if(!live(gen)) return;
@@ -2831,7 +2862,7 @@ async function runLearning(ok){
     await s; if(!ok()) return; }
   // 9. the numerator: one half goes to Chintu, then 2/3 and 3/5
   lStage(`<div class="li">${lCard(1,2,"big","lH")}<div class="lword">Numerator</div></div>
-    <div class="li">${lPizzaHTML("lN2")}<div class="lava"><img src="${A}monty.webp" alt="Chintu"></div></div>
+    <div class="li">${lPizzaHTML("lN2")}<div class="lava lphoto"><img src="${A}chintu_face.webp" alt="Chintu"></div></div>
     <div class="li">${lPizzaHTML("lN3")}<div id="lNc3"></div></div><div class="li">${lPizzaHTML("lN5")}<div id="lNc5"></div></div>`,"three");
   lGlow($("lH"),"n"); lDraw($("lN2"),2,{cut:true}); lDraw($("lN3"),3,{cut:true}); lDraw($("lN5"),5,{cut:true});
   $("lN3").style.visibility="hidden"; $("lN5").style.visibility="hidden";
@@ -2908,49 +2939,7 @@ async function runTutorial(){
     await rollScroll(true,gen); if(!ok()) return;
     // the fraction lesson comes first (sheet: Learning 1), then the giraffe's order
     await runLearning(ok); if(!ok()) return;
-    // 1. the order
-    await tutSay("guest",`${o.n}/${o.d} of a pizza, please!`); if(!ok()) return;
-    // 2. let's make it together
-    $("tutOrder").classList.add("glow"); setTimeout(()=>$("tutOrder").classList.remove("glow"),1400);
-    await tutSay("noori","Let's make this order together!"); if(!ok()) return;
-    // 3. the denominator: cut into 4 equal parts
-    lit("d",true); $("tutPz").querySelectorAll(".dot").forEach(d=>d.classList.add("on"));
-    tutSay("noori","I’ll cut the pizza for you.",{wait:true});
-    await wait(900); if(!ok()) return;
-    await tutCut(); if(!ok()) return;
-    pulseParts();
-    await tutSay("billu","Into as many parts as the denominator says!"); if(!ok()) return;
-    await tutSay("noori","Yes, Billu!"); if(!ok()) return;
-    lit("d",false);
-    // 4. the numerator, and the topping tray
-    lit("n",true); pulseParts(); $("tutTray").classList.add("in");
-    await tutSay("noori","Now add the topping to the parts we serve."); if(!ok()) return;
-    await tutSay("billu",`The numerator is ${o.n}. The giraffe wants ${o.n} parts.`); if(!ok()) return;
-    tutSay("noori","You can pick any topping you like!",{wait:true});
-    $("tutTray").classList.add("ask");
-    await new Promise(r=>TUT.onPick=r); if(!ok()) return;
-    // 5. tap 3 parts
-    $("tut").classList.add("taps"); tutSetCount();
-    // 6. serve
-    await new Promise(r=>TUT.onServe=()=>{
-      if(TUT.done.size===o.n){ TUT.onServe=null; r(); return; }
-      Sound.bad(); const pz=$("tutPz"); pz.classList.remove("bad"); void pz.getBBox(); pz.classList.add("bad");
-      tutSay("noori","Is that how much the giraffe wants? Try again.",{wait:true,bad:true});
-    }); if(!ok()) return;
-    $("tut").classList.remove("taps"); $("tutServe").classList.remove("on"); lit("n",false);
-    $("tutTray").classList.add("gone"); $("tutCount").classList.add("gone");   // served: the topping bowls and the counter leave
-    const pr=$("tutPz").getBoundingClientRect(), plate=$("tutPlate"); plate.hidden=false;
-    const pl=plate.getBoundingClientRect(), u=pr.width/600;
-    TUT.done.forEach(i=>{ const el=$("tutPz").querySelector(`.part[data-i="${i}"]`), p=TUT.g.parts[i];
-      const dx=(pl.left+pl.width/2-(pr.left+p.cx*u))/u, dy=(pl.top+pl.height/2-(pr.top+p.cy*u))/u;
-      el.style.transformOrigin=`${p.cx}px ${p.cy}px`; el.style.transform=`translate(${dx}px,${dy}px) scale(.25)`; el.style.opacity="0"; });
-    await wait(650); if(!ok()) return;
-    plate.querySelector("svg").innerHTML=miniPizza("round",o.d,[...TUT.done],[...TUT.done].map(i=>[i,TUT.topping]));
-    Sound.win(); confetti();
-    await tutSay("guest","Yummy! Just what I ordered!"); if(!ok()) return;
-    // 7. over to the learner
-    await tutSay("billu","Meow-gnificent! Your turn now!"); if(!ok()) return;
-    await tutSay("noori","Read the order, add the topping, and serve!",{label:"LET'S PLAY"}); if(!ok()) return;
+    // the board part ends here; the giraffe's order is made on the tablecloth, with the hand (TUT11)
     TUT.end();
   })();
   await finish;
@@ -3998,4 +3987,9 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 .tut .talk .who.who img.still[src*="noori"]{left:-34%!important;top:3%!important;width:168%!important}
 .tut .talk .who.who img.still[src*="billu"]{left:-31%!important;top:7%!important;width:128%!important}   /* his whole head and chef hat, centred */
 .tut .talk .who.who img.still[src*="giraffe"]{left:-30%!important;top:0!important;width:160%!important}
+</style>
+<style>
+/* Chintu (the monkey with the cap and the gold chain, from Story 1) as a round photo in the lesson */
+.tut .lava.lphoto{align-items:stretch!important;justify-content:stretch!important;padding:0!important}
+.tut .lava.lphoto img{width:100%!important;height:100%!important;object-fit:cover!important;margin:0!important;filter:none!important}
 </style>
