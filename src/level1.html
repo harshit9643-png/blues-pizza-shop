@@ -28,7 +28,7 @@
   const iw=g(window,"innerWidth")||g(Window.prototype,"innerWidth"), ih=g(window,"innerHeight")||g(Window.prototype,"innerHeight");
   const realW=()=>iw.get.call(window), realH=()=>ih.get.call(window);
   let Z=1;
-  function fit(){ Z=Math.min(2.2,realW()/W0,realH()/H0); Z=Math.max(Z,.2); d.style.zoom=Z===1?"":String(Z);
+  function fit(){ Z=Math.min(6,realW()/W0,realH()/H0); Z=Math.max(Z,.2); d.style.zoom=Z===1?"":String(Z);
     // viewport units follow the page's own (drawn) size: the CSS uses var(--vw) etc. in place of vw
     const w=realW()/Z/100, h=realH()/Z/100;
     d.style.setProperty("--vw",w+"px"); d.style.setProperty("--vh",h+"px"); d.style.setProperty("--vmin",Math.min(w,h)+"px"); d.style.setProperty("--vmax",Math.max(w,h)+"px");
@@ -70,7 +70,7 @@ html.turnme #turnme{display:grid;position:fixed;inset:0;z-index:2147483647;place
 @keyframes turnme{0%,25%{transform:rotate(0)}55%,85%{transform:rotate(90deg)}100%{transform:rotate(90deg)}}`;
   document.head.appendChild(css);
   const t=document.createElement("div"); t.id="turnme";
-  t.innerHTML=`<svg viewBox="0 0 64 64" fill="none" stroke="#F6C34A" stroke-width="4" stroke-linecap="round"><rect x="20" y="6" width="24" height="52" rx="5"/><path d="M29 50h6"/></svg><div>Please turn your phone sideways<br>to play Billu’s Pizza Kitchen</div>`;
+  t.innerHTML=`<svg viewBox="0 0 64 64" fill="none" stroke="#F6C34A" stroke-width="4" stroke-linecap="round"><rect x="20" y="6" width="24" height="52" rx="5"/><path d="M29 50h6"/></svg><div>Please turn your screen sideways<br>to play Billu’s Pizza Kitchen</div>`;
   (document.body||d).appendChild(t); t.style.zoom=String(1/Z);
   /* the curtain: a soft fade through the game's deep plum between big scenes (and over the page load) */
   const cu=document.createElement("div"); cu.id="curtain"; cu.className="on";   // two big green leaves close in from the sides, then part
