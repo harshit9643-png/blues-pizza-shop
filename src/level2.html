@@ -4,16 +4,25 @@
 (()=>{ const AC=window.AudioContext||window.webkitAudioContext, all=new Set();
   if(AC){ const W=function(...a){ const c=new AC(...a); all.add(c); return c; }; W.prototype=AC.prototype; Object.setPrototypeOf(W,AC);
     window.AudioContext=W; if(window.webkitAudioContext) window.webkitAudioContext=W; }
-  let held=[], anims=[];
-  document.addEventListener("visibilitychange",()=>{
-    if(document.hidden){ document.documentElement.classList.add("away");
-      held=[...all].filter(c=>c.state==="running"); held.forEach(c=>{ try{ c.suspend(); }catch(e){} });
-      anims=document.getAnimations().filter(a=>a.playState==="running"); anims.forEach(a=>{ try{ a.pause(); }catch(e){} });
-      document.querySelectorAll("audio,video").forEach(m=>{ if(!m.paused){ m._away=true; m.pause(); } }); }
-    else { document.documentElement.classList.remove("away");
-      held.forEach(c=>{ try{ c.resume(); }catch(e){} }); held=[];
-      anims.forEach(a=>{ try{ if(a.playState==="paused") a.play(); }catch(e){} }); anims=[];
-      document.querySelectorAll("audio,video").forEach(m=>{ if(m._away){ m._away=false; m.play().catch(()=>{}); } }); } });
+  /* "away" = the tab is hidden (another tab, minimised, phone locked) OR the window has lost focus (another app or
+     window on top, the address bar, the phone's control centre); the game holds still until the player is back */
+  let held=[], anims=[], away=false;
+  function leave(){ if(away) return; away=true; document.documentElement.classList.add("away");
+    held=[...all].filter(c=>c.state==="running"); held.forEach(c=>{ try{ c.suspend(); }catch(e){} });
+    anims=document.getAnimations().filter(a=>a.playState==="running"); anims.forEach(a=>{ try{ a.pause(); }catch(e){} });
+    document.querySelectorAll("audio,video").forEach(m=>{ if(!m.paused){ m._away=true; m.pause(); } });
+    document.dispatchEvent(new Event("gameaway")); }
+  function back(){ if(!away||document.hidden) return; away=false; document.documentElement.classList.remove("away");
+    held.forEach(c=>{ try{ c.resume(); }catch(e){} }); held=[];
+    anims.forEach(a=>{ try{ if(a.playState==="paused") a.play(); }catch(e){} }); anims=[];
+    document.querySelectorAll("audio,video").forEach(m=>{ if(m._away){ m._away=false; m.play().catch(()=>{}); } });
+    document.dispatchEvent(new Event("gameback")); }
+  document.addEventListener("visibilitychange",()=>{ document.hidden?leave():back(); });
+  addEventListener("blur",leave); addEventListener("focus",back);
+  addEventListener("pagehide",leave); addEventListener("pageshow",()=>{ if(!document.hidden) back(); });
+  addEventListener("pointerdown",back,true);   // a tap on the game always brings it back, even if a focus event was missed
+  if(document.hidden) leave();
+  window.GAME_AWAY=()=>away;
 })();
 </script>
 <style>html.away *,html.away *::before,html.away *::after{animation-play-state:paused!important}</style>
@@ -1124,7 +1133,7 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 
 /* the line being said sits at the top of the screen, under the menu (story and tutorials) */
 .story .ssub{top:clamp(64px,calc(9*var(--vh)),84px)!important;bottom:auto!important}
-.tut .page{grid-template-rows:auto auto minmax(0,1fr)!important}
+.tut .page{grid-template-rows:calc(clamp(13px,calc(1.15*var(--vw)),16px)*3.9 + 14px) auto minmax(0,1fr)!important}   /* the line box keeps a fixed row (room for three lines), so the board never moves when a longer or shorter line comes */
 .tut .talk{order:-1}
 /* full-screen story shots (Level 2 uses them too) */
 .story .sshot{position:absolute;inset:0;z-index:25;opacity:0;transform:scale(1.03);transition:opacity .75s ease,transform 1.2s cubic-bezier(.2,.8,.3,1)}
@@ -1155,7 +1164,7 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .tut .duel{padding-left:calc(5*var(--vw))}
 .story .sbub{z-index:30!important}
 .tut .ttl{transition:opacity .4s,max-height .5s,margin .5s;max-height:120px;overflow:hidden}
-.tut .ttl.gone{opacity:0;max-height:0;margin:0}
+.tut .ttl.gone{opacity:0}   /* the title fades where it is (it used to fold away and pull the whole board up) */
 /* Billu's small speech-box picture: a close-up of his head and chest, framed inside the round badge */
 .tut .talk .who.billu,.story .ssub .who.billu{overflow:hidden;place-items:start center}
 .tut .talk .who.billu img,.story .ssub .who.billu img{height:190%!important;width:auto;margin:6% 0 0!important;filter:none}
@@ -1727,6 +1736,12 @@ const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0; const el=new Au
     el.src="assets/vo/"+have.get(k); const p=el.play(); if(p&&p.catch) p.catch(end); return true; }
   // anything that silences the browser voice silences the clip too (Skip, leaving a screen, NEXT)
   if(tts) try{ tts.cancel=()=>{ stop(); cancel0(); }; }catch(e){}
+  /* the browser's own voice is never used (on phones it is a different, often male voice, and it talked over the clips):
+     a line without a clip stays quiet for its reading time, then reports "done" so the scene carries on; a cancel drops it */
+  if(tts) try{ let sg=0; const c1=tts.cancel; tts.cancel=()=>{ sg++; c1(); };
+    tts.speak=u=>{ const g=sg, n=String(u&&u.text||"").split(/\s+/).filter(Boolean).length;
+      setTimeout(function fin(){ if(g!==sg) return; if(PAUSE.on){ setTimeout(fin,200); return; } if(u&&u.onend) try{ u.onend(); }catch(e){} },Math.max(1200,n*300)); };
+    tts.pause=()=>{}; tts.resume=()=>{}; }catch(e){}
   return {play,stop,who,norm,key,el,
     busy:()=>!!el.src&&!el.paused&&!el.ended,
     pause(){ if(!el.paused&&!el.ended){ el.pause(); el._held=true; } },
@@ -2838,10 +2853,11 @@ function t2Blink(sd,on){ const b=$("t2n-"+sd); if(b) b.classList.toggle("blink",
 /* plays Tutorial 2; resolves when the scroll has rolled up again */
 /* a round pizza of d equal slices; `lit` slices glow, `gone` slices are eaten (empty, dashed) */
 function l2Pizza(d,{lit=[],gone=[],all=false}={}){
-  const R=92, C=100, step=2*Math.PI/d, a0=-Math.PI/2; let g=`<circle cx="${C}" cy="${C}" r="${R+4}" fill="#FFF7E6" stroke="#E2C9A0" stroke-width="3"/>`;
+  const R=92, C=100, step=2*Math.PI/d, a0=-Math.PI/2; let top="", g=`<circle cx="${C}" cy="${C}" r="${R+4}" fill="#FFF7E6" stroke="#E2C9A0" stroke-width="3"/>`;
   for(let i=0;i<d;i++){ const s=a0+i*step, e=s+step;
     if(gone.includes(i)){ g+=`<path d="${sector(C,C,R,s,e)}" fill="rgba(255,230,180,.25)" stroke="#C8402E" stroke-width="2.5" stroke-dasharray="6 5"/>`; continue; }
-    g+=wedge(C,C,R,s,e,lit.includes(i)?'class="l2lit"':''); }
+    if(lit.includes(i)) top+=wedge(C,C,R,s,e,'class="l2lit"'); else g+=wedge(C,C,R,s,e,''); }
+  g+=top;   // the lit slices go last, so their gold outline is not covered by the next slice's cut line
   return `<svg class="l2pz" viewBox="0 0 200 200" aria-hidden="true">${g}</svg>`;
 }
 /* the slice each one ate, lifted out and laid side by side at the same scale */
@@ -3073,9 +3089,10 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
     bar.classList.toggle("on",on); bar.classList.toggle("intut",!inStory&&inTut);
     if(!on&&PAUSE.on&&!PAUSE.away) setPause(false); },200);
   // another tab or window: everything goes quiet and waits right there, and carries on on return
-  document.addEventListener("visibilitychange",()=>{
-    if(document.hidden){ if(!PAUSE.on){ PAUSE.away=true; setPause(true); } }
-    else if(PAUSE.away){ PAUSE.away=false; setPause(false); } });
+  const goAway=()=>{ if(!PAUSE.on){ PAUSE.away=true; setPause(true); } };
+  document.addEventListener("gameaway",goAway);
+  document.addEventListener("gameback",()=>{ if(PAUSE.away){ PAUSE.away=false; setPause(false); } });
+  if(window.GAME_AWAY&&GAME_AWAY()) goAway();
 })();
 </script>
 
@@ -3285,8 +3302,9 @@ const BGM=(()=>{ let ctx=null, gain=null, src=null, buf=null, started=false, wan
 <style>
 /* Learning 2 pizzas look like Tutorial 1's: the pizza itself, dark cut lines; a talked-about slice gets a soft white edge, no gold fill */
 #t2learn .l2pz path,#t2learn .l2sl path{stroke:#3A1A08!important;stroke-opacity:.85!important;stroke-width:2.2!important;fill:none}
-#t2learn .l2pz .l2lit,#t2learn .l2sl .l2lit{fill:rgba(255,255,255,.12)!important;stroke:#FFFFFF!important;stroke-opacity:1!important;stroke-width:4!important;
-  filter:drop-shadow(0 0 5px rgba(255,255,255,.85))!important}
+/* the slice being talked about: a warm yellow wash and a thick gold outline with a glow (as the half in Tutorial 1's lesson) */
+#t2learn .l2pz .l2lit,#t2learn .l2sl .l2lit{fill:rgba(255,226,120,.42)!important;stroke:#FFD24A!important;stroke-opacity:1!important;stroke-width:4.5!important;
+  stroke-linejoin:round!important;filter:drop-shadow(0 0 5px rgba(255,200,40,.95))!important}
 #t2learn .l2pz path[stroke-dasharray]{stroke:#C8402E!important;fill:rgba(255,230,180,.18)!important}
 #t2learn .l2pz circle{fill:#F3E3C4!important;stroke:#3A1A08!important;stroke-opacity:.5!important;stroke-width:2!important}
 /* the wooden fraction card (Tutorial 1) */
