@@ -1670,22 +1670,26 @@ function nooriTalk(text){ if(!text){ NT.on=false; NT.until=0; return; }
   NT.on=true; NT.until=performance.now()+Math.max(1200,words*300+400); }
 /* AI voices: each line the game says has a recorded clip in assets/vo, named by a hash of speaker and text
    (tools/voices.py makes them); a line without a clip falls back to the browser's own voice */
-const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0; const el=new Audio(); el.preload="auto";
+/* chain: a line of several speakers that still has parts to say (the voice counts as busy until all are said) */
+const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0, pid=0, chain=0; const el=new Audio(); el.preload="auto";
   fetch("assets/vo/manifest.json",{cache:"no-cache"}).then(r=>r.ok?r.json():[]).then(a=>{ have=new Map(Object.entries(a||{})); }).catch(()=>{ have=new Map(); });
   const norm=t=>String(t||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
   const key=(who,t)=>{ const s=who+"|"+norm(t); let h=0x811c9dc5; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(16).padStart(8,"0"); };
   const tts=window.speechSynthesis, cancel0=tts?tts.cancel.bind(tts):()=>{};
   const end=()=>{ const f=onEnd; onEnd=null; if(f) f(); };
   el.addEventListener("ended",end); el.addEventListener("error",end);
-  function stop(){ onEnd=null; el._held=false; try{ el.pause(); }catch(e){} }
+  function halt(){ onEnd=null; el._held=false; try{ el.pause(); }catch(e){} }
+  function stop(){ chain=0; halt(); }
   // a customer's line ("Monty: “…”") is said in that customer's voice
   function who(text,w){ const m=/^\s*([A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?)(?:\s*\([^)]*\))?:\s*[“"]/.exec(norm(text)); return m?m[1].toLowerCase():(w||"noori"); }
   // plays the clip for this line; false when there is none (then the caller uses the browser voice)
-  function play(w,text,done){ const k=key(w,text); if(window.__vo) window.__vo(w,norm(text),k);
+  function play(w,text,done,keep){ if(!keep) chain=0; const k=key(w,text); if(window.__vo) window.__vo(w,norm(text),k);
     if(!have||!have.has(k)) return false;
     if(k===lastK&&performance.now()-lastT<1500&&!el.paused){ if(done) onEnd=done; return true; }   // the same line asked for twice in a row
-    stop(); cancel0(); lastK=k; lastT=performance.now(); onEnd=done||null;
-    el.src="assets/vo/"+have.get(k); const p=el.play(); if(p&&p.catch) p.catch(end); return true; }
+    halt(); cancel0(); lastK=k; lastT=performance.now(); onEnd=done||null;
+    el.src="assets/vo/"+have.get(k); const my=++pid, p=el.play();
+    // a clip that cannot start ends its line; one cut short by the next clip does not (that used to start the next speaker over it)
+    if(p&&p.catch) p.catch(()=>{ if(my===pid) end(); }); return true; }
   // anything that silences the browser voice silences the clip too (Skip, leaving a screen, NEXT)
   if(tts) try{ tts.cancel=()=>{ stop(); cancel0(); }; }catch(e){}
   /* the browser's own voice is never used (on phones it is a different, often male voice, and it talked over the clips):
@@ -1695,7 +1699,8 @@ const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0; const el=new Au
       setTimeout(function fin(){ if(g!==sg) return; if(PAUSE.on){ setTimeout(fin,200); return; } if(u&&u.onend) try{ u.onend(); }catch(e){} },Math.max(1200,n*300)); };
     tts.pause=()=>{}; tts.resume=()=>{}; }catch(e){}
   return {play,stop,who,norm,key,el,
-    busy:()=>!!el.src&&!el.paused&&!el.ended,
+    busy:()=>!!chain||(!!el.src&&!el.paused&&!el.ended),
+    hold(t){ chain=t; }, held:()=>chain,
     pause(){ if(!el.paused&&!el.ended){ el.pause(); el._held=true; } },
     resume(){ if(el._held){ el._held=false; el.play().catch(()=>{}); } } };
 })();
@@ -1703,10 +1708,10 @@ function speak(text,who){
   // a message that strings together several speakers ("Bijli: “…”  Badal: “…”  Noori's line") is said piece by piece, each in its own voice
   const parts=String(text||"").split(/\s{2,}/).map(t=>t.trim()).filter(Boolean);
   if(parts.length>1){ const w0=who||(text===S.sayPlain&&S.saySpk)||"noori", tok=(speak._t=(speak._t||0)+1);
-    const next=i=>{ if(i>=parts.length||speak._t!==tok) return; const t=parts[i];
+    const next=i=>{ if(i>=parts.length||speak._t!==tok){ if(VOICE.held()===tok) VOICE.hold(0); return; } const t=parts[i];
       const nx=()=>setTimeout(()=>next(i+1),250);
-      if(!VOICE.play(VOICE.who(t,w0),t,nx)&&!VOICE.play(VOICE.who(t,"noori"),t,nx)){ try{ const u=new SpeechSynthesisUtterance(t.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; u.onend=()=>next(i+1); speechSynthesis.speak(u); }catch(e){} } };
-    try{ speechSynthesis.cancel(); }catch(e){} next(0); return; }
+      if(!VOICE.play(VOICE.who(t,w0),t,nx,1)&&!VOICE.play(VOICE.who(t,"noori"),t,nx,1)){ try{ const u=new SpeechSynthesisUtterance(t.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; u.onend=()=>next(i+1); speechSynthesis.speak(u); }catch(e){} } };
+    try{ speechSynthesis.cancel(); }catch(e){} VOICE.hold(tok); next(0); return; }
   if(VOICE.play(VOICE.who(text,who||(text===S.sayPlain&&S.saySpk)||"noori"),text)) return; if(!window.speechSynthesis) return;
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text.replace(/(\d+)\/(\d+)/g,"$1 by $2")); u.rate=.92; speechSynthesis.speak(u); }catch(e){} }
 
