@@ -3473,7 +3473,7 @@ async function storyContext1(){
   STORY.cast.noori=aN; STORY.cast.billu=aB;
   // the sheet (Context 1): one line from the narrator; Billu waves hello meanwhile, then folds his arms again
   { let done=false; const wave=(async()=>{ await sleep(600); for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
-    picZoom(open1,47,54,1.5,[aN,aB],8000);   // slowly in on the stall
+    picZoom(open1,47,54,1.5,[aN,aB],3000);   // slowly in on the stall
     await sLine("narr","At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!"); done=true; await wave; S1.set("billu0"); }
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(2200));   // a moment on the picture before it changes
@@ -3485,7 +3485,7 @@ async function storyContext1(){
   await W(sleep(2200));   // a moment on the picture before it changes
   // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
-  await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],6000);   // slowly in on Billu and the cut pizza
+  await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],2500);   // slowly in on Billu and the cut pizza
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
@@ -4322,3 +4322,8 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
   setInterval(()=>{ if(st.hidden&&!tu.hidden) bk.classList.toggle("off",RT.cur<1||RT.ff||RT.abort); },200);
 })();
 </script>
+<style>
+/* 4/5 and 3/8 screen: bigger pizzas */
+.tut .learn.pzcards.pz2{--ls:min(calc(44*var(--vh)),calc(26*var(--vw)))!important}
+.tut .learn.pzcards.pz3{--ls:min(calc(38*var(--vh)),calc(22*var(--vw)))!important}
+</style>
