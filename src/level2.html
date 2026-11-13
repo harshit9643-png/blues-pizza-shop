@@ -314,6 +314,8 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 
 /* intro screens */
 .intro{place-items:center;align-content:center;gap:14px;z-index:2}
+.intro .inoori{height:min(calc(56*var(--vh)),calc(42*var(--vw)));width:auto;max-width:90%;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(60,20,20,.25));animation:inPop .5s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes inPop{from{opacity:0;transform:translateY(20px) scale(.85)}to{opacity:1;transform:none}}
 .intro .big{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
 .intro .rule{max-width:360px;padding:12px 14px}
 .intro .rule svg{width:110px}
@@ -1874,7 +1876,7 @@ function award(i){ if(S.done[i]) return; S.done[i]=true; if(S.tries===0) S.stars
 
 /* ---------- intro screens (Set B, Set C) ---------- */
 function showIntro(st){
-  setView("intro",``);   // the rule is said in the dialogue box only, no picture cards
+  setView("intro",`<img class="inoori" src="assets/web/noori_anim/10.webp" alt="Noori">`);   // Noori, big in the middle, talks the rule out (no picture cards)
   say(st.text,"","noori"); speak(st.text); button("next",true,true,next);
 }
 
@@ -3040,8 +3042,11 @@ if(location.hash==="#play"){ history.replaceState(null,"",location.pathname); st
   const FR=OPEN.map(i=>`assets/web/noori_anim/${i}.webp`); FR.forEach(s=>{ new Image().src=s; });
   const isNoori=s=>/noori(_point)?\.webp|noori_anim\//.test(s||""); let f=0;
   const REST="assets/web/noori_anim/10.webp";
-  setInterval(()=>{ const now=performance.now(), voice=!!(window.speechSynthesis&&speechSynthesis.speaking);
-    const talking=NT.on && (now<NT.until || voice); if(NT.on && !talking) NT.on=false;
+  let clipSeen=false;
+  setInterval(()=>{ const now=performance.now(), el=VOICE.el, clip=!!(el&&el.src&&!el.paused&&!el.ended);
+    if(!NT.on) clipSeen=false; else if(clip) clipSeen=true;
+    // in step with the voice: she talks while her clip plays and stops the moment it ends; with no clip, for the reading time
+    const talking=NT.on && (clip || (!clipSeen && now<NT.until)); if(NT.on && !talking && (clipSeen || now>=NT.until)) NT.on=false;
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
     document.querySelectorAll("img:not(.still):not(.guide img)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
 </script>
@@ -3821,3 +3826,17 @@ body .card.card:has(.say.tall),body .tut .talk.talk:has(p.tall),body #ssub#ssub:
 body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){max-width:min(1100px,calc(100vw - 160px))!important}
 body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall),body .card.card:has(.say.tall){width:min(1100px,calc(100vw - 160px))!important}
 </style>
+<script>
+/* every dialogue box (the game's card, the board's talk box, the story's line box) sits exactly in the middle of the screen:
+   the box and the speaker's round photo are measured together and the whole thing is nudged to the centre */
+(()=>{ let q=0;
+  const fix=()=>{ q=0; const W=innerWidth;
+    document.querySelectorAll("#app>.card,.tut .talk,#ssub:not(.bub)").forEach(b=>{
+      if(!b.getClientRects().length) return; const old=+b.dataset.cx||0;
+      let L=Infinity,R=-Infinity; [b,b.querySelector(".guide,.who")].forEach(e=>{ if(!e||!e.getClientRects().length) return; const r=e.getBoundingClientRect(); L=Math.min(L,r.left); R=Math.max(R,r.right); });
+      if(!isFinite(L)) return; const nx=Math.round(old-((L+R)/2-W/2));
+      if(Math.abs(nx-old)>=1){ b.dataset.cx=nx; b.style.setProperty("translate",nx+"px 0","important"); } }); };
+  const soon=()=>{ if(!q) q=requestAnimationFrame(fix); };
+  new MutationObserver(soon).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class","hidden","src"]});
+  addEventListener("resize",soon); setInterval(soon,1000); soon(); })();
+</script>
