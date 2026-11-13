@@ -3498,9 +3498,15 @@ async function storyContext1(){
     await sLine("chintu","Half a pizza, please!"); clearInterval(t); im.src=F[0]; }
   await W(sleep(2200));   // a moment on the picture before it changes
   // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
-  const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
+  const BF=[0,1,2,3].map(k=>`assets/story/scene2_half_talk${k}.webp`); BF.forEach(u=>{ new Image().src=u; });   // Billu's 4 talking faces (0 = mouth shut)
+  const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="${BF[0]}" alt="">`;
   await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],2500);   // slowly in on Billu and the cut pizza
-  STORY.noSpot=true; STORY.bubAt=[70,6,27,1]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
+  await W(sleep(2500));   // once the zoom has landed, his mouth starts moving and the bubble comes up with it
+  { const im=cut2.querySelector("img:not(.blur)"); let k=0; const t0=performance.now();
+    const t=setInterval(()=>{ if(!im.isConnected) return clearInterval(t); if(PAUSE.on) return;
+      const talking=(window.VOICE&&VOICE.busy())||performance.now()-t0<1500; im.src=talking?BF[1+(k++%3)]:BF[0]; },150);
+    STORY.noSpot=true; STORY.bubAt=[70,6,27,1]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
+    clearInterval(t); if(im.isConnected) im.src=BF[0]; }
   // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
