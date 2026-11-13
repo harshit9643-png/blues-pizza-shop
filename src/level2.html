@@ -315,6 +315,11 @@ button:focus-visible,[tabindex]:focus-visible,select:focus-visible{outline:3px s
 /* intro screens */
 .intro{place-items:center;align-content:center;gap:14px;z-index:2}
 .intro .inoori{height:min(calc(56*var(--vh)),calc(42*var(--vw)));width:auto;max-width:90%;object-fit:contain;filter:drop-shadow(0 10px 18px rgba(60,20,20,.25));animation:inPop .5s cubic-bezier(.3,1.5,.5,1) both}
+/* the intro screen: big Noori in the middle, so the box has no photo and no round slot, and its words are centred */
+body:has(#view.intro) #app>.card .guide{display:none!important}
+body:has(#view.intro) #app>.card{border-width:calc(var(--dk) * 30) calc(var(--dk) * 100)!important;
+  border-image:url("assets/ui/dialog_box_plain.webp") 30 100 30 100 fill stretch!important;padding:0!important;justify-content:center!important}
+body:has(#view.intro) #app>.card .say{text-align:center!important;padding:0!important}
 @keyframes inPop{from{opacity:0;transform:translateY(20px) scale(.85)}to{opacity:1;transform:none}}
 .intro .big{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
 .intro .rule{max-width:360px;padding:12px 14px}
