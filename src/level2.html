@@ -2926,7 +2926,7 @@ async function runLearning2(ok){
   duel.style.display="none"; ttl.innerHTML="<b>Who ate more?</b>"; ttl.style.display="none";
   const L=document.createElement("div"); L.id="t2learn"; page.insertBefore(L,duel);
   const stage=html=>{ L.innerHTML=html; };
-  const side=(k,svg,cap,id)=>`<div class="l2side" ${id?`id="${id}"`:""}><div class="l2ava"><img src="${A}${k}.webp" alt="${NAMES[k]}"></div>${svg}<div class="l2cap">${cap||""}</div></div>`;
+  const side=(k,svg,cap,id)=>`<div class="l2side" ${id?`id="${id}"`:""}><div class="l2ava"><img src="${A}${k==="monty"?"chintu_full":k}.webp" alt="${NAMES[k]}"${k==="monty"?' class="newmonty"':""}></div>${svg}<div class="l2cap">${cap||""}</div></div>`;
   const say=(w,t,o)=>tutSay(w,t,Object.assign({extra:3500},o||{}));
   // 1. two whole pizzas, the same size
   stage(`<div class="l2row">${side("monty",l2Pizza(1,{}),"")}${side("ant",l2Pizza(1,{}),"")}</div>`);
@@ -3745,4 +3745,8 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 #t2learn.tight .l2side .l2pz{grid-area:pz;width:clamp(140px,calc(30*var(--vh)),240px)!important}
 #t2learn.tight .l2side .l2cap{grid-area:cap}
 #t2learn.tight .l2more{margin-top:clamp(6px,calc(1.5*var(--vh)),16px)!important}
+</style>
+<style>
+/* Tutorial 2: the new Monty (blue cap, gold chain), the whole of him inside the circle */
+#t2learn .l2ava img.newmonty{object-fit:contain!important;height:96%!important;width:auto!important;max-width:none!important;margin:4% auto 0!important;transform:scale(1.12);transform-origin:50% 30%}
 </style>
