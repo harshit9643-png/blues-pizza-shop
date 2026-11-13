@@ -3571,7 +3571,7 @@ body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){height:var(--dh)!
 </style>
 <style>
 /* Tutorial 2 line box: a little thinner (it sat on the characters' pictures) */
-.tut .talk{--dh:clamp(56px,calc(10*var(--vh)),72px);--dk:calc(var(--dh) / 226)}
+.tut .talk{--dk:calc(var(--dh) / 226)}
 /* the speaker's photo sits in the box's round slot, face in the middle */
 body .tut .talk>.who.who{position:absolute!important;display:block!important;left:calc(var(--dk) * -166)!important;top:calc(50% + var(--dk) * 5.5)!important;translate:0 -50%!important;transform:none!important;
   width:calc(var(--dk) * 138)!important;height:calc(var(--dk) * 138)!important;margin:0!important;border-radius:50%!important;overflow:hidden!important;box-shadow:none!important;border:0!important;
@@ -3753,14 +3753,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 #t2learn .l2more.l2wide .l2f{font-size:clamp(26px,calc(4.6*var(--vh)),42px)!important}
 </style>
 
-<script>
-/* a line too long for the dialogue box gets slightly smaller text, so it is never cut off */
-(()=>{ const fit=p=>{ if(!p||!p.isConnected) return; p.style.fontSize=""; let fs=parseFloat(getComputedStyle(p).fontSize), k=0;
-    while(k++<14&&fs>11&&(p.scrollHeight>p.clientHeight+1||p.scrollWidth>p.clientWidth+1)){ fs-=1; p.style.setProperty("font-size",fs+"px","important"); } };
-  const all=()=>["say","tutLine","sLine"].forEach(id=>fit(document.getElementById(id)));
-  new MutationObserver(()=>requestAnimationFrame(all)).observe(document.body,{childList:true,subtree:true,characterData:true});
-  addEventListener("resize",all); })();
-</script>
+
 <style>
 /* Tez vs Jhumru: each character beside its own pizza on the outer side (Tez on the left, Jhumru on the right), the card under the pizza;
    the whole screen moves up, so "5/8 is more than 3/8" sits higher too */
@@ -3808,4 +3801,23 @@ img.newmonty{object-fit:contain!important}
 .view.cardsv .cpz path[stroke-dasharray]{fill:rgba(60,30,10,.55)!important;stroke:#FFE08A!important;stroke-width:3!important}
 .view.cardsv .fr b.blink{background:#FFD24A!important;color:#5A2A0E!important;border-radius:8px;box-shadow:0 0 0 4px #FFD24A,0 0 18px rgba(255,200,40,1);animation:blinkPulse .6s ease-in-out infinite alternate}
 @keyframes blinkPulse{to{transform:scale(1.15)}}
+</style>
+<style>
+/* one text size in every dialogue box (orders, lesson, matches, rounds, story narrator, Tutorial 2) */
+:root{--dlgfs:clamp(17px,calc(1.6*var(--vw)),22px)}
+body .card .say,body .card .say *:not(.fr):not(.fr *),body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p,body #ssub:not(.bub) p .nm{font-size:var(--dlgfs)!important;line-height:1.25!important}
+body .card .say,body .tut .talk p,body #ssub:not(.bub) p{white-space:normal!important}
+</style>
+<style>
+/* a long line (three rows at the common size) gets a slightly taller box instead of being cut */
+body .card.card:has(.say.tall),body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall){--dh:clamp(84px,calc(15*var(--vh)),112px);--dk:calc(var(--dh) / 226);height:var(--dh)!important;min-height:var(--dh)!important;max-height:var(--dh)!important}
+</style>
+<script>
+(()=>{ const chk=()=>["say","tutLine","sLine"].forEach(id=>{ const p=document.getElementById(id); if(!p) return; p.classList.remove("tall"); if(p.scrollHeight>p.clientHeight+12) p.classList.add("tall"); });
+  new MutationObserver(()=>requestAnimationFrame(chk)).observe(document.body,{childList:true,subtree:true,characterData:true}); addEventListener("resize",chk); })();
+</script>
+<style>
+/* long lines: the box may grow wide (up to most of the screen) before it needs more rows */
+body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){max-width:min(1100px,calc(100vw - 160px))!important}
+body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall),body .card.card:has(.say.tall){width:min(1100px,calc(100vw - 160px))!important}
 </style>

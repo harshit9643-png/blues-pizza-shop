@@ -3898,7 +3898,7 @@ function SAUCE(done){
   const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
   const bx=t=>W/2+W*.36*Math.sin(t/450);                       // the bottle sweeps from side to side
   const surf=(x,lvl,t,sx,amp)=>lvl+5*Math.sin(x*.018+t*.004)+3.5*Math.sin(x*.047-t*.006)-amp*Math.exp(-(((x-sx)/46)**2));
-  const drops=[];
+  const drops=[]; let lastFrame=t0, splashClock=0;
   function liquid(lvl,t,sx,amp,fromTop){
     g.beginPath();
     if(!fromTop){ g.moveTo(0,H+10); for(let x=0;x<=W+8;x+=8) g.lineTo(x,surf(x,lvl,t,sx,amp)); g.lineTo(W,H+10); }
@@ -3912,7 +3912,8 @@ function SAUCE(done){
   }
   function frame(now){
     if(!ov.isConnected) return;
-    const t=now-t0; g.clearRect(0,0,W,H);
+    const t=now-t0, dt=Math.min(40,Math.max(0,now-lastFrame)); lastFrame=now;
+    g.clearRect(0,0,W,H);
     // 1. the bottle drops in and turns nozzle-down
     if(t<IN){ const u=t/IN, y=u<.55?(-bh*1.2+(bh*1.2+CY0-bh/2)*ease(u/.55)):CY0-bh/2, r=u<.55?0:180*ease((u-.55)/.45);
       btl.style.transform=`translate(${W/2-bw/2}px,${y}px) rotate(${r}deg)`; requestAnimationFrame(frame); return; }
@@ -3922,17 +3923,29 @@ function SAUCE(done){
       const u=Math.min(1,tp/FILL), lvl=H-(H+40)*(u*u*(3-2*u)), ramp=Math.min(1,tp/500);
       const cx=W/2+(bx(tp)-W/2)*ramp, cy=cyFor(lvl), phi=35*Math.cos(tp/450)*ramp;   // it climbs with the sauce and tilts with its sweep
       place(cx,cy,phi);
-      const nz=nozzleAt(cx,cy,phi), x=nz.x;
-      liquid(lvl,tp,x,10+6*Math.sin(tp*.02),false);
-      // the thin stream from the tilted nozzle, falling and wobbling a little
-      const yEnd=surf(x,lvl,tp,x,10)+2; g.beginPath(); g.moveTo(nz.x,nz.y);
-      for(let y=nz.y;y<=yEnd;y+=10){ const k=(y-nz.y)/Math.max(1,yEnd-nz.y); g.lineTo(x+Math.sin(y*.05+tp*.02)*1.6*k-Math.sin(phi*Math.PI/180)*(1-k)*k*30,y); }
-      g.lineCap="round"; g.strokeStyle="#8E120A"; g.lineWidth=Math.max(7,W*.006); g.stroke();      // dark edge
-      g.strokeStyle="#E8361F"; g.lineWidth=Math.max(5,W*.0045); g.stroke();                          // the sauce
-      g.strokeStyle="rgba(255,200,180,.7)"; g.lineWidth=1.6; g.stroke();                              // shine
-      // splash droplets where it lands
-      if(Math.random()<.5) drops.push({x:x+(Math.random()-.5)*10,y:yEnd,vx:(Math.random()-.5)*2.4,vy:-2-Math.random()*2.5,r:2+Math.random()*3});
-      for(let i=drops.length-1;i>=0;i--){ const d=drops[i]; d.x+=d.vx; d.y+=d.vy; d.vy+=.25; if(d.y>surf(d.x,lvl,tp,x,10)+4){ drops.splice(i,1); continue; }
+      const nz=nozzleAt(cx,cy,phi);
+      // The moving bottle gives the sauce a little sideways momentum. Keep the
+      // landing point and the surface splash attached to the same curved stream.
+      const speed=W*.36*Math.cos(tp/450)/450*ramp+(bx(tp)-W/2)*Math.max(0,1-ramp)/500;
+      const throwX=Math.max(-W*.1,Math.min(W*.1,speed*105));
+      const x=nz.x+throwX, splash=10+6*Math.sin(tp*.02);
+      liquid(lvl,tp,x,splash,false);
+      const yEnd=surf(x,lvl,tp,x,splash)+2, fall=Math.max(0,yEnd-nz.y);
+      if(fall>0){
+        g.beginPath(); g.moveTo(nz.x,nz.y);
+        g.bezierCurveTo(nz.x+throwX*.35,nz.y+fall*.17,x-throwX*.18,yEnd-fall*.25,x,yEnd);
+        g.lineCap="round"; g.lineJoin="round";
+        g.strokeStyle="#8E120A"; g.lineWidth=Math.max(7,W*.006); g.stroke();
+        g.strokeStyle="#E8361F"; g.lineWidth=Math.max(5,W*.0045); g.stroke();
+        g.strokeStyle="rgba(255,200,180,.55)"; g.lineWidth=1.5; g.stroke();
+      }
+      // Spawn and move droplets using elapsed time, so fast and slow displays
+      // show the same splash instead of changing its speed with frame rate.
+      splashClock+=dt;
+      while(splashClock>=32){ splashClock-=32;
+        if(fall>0&&drops.length<24) drops.push({x:x+(Math.random()-.5)*10,y:yEnd,vx:(Math.random()-.5)*.13,vy:-.14-Math.random()*.14,r:2+Math.random()*3});
+      }
+      for(let i=drops.length-1;i>=0;i--){ const d=drops[i]; d.x+=d.vx*dt; d.y+=d.vy*dt; d.vy+=.001*dt; if(d.y>surf(d.x,lvl,tp,x,splash)+4){ drops.splice(i,1); continue; }
         g.beginPath(); g.arc(d.x,d.y,d.r,0,6.3); g.fillStyle="#D9281B"; g.fill(); }
       if(u>=1){ covered=true; tCover=now; done(); btl.remove(); }   // by now the bottle has climbed out through the top
       requestAnimationFrame(frame); return;
@@ -4357,15 +4370,27 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 @keyframes lPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
 </style>
 
-<script>
-/* a line too long for the dialogue box gets slightly smaller text, so it is never cut off */
-(()=>{ const fit=p=>{ if(!p||!p.isConnected) return; p.style.fontSize=""; let fs=parseFloat(getComputedStyle(p).fontSize), k=0;
-    while(k++<14&&fs>11&&(p.scrollHeight>p.clientHeight+1||p.scrollWidth>p.clientWidth+1)){ fs-=1; p.style.setProperty("font-size",fs+"px","important"); } };
-  const all=()=>["say","tutLine","sLine"].forEach(id=>fit(document.getElementById(id)));
-  new MutationObserver(()=>requestAnimationFrame(all)).observe(document.body,{childList:true,subtree:true,characterData:true});
-  addEventListener("resize",all); })();
-</script>
+
 <style>
 .story .sbub.bigb .t{font-size:2.3cqw!important;line-height:1.2!important}
 .story .sbub.bigb .t b{font-size:.6em!important}
+</style>
+<style>
+/* one text size in every dialogue box (orders, lesson, matches, rounds, story narrator, Tutorial 2) */
+:root{--dlgfs:clamp(17px,calc(1.6*var(--vw)),22px)}
+body .card .say,body .card .say *:not(.fr):not(.fr *),body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p,body #ssub:not(.bub) p .nm{font-size:var(--dlgfs)!important;line-height:1.25!important}
+body .card .say,body .tut .talk p,body #ssub:not(.bub) p{white-space:normal!important}
+</style>
+<style>
+/* a long line (three rows at the common size) gets a slightly taller box instead of being cut */
+body .card.card:has(.say.tall),body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall){--dh:clamp(84px,calc(15*var(--vh)),112px);--dk:calc(var(--dh) / 226);height:var(--dh)!important;min-height:var(--dh)!important;max-height:var(--dh)!important}
+</style>
+<script>
+(()=>{ const chk=()=>["say","tutLine","sLine"].forEach(id=>{ const p=document.getElementById(id); if(!p) return; p.classList.remove("tall"); if(p.scrollHeight>p.clientHeight+12) p.classList.add("tall"); });
+  new MutationObserver(()=>requestAnimationFrame(chk)).observe(document.body,{childList:true,subtree:true,characterData:true}); addEventListener("resize",chk); })();
+</script>
+<style>
+/* long lines: the box may grow wide (up to most of the screen) before it needs more rows */
+body .card.card,body .tut .talk.talk,body #ssub#ssub:not(.bub){max-width:min(1100px,calc(100vw - 160px))!important}
+body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall),body .card.card:has(.say.tall){width:min(1100px,calc(100vw - 160px))!important}
 </style>
