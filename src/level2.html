@@ -1951,14 +1951,15 @@ async function checkPlates(st){
   }
   S.tries++; Sound.bad(); guideMood("hmm");
   const bad=!okA?"a":"b", o=st[bad], first=S.tries===1;
-  const side=$("side-"+bad); bump(side,"bad",600);
+  const wrong=["a","b"].filter(x=>S.cnt[x]!==st[x].n);   // every plate that is not right is cleared; a right plate stays
+  wrong.forEach(x=>bump($("side-"+x),"bad",600));
   // the sheet: 1st wrong attempt "Oops! Try again."; 2nd and later the numerator hint (the numerator blinks, the plate clears)
-  if(first){ say("Oops! Try again.","bad","noori"); bump($("num-"+bad),"blink",2400); }   // the number to look at lights up
+  if(first){ say("Oops! Try again.","bad","noori"); wrong.forEach(x=>bump($("num-"+x),"blink",2400)); }   // the numbers to look at light up
   else if(S.tries===2){ say("Check the numerator. How many slices did each one eat?","bad","noori");
-    bump($("num-"+bad),"blink",2800); }
+    wrong.forEach(x=>bump($("num-"+x),"blink",2800)); }
   else say(`Let me show you! ${Who(o.k)} ate ${o.n}/${o.d}: that's ${o.n} ${o.n===1?"slice":"slices"} of 1/${o.d}.`,"bad","noori");
   await wait(650); if(!live(g)) return;
-  S.cnt[bad]=0; drawPie(st,bad,false); S.keepMsg=true; afterChange(st); S.keepMsg=false;
+  wrong.forEach(x=>{ S.cnt[x]=0; drawPie(st,x,false); }); S.keepMsg=true; afterChange(st); S.keepMsg=false;
   if(S.tries>=3){   // third wrong attempt: show how. The hand takes the child through every tap, then Check plates
     bump($("num-"+bad),"blink",2400);
     say(`Follow the hand: tap the stack ${o.n} ${o.n===1?"time":"times"} for ${who(o.k)}, then tap Check plates.`,"","noori");
