@@ -3451,6 +3451,16 @@ function sceneBook(oldEl,newEl){ const sw=$("sworld"), P="perspective(3600px) ",
     return done(a).then(()=>{ front.remove(); back.style.visibility="";
       return done(back.animate([{transform:P+"rotateY(90deg)"},{transform:P+"rotateY(4deg)",offset:.85},{transform:P+"rotateY(0deg)"}],{duration:H2,easing:"cubic-bezier(.2,.6,.35,1)",fill:"forwards"})); })
       .then(()=>{ [keepL,back,sh,oldEl].forEach(e=>e.remove()); }); }); }
+/* a slow zoom on a story picture, centred on (cx%,cy%) of it, by z; the speakers' anchors move to where they end up */
+function picZoom(shot,cx,cy,z,anchors=[],ms=7000){ if(!shot) return;
+  const cl=(v,lo,hi)=>Math.min(hi,Math.max(lo,v)), tx=cl(50-cx*z,100-100*z,0), ty=cl(50-cy*z,100-100*z,0);
+  // the picture (and any copy of it inside the frame) moves together: a wrapper zooms, so swapped frames keep the zoom
+  let wrap=shot.querySelector(".pzoom"); if(!wrap){ wrap=document.createElement("div"); wrap.className="pzoom"; wrap.style.cssText="position:absolute;inset:0;overflow:hidden;transform-origin:0 0";
+    [...shot.children].forEach(c=>wrap.appendChild(c)); shot.appendChild(wrap); }
+  const end=`translate(${tx}%,${ty}%) scale(${z})`; wrap.style.transform=end;   // kept on the element, so the page-turn copy stays zoomed too
+  wrap.animate([{transform:"none"},{transform:end}],{duration:ms,easing:"cubic-bezier(.45,0,.35,1)"});
+  anchors.forEach(a=>{ if(!a) return; const p=k=>parseFloat(a.style[k]);
+    Object.assign(a.style,{left:(tx+p("left")*z)+"%",top:(ty+p("top")*z)+"%",width:(p("width")*z)+"%",height:(p("height")*z)+"%"}); }); }
 async function storyContext1(){
   // 1. wide shot: the tree pizza shop, animals at the tables, the sign
   P.counter(); P.ambient();
@@ -3463,6 +3473,7 @@ async function storyContext1(){
   STORY.cast.noori=aN; STORY.cast.billu=aB;
   // the sheet (Context 1): one line from the narrator; Billu waves hello meanwhile, then folds his arms again
   { let done=false; const wave=(async()=>{ await sleep(600); for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
+    picZoom(open1,47,54,1.5,[aN,aB],8000);   // slowly in on the stall
     await sLine("narr","At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!"); done=true; await wave; S1.set("billu0"); }
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(2200));   // a moment on the picture before it changes
@@ -3474,7 +3485,7 @@ async function storyContext1(){
   await W(sleep(2200));   // a moment on the picture before it changes
   // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
-  await W(sceneBook(open2,cut2)); open2=cut2;
+  await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],6000);   // slowly in on Billu and the cut pizza
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
