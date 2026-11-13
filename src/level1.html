@@ -4351,3 +4351,12 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 .tut .learn .lqueue .lpop{animation:lPop .55s cubic-bezier(.3,1.6,.5,1) both}
 @keyframes lPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
 </style>
+
+<script>
+/* a line too long for the dialogue box gets slightly smaller text, so it is never cut off */
+(()=>{ const fit=p=>{ if(!p||!p.isConnected) return; p.style.fontSize=""; let fs=parseFloat(getComputedStyle(p).fontSize), k=0;
+    while(k++<14&&fs>11&&(p.scrollHeight>p.clientHeight+1||p.scrollWidth>p.clientWidth+1)){ fs-=1; p.style.setProperty("font-size",fs+"px","important"); } };
+  const all=()=>["say","tutLine","sLine"].forEach(id=>fit(document.getElementById(id)));
+  new MutationObserver(()=>requestAnimationFrame(all)).observe(document.body,{childList:true,subtree:true,characterData:true});
+  addEventListener("resize",all); })();
+</script>

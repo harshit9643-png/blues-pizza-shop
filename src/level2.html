@@ -2951,7 +2951,7 @@ async function runLearning2(ok){
   Sound.win&&Sound.win(); confetti();
   await say("noori","The ant is the winner!"); if(!ok()) return;
   // 7. the rule card: same numerator, different denominators
-  stage(`<div class="l2rules">${ruleCard("n").replace(/ id="rule-\w+"/,"")}</div><div class="l2more">${l2Card(1,4)}<span>is more than</span>${l2Card(1,8)}</div>`);
+  stage(`<div class="l2rules">${ruleCard("n").replace(/ id="rule-\w+"/,"")}</div><div class="l2more l2wide"><div class="l2pc">${l2Pizza(4,{lit:[0]})}${l2Card(1,4)}</div><span>is more than</span><div class="l2pc">${l2Pizza(8,{lit:[0]})}${l2Card(1,8)}</div></div>`);
   await say("noori","Same number of parts, but different denominators? Then compare the size of the parts. A bigger denominator means smaller parts."); if(!ok()) return;
   // 8. the second match: Tez 3/8 and Jhumru 5/8; the second rule card joins the first
   L.classList.add("tight"); stage(`<div class="l2row">${side("tez",l2Pizza(8,{lit:[0,1,2]}),l2Card(3,8))}${side("jhumru",l2Pizza(8,{lit:[0,1,2,3,4]}),l2Card(5,8))}</div>
@@ -3717,4 +3717,32 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 .view.match:not(.cardsv) .side .who .info{order:1;margin-top:calc(clamp(100px,calc(19*var(--vh)),180px) * -.2)!important;position:relative;z-index:2;justify-items:center}
 .view.match:not(.cardsv) .side .plate{margin:0!important;justify-self:center!important}
 .view.match:not(.cardsv) .side .stack{margin:0!important;justify-self:center!important}
+</style>
+<style>
+/* "1/4 is more than 1/8": each card with its pizza above it (the eaten part glowing), spread far apart */
+#t2learn .l2more.l2wide{display:flex;align-items:flex-end;justify-content:center;gap:clamp(30px,calc(9*var(--vw)),170px);margin-top:calc(2*var(--vh))}
+#t2learn .l2more.l2wide .l2pc{display:flex;flex-direction:column;align-items:center;gap:clamp(12px,calc(3*var(--vh)),30px)}
+#t2learn .l2more.l2wide .l2pc .l2pz{width:clamp(150px,calc(36*var(--vh)),300px)!important;height:auto!important}
+#t2learn .l2more.l2wide>span{align-self:center;font-size:clamp(22px,calc(4*var(--vh)),38px)!important}
+#t2learn .l2more.l2wide .l2f{font-size:clamp(26px,calc(4.6*var(--vh)),42px)!important}
+</style>
+
+<script>
+/* a line too long for the dialogue box gets slightly smaller text, so it is never cut off */
+(()=>{ const fit=p=>{ if(!p||!p.isConnected) return; p.style.fontSize=""; let fs=parseFloat(getComputedStyle(p).fontSize), k=0;
+    while(k++<14&&fs>11&&(p.scrollHeight>p.clientHeight+1||p.scrollWidth>p.clientWidth+1)){ fs-=1; p.style.setProperty("font-size",fs+"px","important"); } };
+  const all=()=>["say","tutLine","sLine"].forEach(id=>fit(document.getElementById(id)));
+  new MutationObserver(()=>requestAnimationFrame(all)).observe(document.body,{childList:true,subtree:true,characterData:true});
+  addEventListener("resize",all); })();
+</script>
+<style>
+/* Tez vs Jhumru: each character beside its own pizza on the outer side (Tez on the left, Jhumru on the right), the card under the pizza;
+   the whole screen moves up, so "5/8 is more than 3/8" sits higher too */
+#t2learn.tight .l2row{gap:clamp(40px,calc(8*var(--vw)),150px)!important;margin-top:calc(1*var(--vh))!important}
+#t2learn.tight .l2side{display:grid!important;grid-template-columns:auto auto;grid-template-areas:"ava pz" ". cap";align-items:center;justify-items:center;column-gap:clamp(10px,calc(1.6*var(--vw)),24px);row-gap:clamp(6px,calc(1.4*var(--vh)),14px)}
+#t2learn.tight .l2side:last-child{grid-template-columns:auto auto;grid-template-areas:"pz ava" "cap ."}
+#t2learn.tight .l2side .l2ava{grid-area:ava}
+#t2learn.tight .l2side .l2pz{grid-area:pz;width:clamp(140px,calc(30*var(--vh)),240px)!important}
+#t2learn.tight .l2side .l2cap{grid-area:cap}
+#t2learn.tight .l2more{margin-top:clamp(6px,calc(1.5*var(--vh)),16px)!important}
 </style>
