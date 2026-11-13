@@ -1236,6 +1236,7 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .tut .lf.big i{height:8px}
 .tut .lword{font-family:var(--display);font-weight:800;font-size:clamp(20px,calc(3*var(--vh)),30px);color:#FFF6DA;background:rgba(255,255,255,.1);border-radius:999px;padding:4px 20px;
   box-shadow:0 0 0 2px rgba(255,255,255,.25);animation:lIn .45s ease both;white-space:nowrap}
+.tut .lword.lwhole{margin-top:calc(2.2*var(--vh))}   /* "1 whole" sits a little lower, clear of the pizza board */
 .tut .lread{display:grid;justify-items:center;gap:6px;margin-top:6px}
 .tut .lread span{font-family:var(--display);font-weight:800;font-size:clamp(16px,calc(2.3*var(--vh)),22px);color:#FFE7A6;background:rgba(0,0,0,.25);border-radius:999px;padding:3px 16px;animation:lIn .45s ease both}
 .tut .lsum{display:flex;align-items:center;gap:10px}
@@ -2836,7 +2837,7 @@ async function runLearning(ok){
   const say=(who,t)=>{ TUT.fast=!!(window.TUT_RW&&(TUT_RW.ff||TUT_RW.abort)); return tutSay(who,t,{extra:3500}); };   /* while BACK replays the lesson, everything stays instant */   // the lesson goes slower: 3.5 s to look after each line
   const wait=ms=>TUT.fast?sleep(1):sleep(ms*3.2);
   // 1. one whole
-  lStage(`<div class="li">${lPizzaHTML("lA")}<div class="lword">1 whole</div></div>`); lDraw($("lA"),2);
+  lStage(`<div class="li">${lPizzaHTML("lA")}<div class="lword lwhole">1 whole</div></div>`); lDraw($("lA"),2);
   await say("noori","This is one whole pizza."); if(!ok()) return;
   // 2. cut into 2 equal parts
   { const s=say("noori","To make a half, we cut it into 2 equal parts."); await lCut($("lA")); if(!ok()) return; lPulse($("lA")); await wait(300); lLit($("lA"),0); await s; if(!ok()) return; }   // once cut, one half lights up
@@ -2912,9 +2913,8 @@ async function runLearning(ok){
     `<div class="li lpop" style="animation-delay:${.2+i*.55}s"><div class="lava"><img src="${A}${k}.webp" alt=""></div>${lCard(n,d)}</div>`).join("")}</div>`);
   [0,1,2,3].forEach(i=>setTimeout(()=>{ if(Sound.plop) Sound.plop(); },200+i*550));   // each customer pops in, one by one
   await Promise.all([say("noori","So many customers! Can you help us?"),wait(800)]); if(!ok()) return;   // the next screen comes after they have all popped in
-  // over to the giraffe's order on the same board
-  page.classList.remove("learning"); $("tutLearn").innerHTML="";
-  ttl.innerHTML="<b>Top and serve</b>"; ttl.classList.remove("gone"); ttl._n=0;
+  // the queue stays on the board until the leaves have covered it (the board is reset after that, in runTutorial),
+  // so the old giraffe "Top and serve" board never flashes up between this screen and the tablecloth
 }
 
 /* Tutorial 1.1: drag a topping bowl and drop it on a slice (same as picking the bowl, then tapping the slice) */
@@ -2970,6 +2970,9 @@ async function runTutorial(){
   speechSynthesis&&speechSynthesis.cancel();
   document.body.classList.remove("tutoring");
   await rollScroll(false,TUT.gen);
+  { const page=document.querySelector(".tut .page"), ttl=document.querySelector(".tut .ttl");   // the board back to its plain state, now out of sight
+    if(page) page.classList.remove("learning"); if($("tutLearn")) $("tutLearn").innerHTML="";
+    if(ttl){ ttl.innerHTML="<b>Top and serve</b>"; ttl.classList.remove("gone"); ttl._n=0; } }
 }
 
 /* ============================================================
@@ -3472,6 +3475,28 @@ function picZoom(shot,cx,cy,z,anchors=[],ms=7000){ if(!shot) return;
   wrap.animate([{transform:"none"},{transform:end}],{duration:ms,easing:"cubic-bezier(.45,0,.35,1)"});
   anchors.forEach(a=>{ if(!a) return; const p=k=>parseFloat(a.style[k]);
     Object.assign(a.style,{left:(tx+p("left")*z)+"%",top:(ty+p("top")*z)+"%",width:(p("width")*z)+"%",height:(p("height")*z)+"%"}); }); }
+/* lip-sync: the mouth follows the loudness of the voice clip as it plays (quiet = shut, loud = wide open).
+   The clip is decoded once to a loudness curve (every 30 ms); the picture shown is chosen from the clip's current time.
+   order = frame indices from mouth shut to mouth widest. Without a clip, the mouth just flaps for the reading time. */
+const LIPS=new Map();
+function lipCurve(url){ if(LIPS.has(url)) return LIPS.get(url); LIPS.set(url,null);
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext; if(!OAC) return null;
+  fetch(url).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>{ const c=new OAC(1,1,44100); const q=c.decodeAudioData(b,ok,no); if(q&&q.then) q.then(ok,no); }))
+    .then(buf=>{ const d=buf.getChannelData(0), n=Math.round(buf.sampleRate*.03), v=[];
+      for(let i=0;i<d.length;i+=n){ let e=0; const j=Math.min(d.length,i+n); for(let x=i;x<j;x++) e+=d[x]*d[x]; v.push(Math.sqrt(e/(j-i||1))); }
+      const top=[...v].sort((a,b)=>a-b)[Math.floor(v.length*.95)]||1; LIPS.set(url,v.map(x=>Math.min(1,x/top))); }).catch(()=>{});
+  return null; }
+function lipSync(im,frames,order){ if(!im) return ()=>{};
+  let on=true, shown=-1, lastSwap=0, flap=0, heard=false; const t0=performance.now();
+  const show=i=>{ if(i!==shown){ shown=i; im.src=frames[i]; lastSwap=performance.now(); } };
+  (function tick(){ if(!on||!im.isConnected) return; requestAnimationFrame(tick);
+    if(PAUSE.on) return; const now=performance.now(); if(now-lastSwap<70) return;   // no faster than ~14 pictures a second, so it never flickers
+    const el=typeof VOICE!=="undefined"&&VOICE.el, playing=el&&el.src&&!el.paused&&!el.ended, curve=playing?lipCurve(el.src):null; if(playing) heard=true;
+    if(curve){ const k=Math.floor(el.currentTime/.03), v=Math.max(curve[k]||0,(curve[k+1]||0)*.7);   // a hair ahead, as mouths open just before the sound
+      show(order[v<.12?0:v<.35?1:v<.65?2:3]); }
+    else if(playing||!heard&&now-t0<1500){ show(order[1+(flap++%3)]); }   // clip still decoding, or no clip at all
+    else show(order[0]); })();
+  return ()=>{ on=false; if(im.isConnected) im.src=frames[order[0]]; }; }
 async function storyContext1(){
   // 1. wide shot: the tree pizza shop, animals at the tables, the sign
   P.counter(); P.ambient();
@@ -3502,11 +3527,9 @@ async function storyContext1(){
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="${BF[0]}" alt="">`;
   await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],2500);   // slowly in on Billu and the cut pizza
   await W(sleep(2500));   // once the zoom has landed, his mouth starts moving and the bubble comes up with it
-  { const im=cut2.querySelector("img:not(.blur)"); let k=0; const t0=performance.now();
-    const t=setInterval(()=>{ if(!im.isConnected) return clearInterval(t); if(PAUSE.on) return;
-      const talking=(window.VOICE&&VOICE.busy())||performance.now()-t0<1500; im.src=talking?BF[1+(k++%3)]:BF[0]; },150);
+  { const stopLips=lipSync(cut2.querySelector("img:not(.blur)"),BF,[0,1,3,2]);   // shut, a little open, open, wide open
     STORY.noSpot=true; STORY.bubAt=[70,6,27,1]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
-    clearInterval(t); if(im.isConnected) im.src=BF[0]; }
+    stopLips(); }
   // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
@@ -4337,9 +4360,10 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 })();
 </script>
 <style>
-/* 4/5 and 3/8 screen: bigger pizzas */
-.tut .learn.pzcards.pz2{--ls:min(calc(44*var(--vh)),calc(26*var(--vw)))!important}
-.tut .learn.pzcards.pz3{--ls:min(calc(38*var(--vh)),calc(22*var(--vw)))!important}
+/* 4/5 and 3/8 screen: pizzas a little smaller, so the fraction cards sit higher, clear of the buttons */
+.tut .learn.pzcards.pz2{--ls:min(calc(35*var(--vh)),calc(21*var(--vw)))!important}
+.tut .learn.pzcards.pz3{--ls:min(calc(32*var(--vh)),calc(19*var(--vw)))!important}
+.tut .learn.pzcards .li.pzc{gap:clamp(12px,calc(2.5*var(--vh)),30px)!important}
 </style>
 <style>
 /* denominator screen: one big pizza, its card and the word under it */
