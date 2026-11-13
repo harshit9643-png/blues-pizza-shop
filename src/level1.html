@@ -3863,22 +3863,14 @@ const PRE=(()=>{ const pre=document.getElementById("pre"), start=document.getEle
 .story .ssub p,.tut .talk p{display:block}
 </style>
 <style>
-/* PLAY → a sauce bottle tips over and pours; the sauce floods the screen, then slides away to show the story */
+/* PLAY → Billu flings sauce at the viewer; the splat covers the screen and drips away. */
 #sauce{position:fixed;inset:0;z-index:2147483600;pointer-events:auto;overflow:hidden}
-#sauce .btl{position:absolute;left:50%;top:0;width:clamp(60px,calc(12*var(--vh)),130px);translate:-50% 0;transform-origin:50% 50%;
+#sauce .btl{position:absolute;left:0;top:0;width:clamp(60px,calc(12*var(--vh)),130px);transform-origin:50% 50%;
   filter:drop-shadow(0 10px 12px rgba(60,10,0,.35));z-index:3}
-#sauce .str{position:absolute;left:50%;width:clamp(16px,calc(2.6*var(--vh)),28px);translate:-50% 0;border-radius:0 0 40px 40px;height:0;z-index:2;
-  background:linear-gradient(90deg,#9E1510,#E2301F 35%,#F25A40 50%,#D1261A 70%,#9E1510)}
-#sauce .pool{position:absolute;inset:0;z-index:1}
-#sauce .pool i{position:absolute;border-radius:50%;translate:-50% -50%;width:0;height:0;
-  background:radial-gradient(circle at 40% 35%,#F04A35,#D3241A 55%,#A9160F)}
-#sauce .shine{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;
-  background:radial-gradient(ellipse 40% 20% at 35% 30%,rgba(255,255,255,.28),transparent 70%),radial-gradient(ellipse 30% 14% at 70% 65%,rgba(255,255,255,.18),transparent 70%)}
 </style>
 <script>
-/* the sauce transition: a thin stream pours from the bottle as it sweeps left and right; the sauce rises smoothly from the
-   bottom with a moving surface and a little splash where the stream lands; done() runs once the screen is covered,
-   then the sauce drains down to show the next screen. Drawn on a canvas, so it stays smooth. */
+/* A bottle toss sends a blob toward the viewer. It hits the glass, spreads into
+   an uneven splat, then drips down to reveal the next scene. */
 function SAUCE(done){
   if(document.getElementById("sauce")) return;
   if(matchMedia("(prefers-reduced-motion: reduce)").matches){ done(); return; }
@@ -3887,75 +3879,64 @@ function SAUCE(done){
   const cv=ov.querySelector("canvas"), btl=ov.querySelector(".btl"), dpr=Math.min(2,devicePixelRatio||1);
   cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); cv.style.cssText="position:absolute;inset:0;width:100%;height:100%";
   const g=cv.getContext("2d"); g.scale(dpr,dpr);
-  const bw=btl.getBoundingClientRect().width||90, bh=bw*763/300, top=H*.03, nozzle=top+bh-4;
-  btl.style.left="0px"; btl.style.translate="none";
-  // the bottle's centre (cx,cy) and tilt φ: nozzle-down is 180°, it zigzags ±35° as it sweeps; the nozzle is half its height from the centre
-  const place=(cx,cy,phi)=>{ btl.style.transform=`translate(${cx-bw/2}px,${cy-bh/2}px) rotate(${180+phi}deg)`; };
-  const nozzleAt=(cx,cy,phi)=>{ const r=phi*Math.PI/180; return {x:cx-(bh/2-4)*Math.sin(r), y:cy+(bh/2-4)*Math.cos(r)}; };
-  const GAP=H*.2, cyFor=lvl=>lvl-GAP-bh/2, CY0=cyFor(H);
+  const bw=btl.getBoundingClientRect().width||90, bh=bw*763/300;
+  const hit={x:W*.53,y:H*.48}, bottle={x:W*.16,y:H*.23};
+  const nozzle={x:bottle.x+(bh/2-5)*Math.sin(65*Math.PI/180),y:bottle.y-(bh/2-5)*Math.cos(65*Math.PI/180)};
+  const ease=u=>u*u*(3-2*u), clamp=u=>Math.max(0,Math.min(1,u));
+  const blob=(x,y,r,color)=>{ g.beginPath(); g.ellipse(x,y,r*1.12,r*.9,-.2,0,Math.PI*2); g.fillStyle=color; g.fill(); };
+  const splatR=Math.hypot(Math.max(hit.x,W-hit.x),Math.max(hit.y,H-hit.y))*1.45;
+  const satellites=Array.from({length:18},(_,i)=>{ const a=i*2.39996, spread=.9+(i%4)*.22;
+    return {a,spread,r:3+(i*7%9)}; });
+  const place=(x,y,angle)=>{ btl.style.transform=`translate(${x-bw/2}px,${y-bh/2}px) rotate(${angle}deg)`; };
   try{ Sound.pop(); }catch(e){}
-  const FILL=2600, IN=550, DRAIN=1000, t0=performance.now(); let covered=false, tCover=0;
-  const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
-  const bx=t=>W/2+W*.36*Math.sin(t/450);                       // the bottle sweeps from side to side
-  const surf=(x,lvl,t,sx,amp)=>lvl+5*Math.sin(x*.018+t*.004)+3.5*Math.sin(x*.047-t*.006)-amp*Math.exp(-(((x-sx)/46)**2));
-  const drops=[]; let lastFrame=t0, splashClock=0;
-  function liquid(lvl,t,sx,amp,fromTop){
+  const t0=performance.now(); let switched=false;
+  function paintSplat(r){
     g.beginPath();
-    if(!fromTop){ g.moveTo(0,H+10); for(let x=0;x<=W+8;x+=8) g.lineTo(x,surf(x,lvl,t,sx,amp)); g.lineTo(W,H+10); }
-    else { g.moveTo(0,H+10); for(let x=0;x<=W+8;x+=8) g.lineTo(x,surf(x,lvl,t,sx,0)); g.lineTo(W,H+10); }
+    for(let i=0;i<=240;i++){ const a=i*Math.PI/120, wave=1+.11*Math.sin(7*a+.4)+.055*Math.sin(13*a-1)+.02*Math.sin(23*a);
+      const x=hit.x+Math.cos(a)*r*wave, y=hit.y+Math.sin(a)*r*wave;
+      if(i) g.lineTo(x,y); else g.moveTo(x,y);
+    }
     g.closePath();
-    const gr=g.createLinearGradient(0,Math.max(0,lvl-20),0,H); gr.addColorStop(0,"#F0452F"); gr.addColorStop(.12,"#D9281B"); gr.addColorStop(1,"#A3150D");
+    const gr=g.createRadialGradient(hit.x-r*.22,hit.y-r*.25,r*.08,hit.x,hit.y,r*1.2);
+    gr.addColorStop(0,"#F45538"); gr.addColorStop(.45,"#DF2C1C"); gr.addColorStop(1,"#A91610");
     g.fillStyle=gr; g.fill();
-    // a glossy line just under the surface
-    g.beginPath(); for(let x=0;x<=W+8;x+=8){ const y=surf(x,lvl,t,sx,amp)+7; x?g.lineTo(x,y):g.moveTo(x,y); }
-    g.strokeStyle="rgba(255,190,170,.45)"; g.lineWidth=3; g.stroke();
+    g.strokeStyle="rgba(255,190,145,.55)"; g.lineWidth=Math.max(2,r*.012); g.stroke();
   }
   function frame(now){
     if(!ov.isConnected) return;
-    const t=now-t0, dt=Math.min(40,Math.max(0,now-lastFrame)); lastFrame=now;
-    g.clearRect(0,0,W,H);
-    // 1. the bottle drops in and turns nozzle-down
-    if(t<IN){ const u=t/IN, y=u<.55?(-bh*1.2+(bh*1.2+CY0-bh/2)*ease(u/.55)):CY0-bh/2, r=u<.55?0:180*ease((u-.55)/.45);
-      btl.style.transform=`translate(${W/2-bw/2}px,${y}px) rotate(${r}deg)`; requestAnimationFrame(frame); return; }
-    const tp=t-IN;
-    if(!covered){
-      // 2. pouring: the level rises, slowly at first, faster as the sauce spreads
-      const u=Math.min(1,tp/FILL), lvl=H-(H+40)*(u*u*(3-2*u)), ramp=Math.min(1,tp/500);
-      const cx=W/2+(bx(tp)-W/2)*ramp, cy=cyFor(lvl), phi=35*Math.cos(tp/450)*ramp;   // it climbs with the sauce and tilts with its sweep
-      place(cx,cy,phi);
-      const nz=nozzleAt(cx,cy,phi);
-      // The moving bottle gives the sauce a little sideways momentum. Keep the
-      // landing point and the surface splash attached to the same curved stream.
-      const speed=W*.36*Math.cos(tp/450)/450*ramp+(bx(tp)-W/2)*Math.max(0,1-ramp)/500;
-      const throwX=Math.max(-W*.1,Math.min(W*.1,speed*105));
-      const x=nz.x+throwX, splash=10+6*Math.sin(tp*.02);
-      liquid(lvl,tp,x,splash,false);
-      const yEnd=surf(x,lvl,tp,x,splash)+2, fall=Math.max(0,yEnd-nz.y);
-      if(fall>0){
-        g.beginPath(); g.moveTo(nz.x,nz.y);
-        g.bezierCurveTo(nz.x+throwX*.35,nz.y+fall*.17,x-throwX*.18,yEnd-fall*.25,x,yEnd);
-        g.lineCap="round"; g.lineJoin="round";
-        g.strokeStyle="#8E120A"; g.lineWidth=Math.max(7,W*.006); g.stroke();
-        g.strokeStyle="#E8361F"; g.lineWidth=Math.max(5,W*.0045); g.stroke();
-        g.strokeStyle="rgba(255,200,180,.55)"; g.lineWidth=1.5; g.stroke();
+    const t=now-t0; g.clearRect(0,0,W,H);
+    if(t<420){
+      const u=ease(clamp(t/420));
+      place(-bw+bottle.x*u,bottle.y+H*.06*(1-u),-30+95*u);
+    }else if(t<920){
+      const u=clamp((t-420)/500), travel=ease(u);
+      place(bottle.x-W*.15*ease(clamp((t-420)/400)),bottle.y-H*.08*u,65+50*u);
+      // A growing blob and smaller trailing drops make the throw read as coming
+      // toward the camera, rather than as a stream falling into a pool.
+      for(let i=3;i>=0;i--){ const v=Math.max(0,travel-i*.095);
+        if(v<=0) continue;
+        const x=nozzle.x+(hit.x-nozzle.x)*v, y=nozzle.y+(hit.y-nozzle.y)*v-H*.13*Math.sin(Math.PI*v);
+        blob(x,y,(10+50*v)*(i?(.42-i*.06):1),i?"#D4291B":"#E83B26");
       }
-      // Spawn and move droplets using elapsed time, so fast and slow displays
-      // show the same splash instead of changing its speed with frame rate.
-      splashClock+=dt;
-      while(splashClock>=32){ splashClock-=32;
-        if(fall>0&&drops.length<24) drops.push({x:x+(Math.random()-.5)*10,y:yEnd,vx:(Math.random()-.5)*.13,vy:-.14-Math.random()*.14,r:2+Math.random()*3});
+    }else if(t<1620){
+      btl.style.display="none";
+      const u=ease(clamp((t-920)/700)), r=55+(splatR-55)*u;
+      paintSplat(r);
+      for(const d of satellites){ const reach=r*d.spread*.95;
+        blob(hit.x+Math.cos(d.a)*reach,hit.y+Math.sin(d.a)*reach,d.r*(1+u*1.5),"#D9281B"); }
+    }else{
+      if(!switched){ switched=true; done(); ov.style.pointerEvents="none"; }
+      const u=clamp((t-1780)/800), edge=-H*.16+(H*1.35)*ease(u);
+      if(t<1780) paintSplat(splatR);
+      else{
+        g.beginPath(); g.moveTo(0,H+20); g.lineTo(0,edge);
+        for(let x=0;x<=W+12;x+=12) g.lineTo(x,edge+10*Math.sin(x*.016+t*.008)+5*Math.sin(x*.041-t*.006));
+        g.lineTo(W,H+20); g.closePath(); g.fillStyle="#C82418"; g.fill();
+        g.strokeStyle="rgba(255,185,150,.48)"; g.lineWidth=3; g.stroke();
       }
-      for(let i=drops.length-1;i>=0;i--){ const d=drops[i]; d.x+=d.vx*dt; d.y+=d.vy*dt; d.vy+=.001*dt; if(d.y>surf(d.x,lvl,tp,x,splash)+4){ drops.splice(i,1); continue; }
-        g.beginPath(); g.arc(d.x,d.y,d.r,0,6.3); g.fillStyle="#D9281B"; g.fill(); }
-      if(u>=1){ covered=true; tCover=now; done(); btl.remove(); }   // by now the bottle has climbed out through the top
-      requestAnimationFrame(frame); return;
+      if(u>=1){ ov.remove(); return; }
     }
-    // 3. covered: a short hold, then the sauce drains down off the screen
-    const td=now-tCover-200;
-    if(td<0){ g.fillStyle="#C21E14"; liquid(-40,tp,0,0,true); requestAnimationFrame(frame); return; }
-    const u=Math.min(1,td/DRAIN), lvl=-40+(H+80)*(u*u);
-    ov.style.pointerEvents="none"; liquid(lvl,tp,0,0,true);
-    if(u<1) requestAnimationFrame(frame); else ov.remove();
+    requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 }
