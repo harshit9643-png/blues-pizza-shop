@@ -3789,3 +3789,16 @@ body .vs{width:clamp(56px,calc(5.6*var(--vw)),88px)!important;height:auto!import
 .view.cardsv .cpz .l2lit{fill:rgba(255,226,120,.22)!important;stroke:#FFC21A!important;stroke-opacity:1!important;stroke-width:3.5!important;filter:drop-shadow(0 0 6px rgba(255,214,60,.9))}
 .view.cardsv:has(.withpz){gap:clamp(30px,calc(5*var(--vw)),90px)!important}
 </style>
+<script>
+/* Level 2: Monty is the new monkey everywhere (blue cap, gold M chain), as in the Level 2 story pictures */
+(()=>{ const fix=im=>{ const a=im.getAttribute("src")||""; if(/(^|\/)monty\.webp/.test(a)){ im.setAttribute("src",a.replace(/monty\.webp/,"chintu_full.webp")); im.classList.add("newmonty"); } };
+  const all=r=>{ if(r.tagName==="IMG") fix(r); r.querySelectorAll&&r.querySelectorAll('img[src*="monty.webp"]').forEach(fix); };
+  all(document.body);
+  new MutationObserver(ms=>ms.forEach(m=>{ if(m.type==="attributes") fix(m.target); else m.addedNodes.forEach(n=>n.nodeType===1&&all(n)); }))
+    .observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["src"]}); })();
+</script>
+<style>
+/* the new Monty is a tall picture: show all of him inside the round frames */
+img.newmonty{object-fit:contain!important}
+.ava img.newmonty,.l2ava img.newmonty{height:94%!important;width:auto!important;max-width:none!important;margin:4% auto 0!important;transform:scale(1.28)!important;transform-origin:50% 22%!important}
+</style>
