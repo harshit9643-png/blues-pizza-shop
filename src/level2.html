@@ -2079,7 +2079,7 @@ function cardPizzas(st){
   $("view").classList.remove("focus"); $("say").classList.remove("tip"); const ta=$("say").querySelector(".tipart"); if(ta) ta.remove();
   ["a","b"].forEach(x=>{ const sd=$("side-"+x); if(!sd||sd.querySelector(".cpz")) return; const o=st[x];
     const w=document.createElement("div"); w.className="cpz";
-    w.innerHTML=`<img class="cpad" src="assets/draft2/pizza_paddle.webp" alt="">${l2Pizza(o.d,{lit:[...Array(o.n).keys()]})}`;
+    w.innerHTML=`<img class="cpad" src="assets/draft2/pizza_paddle.webp" alt="">${l2Pizza(o.d,{gone:[...Array(o.n).keys()]})}`;   // the eaten parts: empty, dashed
     sd.classList.add("withpz"); if(x==="a") sd.prepend(w); else sd.append(w);
     w.animate([{transform:"scale(.3)",opacity:0},{transform:"scale(1.08)",opacity:1,offset:.7},{transform:"scale(1)",opacity:1}],{duration:550,easing:"ease-out"}); if(Sound.pop) Sound.pop(); });
 }
@@ -2099,7 +2099,8 @@ function pickCard(st,sd){ stopGuide();
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump($("side-"+sd),"bad",600);
   document.querySelectorAll(".diag").forEach(d=>d.classList.add("show"));
   if(S.wTries===1){ say("Oops! Try again.","bad","noori"); ["a","b"].forEach(x=>bump($("side-"+x),"glow",2400)); }
-  else if(S.wTries===2){ sayRule(activeRule(st)); cardPizzas(st); }   // the hint: no dimming, each contestant's pizza on its board beside it
+  else if(S.wTries===2){ sayRule(activeRule(st)); cardPizzas(st);
+    const r=activeRule(st); ["a","b"].forEach(x=>{ const b=$("side-"+x).querySelectorAll(".fr b"); const el=b[r==="n"?1:0]; if(el) bump(el,"blink",4200); }); }   // the number the rule is about lights up (denominators for "same numerator", numerators for "same denominator")   // the hint: no dimming, each contestant's pizza on its board beside it
   else showWinner(st);
 }
 
@@ -3801,4 +3802,10 @@ body .vs{width:clamp(56px,calc(5.6*var(--vw)),88px)!important;height:auto!import
 /* the new Monty is a tall picture: show all of him inside the round frames */
 img.newmonty{object-fit:contain!important}
 .ava img.newmonty,.l2ava img.newmonty{height:94%!important;width:auto!important;max-width:none!important;margin:4% auto 0!important;transform:scale(1.28)!important;transform-origin:50% 22%!important}
+</style>
+<style>
+/* Set C hint pizzas: the eaten part is a dark empty gap */
+.view.cardsv .cpz path[stroke-dasharray]{fill:rgba(60,30,10,.55)!important;stroke:#FFE08A!important;stroke-width:3!important}
+.view.cardsv .fr b.blink{background:#FFD24A!important;color:#5A2A0E!important;border-radius:8px;box-shadow:0 0 0 4px #FFD24A,0 0 18px rgba(255,200,40,1);animation:blinkPulse .6s ease-in-out infinite alternate}
+@keyframes blinkPulse{to{transform:scale(1.15)}}
 </style>

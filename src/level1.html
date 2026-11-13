@@ -1532,7 +1532,8 @@ function geom(shape,n){
         : `M${C} ${C}L${x0.toFixed(1)} ${y0.toFixed(1)}A${R} ${R} 0 ${a1-a0>Math.PI?1:0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}Z`;
       const mid=(a0+a1)/2;
       parts.push({d,kind:"sector",a0,a1,mid,cx:C+R*.55*Math.cos(mid),cy:C+R*.55*Math.sin(mid)});
-      if(n>1) cuts.push([C,C,x0,y0]);
+      if(n>1&&n%2) cuts.push([C,C,x0,y0]);   // odd: each cut runs from the middle out to the edge
+      else if(n>1&&i<n/2) cuts.push([+x0.toFixed(1),+y0.toFixed(1),+(2*C-x0).toFixed(1),+(2*C-y0).toFixed(1)]);   // even: one straight cut right across, edge to edge
     }
     return {shape:"round",parts,cuts,img:"pizza_round",box:[C-R,C-R,2*R,2*R],outline:`<path d="${edgePath("round",-2)}"/>`};
   }
