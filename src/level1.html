@@ -2824,7 +2824,7 @@ const lGlow=(card,which,on=true)=>card.querySelector(which==="n"?"b.n":"b.d").cl
 async function runLearning(ok){
   const page=document.querySelector(".tut .page"), ttl=document.querySelector(".tut .ttl");
   page.classList.add("learning"); ttl.innerHTML="<b>What is a fraction?</b>"; ttl.classList.remove("gone"); ttl._n=0;
-  const say=(who,t)=>{ TUT.fast=false; return tutSay(who,t,{extra:3500}); };   // the lesson goes slower: 3.5 s to look after each line
+  const say=(who,t)=>{ TUT.fast=!!(window.TUT_RW&&(TUT_RW.ff||TUT_RW.abort)); return tutSay(who,t,{extra:3500}); };   /* while BACK replays the lesson, everything stays instant */   // the lesson goes slower: 3.5 s to look after each line
   const wait=ms=>TUT.fast?sleep(1):sleep(ms*3.2);
   // 1. one whole
   lStage(`<div class="li">${lPizzaHTML("lA")}<div class="lword">1 whole</div></div>`); lDraw($("lA"),2);
@@ -4175,3 +4175,139 @@ body .card .guide img[src*="billu"]{left:-31%!important;top:7%!important;width:1
 /* lesson, story and Tutorial 2 lines: a little bigger text */
 body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(17px,calc(1.5*var(--vw)),21px)!important;line-height:1.25!important}
 </style>
+<style>
+/* BACK sign, the same wooden family as PAUSE and NEXT; only in the story (a tutorial is a hands-on task) */
+.pctl.intut #pcBack{display:none}
+#pcBack.off{opacity:.45;pointer-events:none!important}
+#sworld{transition:opacity .22s ease}
+#story.rewinding #sworld,#story.rewinding #ssub{opacity:0!important}
+</style>
+<script>
+/* BACK: the story goes back one line. The story is one long script, so it is played again from the start
+   in a blink (no sound, no waiting, no page turns shown) up to the line before, then carries on normally from there. */
+(()=>{
+  const bar=document.getElementById("pctl"), nb=document.getElementById("pcNext"); if(!bar||!nb) return;
+  const bk=document.createElement("button"); bk.id="pcBack"; bk.setAttribute("aria-label","Back");
+  bk.innerHTML='<img src="assets/web/btn_back.webp" alt="Back">'; bar.insertBefore(bk,bar.firstChild);
+  const st=document.getElementById("story");
+  const RW={ff:false,target:-1,req:false,cur:-1,busy:false};
+  window.STORY_RW=RW;
+  // lines are counted as they start
+  const sLine0=window.sLine;
+  window.sLine=function(...a){
+    const i=++RW.cur;
+    if(RW.ff&&i<RW.target) return W(Promise.resolve());      // skipped silently while winding forward
+    if(RW.ff){ endFF(); }
+    return sLine0.apply(this,a);
+  };
+  // page turns happen instantly while winding forward
+  const wrapTurn=name=>{ const f=window[name]; if(typeof f!=="function") return;
+    window[name]=function(oldEl,newEl,...rest){
+      if(!RW.ff) return f.call(this,oldEl,newEl,...rest);
+      const sw=document.getElementById("sworld"); sw.insertBefore(newEl,oldEl); newEl.classList.add("in","now"); oldEl.remove(); return Promise.resolve(); }; };
+  ["sceneBook","sceneChange"].forEach(wrapTurn);
+  // sounds are silent while winding forward
+  if(typeof SFX==="object") Object.keys(SFX).forEach(k=>{ const f=SFX[k]; if(typeof f==="function") SFX[k]=function(...a){ return RW.ff?undefined:f.apply(this,a); }; });
+  // waits are cut short and moving pictures jump to their end while winding forward
+  let ffTick=0;
+  function startFF(){ RW.ff=true; st.classList.add("rewinding");
+    clearInterval(ffTick); ffTick=setInterval(()=>{ if(!RW.ff) return; PAUSE.hurry=true;
+      document.getAnimations().forEach(a=>{ try{ const t=a.effect&&a.effect.getTiming&&a.effect.getTiming(); if(t&&t.iterations!==Infinity&&a.playState==="running") a.finish(); }catch(e){} }); },16); }
+  function endFF(){ RW.ff=false; RW.target=-1; clearInterval(ffTick); PAUSE.hurry=false; setTimeout(()=>st.classList.remove("rewinding"),30); }
+  function resetScene(){
+    const sw=document.getElementById("sworld");
+    if(typeof sLay==="function") sLay().innerHTML="";
+    document.querySelectorAll("#sworld>.orderc,#sworld>.sshot,#sworld>.sbub,#sworld>.sspot,#sworld>.anch,#sworld>.pgleaf").forEach(e=>e.remove());
+    const ss=document.getElementById("ssub"); ss.classList.remove("bub","dlg-out");
+    const cam=document.getElementById("scam"); if(cam){ cam.style.transition="none"; cam.style.transform="none"; }
+    st.classList.remove("dusk"); document.getElementById("sLine").innerHTML=""; document.getElementById("sWho").innerHTML="";
+    STORY.cast={}; STORY.noSpot=false; RW.cur=-1;
+  }
+  // the story runs inside a loop, so going back restarts the same script without leaving the story
+  const play0=window.playStory;
+  window.playStory=function(script){
+    return play0(async function(){
+      for(;;){
+        try{ await script(); return; }
+        catch(e){
+          if(e!==STOP||!RW.req) throw e;
+          RW.req=false; STORY.run=STORY.gen; resetScene(); startFF();
+          await new Promise(r=>setTimeout(r,60));
+        }
+      }
+    });
+  };
+  function goBack(){
+    if(st.hidden||RW.ff||RW.req) return;
+    if(PAUSE.on&&PAUSE.set) PAUSE.set(false);
+    RW.target=Math.max(0,RW.cur-1); RW.req=true;
+    try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} if(PAUSE.onSkip) PAUSE.onSkip();
+    if(STORY.talkOff) STORY.talkOff();
+    const sn=document.getElementById("sNext"); sn._auto=(sn._auto||0)+1;   // the old line's auto-advance is cancelled
+    document.getAnimations().forEach(a=>{ try{ const t=a.effect&&a.effect.getTiming(); if(t&&t.iterations!==Infinity&&a.playState==="running") a.finish(); }catch(e){} });
+    STORY.gen++;   // every wait in the running script now stops...
+    PAUSE.hurry=true;
+    const f=STORY.next; STORY.next=null; if(f) f();   // ...including the one waiting on NEXT
+  }
+  bk.addEventListener("click",goBack);
+  setInterval(()=>{ if(!st.hidden) bk.classList.toggle("off",RW.cur<1||RW.ff); },200);
+})();
+</script>
+<style>
+/* BACK also works on the lesson board (tutorial): it shows on every screen that has PAUSE and NEXT */
+.pctl.intut #pcBack{display:block!important}
+.tut .page{transition:opacity .22s ease}
+.tut.rewinding .page{opacity:0!important}
+</style>
+<script>
+/* BACK on the lesson board: the lesson is played again from its start in a blink (no voice, no waiting)
+   up to the line before, then carries on normally from there */
+(()=>{
+  const bk=document.getElementById("pcBack"), tu=document.getElementById("tut"), st=document.getElementById("story"); if(!bk||!tu) return;
+  const LN=typeof window.runLearning==="function"?"runLearning":typeof window.runLearning2==="function"?"runLearning2":null; if(!LN) return;
+  const RT={cur:-1,ff:false,target:-1,abort:false}; window.TUT_RW=RT;
+  let tick=0;
+  const fin=()=>document.getAnimations().forEach(a=>{ try{ const t=a.effect&&a.effect.getTiming(); if(t&&t.iterations!==Infinity&&a.playState==="running") a.finish(); }catch(e){} });
+  function startFF(){ RT.ff=true; tu.classList.add("rewinding"); clearInterval(tick);
+    tick=setInterval(()=>{ if(!RT.ff) return; PAUSE.hurry=true; if(window.TUT) TUT.fast=true; fin(); },16); }
+  function endFF(){ RT.ff=false; RT.target=-1; clearInterval(tick); PAUSE.hurry=false; if(window.TUT) TUT.fast=false; setTimeout(()=>tu.classList.remove("rewinding"),60); }
+  // lesson lines are counted as they start; skipped silently while winding forward
+  const say0=window.tutSay;
+  window.tutSay=function(who,text,opts={}){
+    if(opts&&opts.wait){   // a "tap" step: while winding forward the child's earlier choice is tapped again by itself
+      if(RT.ff) setTimeout(()=>{ const el=(RT.pick&&document.getElementById(RT.pick))||[...document.querySelectorAll("#tut .pick")].pop(); if(el&&el.onclick) el.onclick(); },60);
+      return say0.apply(this,arguments); }
+    const i=++RT.cur;
+    if(RT.ff&&i<RT.target){ if(window.TUT) TUT.fast=true; return Promise.resolve(); }
+    if(RT.ff) endFF();
+    return say0.apply(this,arguments);
+  };
+  const learn0=window[LN];
+  window[LN]=async function(ok){
+    for(;;){
+      RT.abort=false; RT.cur=-1;
+      const ok2=()=>ok()&&!RT.abort;
+      await learn0.call(this,ok2);
+      if(RT.abort&&ok()){ const old=document.getElementById("t2learn"); if(old) old.remove(); startFF(); continue; }
+      if(RT.ff) endFF();
+      return;
+    }
+  };
+  function goBackTut(){
+    if(RT.ff||RT.abort||RT.cur<0) return;
+    if(PAUSE.on&&PAUSE.set) PAUSE.set(false);
+    RT.target=Math.max(0,RT.cur-1); RT.abort=true;
+    try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
+    try{ if(window.VOICE&&VOICE.stop) VOICE.stop(); }catch(e){}
+    tu.classList.add("rewinding");
+    const tb=document.getElementById("tutNext"); if(tb) tb._auto=(tb._auto||0)+1;   // the old line's auto-advance is cancelled
+    if(window.TUT) TUT.fast=true; fin(); PAUSE.hurry=true;
+    const f=tutNext; tutNext=null; if(f) f();
+    const pk=document.querySelector("#tut .pick"); if(pk&&pk.onclick) pk.onclick();   // a lesson waiting for a tap lets go too
+  }
+  tu.addEventListener("click",e=>{ const pk=e.target.closest&&e.target.closest(".pick"); if(pk&&pk.id&&!RT.ff&&!RT.abort) RT.pick=pk.id; },true);
+  // one BACK sign: the story goes back in the story, the lesson goes back in the lesson
+  bk.addEventListener("click",e=>{ if(!st.hidden) return; e.stopImmediatePropagation(); goBackTut(); },true);
+  setInterval(()=>{ if(st.hidden&&!tu.hidden) bk.classList.toggle("off",RT.cur<1||RT.ff||RT.abort); },200);
+})();
+</script>
