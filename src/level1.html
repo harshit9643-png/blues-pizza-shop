@@ -3589,10 +3589,10 @@ const S1=(()=>{ let b="billu0", n=0, el=null; const P=()=>`assets/story/scene1_n
       {t:"Level 1.2 · Cut, top and serve", items:[["1.2:0","Frog 1/4",["frog"]],["1.2:1","Gorilla 4/5",["gorilla"]],["1.2:2","Mouse 1/6",["mouse"]],["1.2:3","Sloth 3/10",["sloth"]],["1.2:4","Hippo 11/12",["hippo"]]]}]},
     {lvl:"Level 2 · Big Eater Contest", page:"l2", groups:[
       {t:"Start", items:[["S","Story 2",["billu_idle"]],["T","Tutorial 2 · Who ate more?",["noori"]]]},
-      {t:"Set A · Same denominator", items:[["0","Match 1",vs("tez","monty")],["1","Match 2",vs("madhu","ant")],["2","Match 3",vs("bijli","badal")],["3","Match 4",vs("jhumru","hippo")]]},
-      {t:"Set B · Same numerator", items:[["4","Set B intro",["noori"]],["5","Match 5",vs("ant","madhu")],["6","Match 6",vs("monty","tez")],["7","Match 7",vs("squirrel","mouse")],["8","Match 8",vs("peacock","bijli")]]},
-      {t:"Set C · Fractions only", items:[["9","Set C intro",["noori"]],["10","Round 9",vs("monty","peacock")],["11","Round 10",vs("mouse","ant")],["12","Round 11",vs("hippo","jhumru")],["13","Round 12",vs("madhu","squirrel")],["14","Round 13",vs("bijli","badal")]]},
-      {t:"Golden Trophy Final", items:[["15","Final · put in order",["trophy"]],["16","Champion",["trophy"]]]}]}];
+      {t:"Set A · Same denominator", items:[["0","Match 1",vs("tez","monty")],["1","Match 2",vs("madhu","ant")],["2","Match 3",vs("bijli","badal")]]},
+      {t:"Set B · Same numerator", items:[["3","Set B intro",["noori"]],["4","Match 4",vs("ant","madhu")],["5","Match 5",vs("monty","tez")],["6","Match 6",vs("squirrel","mouse")]]},
+      {t:"Set C · Fractions only", items:[["7","Set C intro",["noori"]],["8","Round 7",vs("monty","peacock")],["9","Round 8",vs("mouse","ant")],["10","Round 9",vs("hippo","jhumru")],["11","Round 10",vs("madhu","squirrel")]]},
+      {t:"Golden Trophy Final", items:[["12","Final · put in order",["trophy"]],["13","Champion",["trophy"]]]}]}];
   const pic=k=>`<img src="assets/web/${k}.webp" alt="" loading="lazy">`;
   const label=v=>{ for(const L of MAP) if(L.page===PAGE) for(const g of L.groups) for(const it of g.items) if(it[0]===v) return `${/^Level/.test(g.t)?"":L.lvl.split(" · ")[0]+" · "}${g.t} · ${it[1]}`; return (sel.selectedOptions[0]||{}).text||""; };
   const build=()=>{ const cur=sel.value;

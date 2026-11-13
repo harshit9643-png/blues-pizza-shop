@@ -1604,26 +1604,20 @@ const STEPS=[
   {kind:"match",set:"A",label:"Match 2",a:{k:"madhu",n:2,d:9},b:{k:"ant",n:7,d:9},win:"b",intro:"Match 2: Madhu and the ant!",quotes:[["ant","Small ant, big appetite!"]]},
   {kind:"match",set:"A",label:"Match 3",a:{k:"bijli",n:5,d:6},b:{k:"badal",n:1,d:6},win:"a",intro:"Match 3: twin against twin!",
     quotes:[["bijli","Sssorry, twin!"],["badal","Next time!"]]},
-  {kind:"match",set:"A",label:"Match 4",a:{k:"jhumru",n:3,d:10},b:{k:"hippo",n:7,d:10},win:"b",intro:"Match 4: the two biggest eaters, Jhumru and the hippo!",
-    quotes:[["hippo","Hip hip hooray!"],["jhumru","Well eaten, hippo!"]]},
   {kind:"intro",set:"B",label:"Set B",text:"Now the pizzas are cut into different numbers of parts. Watch the size of the slices!",rules:["n"]},
-  {kind:"match",set:"B",label:"Match 5",a:{k:"ant",n:1,d:3},b:{k:"madhu",n:1,d:10},win:"a",intro:"Match 5: the ant and Madhu!",quotes:[["ant","One big slice for me!"]]},
-  {kind:"match",set:"B",label:"Match 6",a:{k:"monty",n:2,d:9},b:{k:"tez",n:2,d:5},win:"b",intro:"Match 6: Monty and Tez!",quotes:[["tez","Slow… but steady!"]]},
-  {kind:"match",set:"B",label:"Match 7",a:{k:"squirrel",n:3,d:4},b:{k:"mouse",n:3,d:8},win:"a",intro:"Match 7: the squirrel and the mouse!",
+  {kind:"match",set:"B",label:"Match 4",a:{k:"ant",n:1,d:3},b:{k:"madhu",n:1,d:10},win:"a",intro:"Match 4: the ant and Madhu!",quotes:[["ant","One big slice for me!"]]},
+  {kind:"match",set:"B",label:"Match 5",a:{k:"monty",n:2,d:9},b:{k:"tez",n:2,d:5},win:"b",intro:"Match 5: Monty and Tez!",quotes:[["tez","Slow… but steady!"]]},
+  {kind:"match",set:"B",label:"Match 6",a:{k:"squirrel",n:3,d:4},b:{k:"mouse",n:3,d:8},win:"a",intro:"Match 6: the squirrel and the mouse!",
     quotes:[["squirrel","Quick, quick, I win!"],["mouse","Squeak! Good match!"]]},
-  {kind:"match",set:"B",label:"Match 8",a:{k:"peacock",n:5,d:12},b:{k:"bijli",n:5,d:6},win:"b",intro:"Match 8: the peacock and Bijli!",
-    quotes:[["bijli","Hisss-tory made!"],["peacock","Hmph! Well done."]]},
   {kind:"intro",set:"C",label:"Set C",text:"Now just the fractions, no pizza! Use the rules to find who ate more.",rules:["d","n"]},
-  {kind:"cards",set:"C",label:"Round 9",shape:"round",a:{k:"monty",n:4,d:7},b:{k:"peacock",n:6,d:7},win:"b",intro:"Monty or the peacock: who ate more?",
+  {kind:"cards",set:"C",label:"Round 7",shape:"round",a:{k:"monty",n:4,d:7},b:{k:"peacock",n:6,d:7},win:"b",intro:"Monty or the peacock: who ate more?",
     yes:"Yes! Same denominator, and 6 is more than 4."},
-  {kind:"cards",set:"C",label:"Round 10",shape:"square",a:{k:"mouse",n:1,d:6},b:{k:"ant",n:1,d:4},win:"b",intro:"The mouse or the ant: who ate more?",
+  {kind:"cards",set:"C",label:"Round 8",shape:"square",a:{k:"mouse",n:1,d:6},b:{k:"ant",n:1,d:4},win:"b",intro:"The mouse or the ant: who ate more?",
     yes:"Yes! Same numerator, and fourths are bigger than sixths."},
-  {kind:"cards",set:"C",label:"Round 11",shape:"round",a:{k:"hippo",n:5,d:9},b:{k:"jhumru",n:2,d:9},win:"a",intro:"The hippo or Jhumru: who ate more?",
+  {kind:"cards",set:"C",label:"Round 9",shape:"round",a:{k:"hippo",n:5,d:9},b:{k:"jhumru",n:2,d:9},win:"a",intro:"The hippo or Jhumru: who ate more?",
     yes:"Yes! Same denominator, and 5 is more than 2."},
-  {kind:"cards",set:"C",label:"Round 12",shape:"rect",a:{k:"madhu",n:3,d:10},b:{k:"squirrel",n:3,d:5},win:"b",intro:"Madhu or the squirrel: who ate more?",
+  {kind:"cards",set:"C",label:"Round 10",shape:"rect",a:{k:"madhu",n:3,d:10},b:{k:"squirrel",n:3,d:5},win:"b",intro:"Last one! Madhu or the squirrel: who ate more?",
     yes:"Yes! Same numerator, and fifths are bigger than tenths."},
-  {kind:"cards",set:"C",label:"Round 13",shape:"round",a:{k:"bijli",n:7,d:12},b:{k:"badal",n:7,d:8},win:"b",intro:"Last one! Bijli or Badal: who ate more?",
-    yes:"Yes! Same numerator, and eighths are bigger than twelfths.",quotes:[["badal","My turn to win!"]]},
   {kind:"final",set:"F",label:"Final: order"},
   {kind:"champion",set:"F",label:"Champion"}
 ];
@@ -3060,10 +3054,10 @@ if(location.hash==="#play"){ history.replaceState(null,"",location.pathname); st
       {t:"Level 1.2 · Cut, top and serve", items:[["1.2:0","Frog 1/4",["frog"]],["1.2:1","Gorilla 4/5",["gorilla"]],["1.2:2","Mouse 1/6",["mouse"]],["1.2:3","Sloth 3/10",["sloth"]],["1.2:4","Hippo 11/12",["hippo"]]]}]},
     {lvl:"Level 2 · Big Eater Contest", page:"l2", groups:[
       {t:"Start", items:[["S","Story 2",["billu_idle"]],["T","Tutorial 2 · Who ate more?",["noori"]]]},
-      {t:"Set A · Same denominator", items:[["0","Match 1",vs("tez","monty")],["1","Match 2",vs("madhu","ant")],["2","Match 3",vs("bijli","badal")],["3","Match 4",vs("jhumru","hippo")]]},
-      {t:"Set B · Same numerator", items:[["4","Set B intro",["noori"]],["5","Match 5",vs("ant","madhu")],["6","Match 6",vs("monty","tez")],["7","Match 7",vs("squirrel","mouse")],["8","Match 8",vs("peacock","bijli")]]},
-      {t:"Set C · Fractions only", items:[["9","Set C intro",["noori"]],["10","Round 9",vs("monty","peacock")],["11","Round 10",vs("mouse","ant")],["12","Round 11",vs("hippo","jhumru")],["13","Round 12",vs("madhu","squirrel")],["14","Round 13",vs("bijli","badal")]]},
-      {t:"Golden Trophy Final", items:[["15","Final · put in order",["trophy"]],["16","Champion",["trophy"]]]}]}];
+      {t:"Set A · Same denominator", items:[["0","Match 1",vs("tez","monty")],["1","Match 2",vs("madhu","ant")],["2","Match 3",vs("bijli","badal")]]},
+      {t:"Set B · Same numerator", items:[["3","Set B intro",["noori"]],["4","Match 4",vs("ant","madhu")],["5","Match 5",vs("monty","tez")],["6","Match 6",vs("squirrel","mouse")]]},
+      {t:"Set C · Fractions only", items:[["7","Set C intro",["noori"]],["8","Round 7",vs("monty","peacock")],["9","Round 8",vs("mouse","ant")],["10","Round 9",vs("hippo","jhumru")],["11","Round 10",vs("madhu","squirrel")]]},
+      {t:"Golden Trophy Final", items:[["12","Final · put in order",["trophy"]],["13","Champion",["trophy"]]]}]}];
   const pic=k=>`<img src="assets/web/${k}.webp" alt="" loading="lazy">`;
   const label=v=>{ for(const L of MAP) if(L.page===PAGE) for(const g of L.groups) for(const it of g.items) if(it[0]===v) return `${/^Level/.test(g.t)?"":L.lvl.split(" · ")[0]+" · "}${g.t} · ${it[1]}`; return (sel.selectedOptions[0]||{}).text||""; };
   const build=()=>{ const cur=sel.value;
