@@ -3261,7 +3261,7 @@ function sBubbleSay(e,name,text){
     const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
-    if(STORY.bubAt){ const [l,t,ww]=STORY.bubAt; bb.style.width=ww+"%"; bb.classList.remove("flip"); bb.classList.add("bigb"); bb.style.left=(w.width*l/100)+"px"; bb.style.top=(w.height*t/100)+"px"; }
+    if(STORY.bubAt){ const [l,t,ww,fl]=STORY.bubAt; bb.style.width=ww+"%"; bb.classList.toggle("flip",!!fl); bb.classList.add("bigb"); bb.style.left=(w.width*l/100)+"px"; bb.style.top=(w.height*t/100)+"px"; }
     (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
     sSpot(me);
     };   // placed once per line, so the bubble stays put while the speaker moves
@@ -3500,7 +3500,7 @@ async function storyContext1(){
   // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
   await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],2500);   // slowly in on Billu and the cut pizza
-  STORY.noSpot=true; STORY.bubAt=[10,8,20]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
+  STORY.noSpot=true; STORY.bubAt=[70,6,27,1]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
@@ -4372,7 +4372,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 
 
 <style>
-.story .sbub.bigb .t{font-size:2.3cqw!important;line-height:1.2!important}
+.story .sbub.bigb .t{font-size:3.1cqw!important;line-height:1.2!important}
 .story .sbub.bigb .t b{font-size:.6em!important}
 </style>
 <style>
