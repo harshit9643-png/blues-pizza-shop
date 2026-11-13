@@ -1737,9 +1737,10 @@ const VOICE=(()=>{ let have=null, onEnd=null, lastK="", lastT=0, pid=0, chain=0;
   function who(text,w){ const m=/^\s*([A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?)(?:\s*\([^)]*\))?:\s*[“"]/.exec(norm(text)); return m?m[1].toLowerCase():(w||"noori"); }
   // plays the clip for this line; false when there is none (then the caller uses the browser voice)
   function play(w,text,done,keep){ if(!keep) chain=0; const k=key(w,text); if(window.__vo) window.__vo(w,norm(text),k);
-    if(!have||!have.has(k)) return false;
     if(k===lastK&&performance.now()-lastT<1500&&!el.paused){ if(done) onEnd=done; return true; }   // the same line asked for twice in a row
-    halt(); cancel0(); lastK=k; lastT=performance.now(); onEnd=done||null;
+    halt(); cancel0();   // any new line stops the one still talking (the child did it already), even when the new line has no clip
+    if(!have||!have.has(k)){ lastK=""; return false; }
+    lastK=k; lastT=performance.now(); onEnd=done||null;
     el.src="assets/vo/"+have.get(k); const my=++pid, p=el.play();
     // a clip that cannot start ends its line; one cut short by the next clip does not (that used to start the next speaker over it)
     if(p&&p.catch) p.catch(()=>{ if(my===pid) end(); }); return true; }
