@@ -2074,6 +2074,15 @@ function showCards(st){
   ["a","b"].forEach(sd=>{ const s=$("side-"+sd); s.classList.add("pick"); s.tabIndex=0; s.setAttribute("role","button");
     s.onclick=()=>pickCard(st,sd); s.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickCard(st,sd); } }; });
 }
+/* Set C hint: a big pizza on its board beside each contestant (left of the left one, right of the right one); the eaten parts glow */
+function cardPizzas(st){
+  $("view").classList.remove("focus"); $("say").classList.remove("tip"); const ta=$("say").querySelector(".tipart"); if(ta) ta.remove();
+  ["a","b"].forEach(x=>{ const sd=$("side-"+x); if(!sd||sd.querySelector(".cpz")) return; const o=st[x];
+    const w=document.createElement("div"); w.className="cpz";
+    w.innerHTML=`<img class="cpad" src="assets/draft2/pizza_paddle.webp" alt="">${l2Pizza(o.d,{lit:[...Array(o.n).keys()]})}`;
+    sd.classList.add("withpz"); if(x==="a") sd.prepend(w); else sd.append(w);
+    w.animate([{transform:"scale(.3)",opacity:0},{transform:"scale(1.08)",opacity:1,offset:.7},{transform:"scale(1)",opacity:1}],{duration:550,easing:"ease-out"}); if(Sound.pop) Sound.pop(); });
+}
 function pickCard(st,sd){ stopGuide();
   if(S.phase!=="winner") return;
   const g=S.gen;
@@ -2090,7 +2099,7 @@ function pickCard(st,sd){ stopGuide();
   S.wTries++; S.tries++; Sound.bad(); guideMood("hmm"); bump($("side-"+sd),"bad",600);
   document.querySelectorAll(".diag").forEach(d=>d.classList.add("show"));
   if(S.wTries===1){ say("Oops! Try again.","bad","noori"); ["a","b"].forEach(x=>bump($("side-"+x),"glow",2400)); }
-  else if(S.wTries===2){ sayRule(activeRule(st)); const w=$("side-"+st.win); w.classList.add("glow"); const dg=w.querySelector(".diag"); if(dg) dg.classList.add("glowd"); }   // the winner's diagram glows
+  else if(S.wTries===2){ sayRule(activeRule(st)); cardPizzas(st); }   // the hint: no dimming, each contestant's pizza on its board beside it
   else showWinner(st);
 }
 
@@ -3770,4 +3779,13 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 /* the VS badge, smaller everywhere (matches, Tutorial 2) */
 body .vs{width:clamp(56px,calc(5.6*var(--vw)),88px)!important;height:auto!important;aspect-ratio:1!important;font-size:clamp(20px,calc(2.2*var(--vw)),34px)!important;
   -webkit-text-stroke-width:2px!important;box-shadow:0 0 0 3px #4A2610,0 0 0 6px #F6C34A,0 8px 14px rgba(60,25,0,.3)!important}
+</style>
+<style>
+/* Set C hint pizzas */
+.view.cardsv .side.withpz{grid-template-columns:auto auto!important;align-items:center;column-gap:clamp(16px,calc(2.5*var(--vw)),44px)}
+.view.cardsv .cpz{position:relative;width:clamp(170px,calc(34*var(--vh)),300px);display:grid;place-items:center}
+.view.cardsv .cpz .cpad{position:absolute;left:-9.35%;top:-3.4%;width:112.6%;max-width:none;height:auto;z-index:0;filter:drop-shadow(0 10px 10px rgba(0,0,0,.35))}
+.view.cardsv .cpz .l2pz{position:relative;z-index:1;width:100%;height:auto}
+.view.cardsv .cpz .l2lit{fill:rgba(255,226,120,.22)!important;stroke:#FFC21A!important;stroke-opacity:1!important;stroke-width:3.5!important;filter:drop-shadow(0 0 6px rgba(255,214,60,.9))}
+.view.cardsv:has(.withpz){gap:clamp(30px,calc(5*var(--vw)),90px)!important}
 </style>
