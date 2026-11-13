@@ -2921,6 +2921,27 @@ function l2Pizza(d,{lit=[],gone=[],all=false}={}){
 function l2Slice(d){ const R=92, step=2*Math.PI/d, a0=-Math.PI/2-step/2;
   return `<svg class="l2sl" viewBox="0 0 200 110" aria-hidden="true"><g transform="translate(0 102)">${wedge(100,0,R,a0,a0+step,'class="l2lit"')}</g></svg>`; }
 const l2Card=(n,d)=>`<div class="l2f"><b>${n}</b><i></i><b>${d}</b></div>`;
+/* the eating, shown: each pizza pops up, then the slices that were eaten lift out one by one, fly to the character,
+   shrink and vanish with a chomp; a dashed empty gap stays where they were */
+async function l2Eat(root,ok){
+  const sides=[...root.querySelectorAll(".l2side")].filter(sd=>sd.querySelector(".l2pz .l2lit"));
+  for(const sd of sides){ if(!ok()) return;
+    const svg=sd.querySelector(".l2pz"), ava=sd.querySelector(".l2ava");
+    svg.animate([{transform:"scale(1)"},{transform:"scale(1.14)"},{transform:"scale(1)"}],{duration:520,easing:"cubic-bezier(.3,1.5,.5,1)"});
+    if(Sound.pop) Sound.pop(); await wait(560);
+    const r=svg.getBoundingClientRect(), a=ava.getBoundingClientRect(), k=200/r.width;
+    const dx=((a.left+a.width/2)-(r.left+r.width/2))*k, dy=((a.top+a.height/2)-(r.top+r.height/2))*k;
+    for(const p of [...svg.querySelectorAll(".l2lit")]){ if(!ok()) return;
+      const img=p.previousElementSibling, g=document.createElementNS("http://www.w3.org/2000/svg","g");
+      const gap=p.cloneNode(); gap.removeAttribute("class"); gap.setAttribute("fill","rgba(255,230,180,.25)"); gap.setAttribute("stroke","#C8402E"); gap.setAttribute("stroke-dasharray","6 5"); gap.setAttribute("stroke-width","2.5");
+      svg.insertBefore(gap,img); svg.insertBefore(g,img); g.appendChild(img); g.appendChild(p);
+      g.style.transformBox="view-box"; g.style.transformOrigin="100px 100px";
+      const an=g.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:"translate(0,-10px) scale(1.08)",opacity:1,offset:.25},
+        {transform:`translate(${dx}px,${dy}px) scale(.25)`,opacity:.9,offset:.85},{transform:`translate(${dx}px,${dy}px) scale(.05)`,opacity:0}],{duration:900,easing:"ease-in",fill:"forwards"});
+      setTimeout(()=>{ ava.animate([{transform:"scale(1)"},{transform:"scale(1.1)"},{transform:"scale(1)"}],{duration:300}); if(window.SFX&&SFX.chomp) SFX.chomp(); else if(Sound.pop) Sound.pop(); },780);
+      await wait(520); }
+    await wait(500); }
+}
 async function runLearning2(ok){
   const page=document.querySelector(".tut .page"), duel=$("t2duel"), ttl=document.querySelector(".tut .ttl");
   duel.style.display="none"; ttl.innerHTML="<b>Who ate more?</b>"; ttl.style.display="none";
@@ -2933,7 +2954,7 @@ async function runLearning2(ok){
   await say("noori","First, both pizzas are the same size. That’s important!"); if(!ok()) return;
   // 2. cut into 8 and 4; the slice each one ate glows
   stage(`<div class="l2row">${side("monty",l2Pizza(8,{lit:[0]}),l2Card(1,8),"l2a")}${side("ant",l2Pizza(4,{lit:[0]}),l2Card(1,4),"l2b")}</div>`);
-  await say("noori","Monty ate 1 slice out of 8. The ant ate 1 slice out of 4."); if(!ok()) return;
+  await Promise.all([say("noori","Monty ate 1 slice out of 8. The ant ate 1 slice out of 4."),l2Eat(L,ok)]); if(!ok()) return;
   // 3. the learner taps the plate of whoever ate more
   ["l2a","l2b"].forEach(id=>$(id).classList.add("pick"));
   tutSay("noori","Who ate more? Tap their plate.",{wait:true});
@@ -2957,7 +2978,7 @@ async function runLearning2(ok){
   L.classList.add("tight"); stage(`<div class="l2row">${side("tez",l2Pizza(8,{lit:[0,1,2]}),l2Card(3,8))}${side("jhumru",l2Pizza(8,{lit:[0,1,2,3,4]}),l2Card(5,8))}</div>
     <div class="l2more">${l2Card(5,8)}<span>is more than</span>${l2Card(3,8)}</div>
     <div class="l2rules two">${ruleCard("n").replace(/ id="rule-\w+"/,"")}${ruleCard("d").replace(/ id="rule-\w+"/,"")}</div>`);
-  await say("noori","Same denominator? Then the parts are the same size. Just compare the numerators."); if(!ok()) return;
+  await Promise.all([say("noori","Same denominator? Then the parts are the same size. Just compare the numerators."),l2Eat(L,ok)]); if(!ok()) return;
   // 9. more contestants line up
   stage(`<div class="l2line">${["squirrel","peacock","madhu","hippo","mouse","bijli"].map((k,i)=>`<div class="l2ava" style="animation-delay:${i*.12}s"><img src="${A}${k}.webp" alt=""></div>`).join("")}</div>`);
   L.classList.remove("tight");
@@ -3749,4 +3770,9 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 <style>
 /* Tutorial 2: the new Monty (blue cap, gold chain), the whole of him inside the circle */
 #t2learn .l2ava img.newmonty{object-fit:contain!important;height:96%!important;width:auto!important;max-width:none!important;margin:4% auto 0!important;transform:scale(1.12);transform-origin:50% 30%}
+</style>
+<style>
+/* the VS badge, smaller everywhere (matches, Tutorial 2) */
+body .vs{width:clamp(56px,calc(5.6*var(--vw)),88px)!important;height:auto!important;aspect-ratio:1!important;font-size:clamp(20px,calc(2.2*var(--vw)),34px)!important;
+  -webkit-text-stroke-width:2px!important;box-shadow:0 0 0 3px #4A2610,0 0 0 6px #F6C34A,0 8px 14px rgba(60,25,0,.3)!important}
 </style>
