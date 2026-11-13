@@ -3476,12 +3476,12 @@ async function storyContext1(){
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
   await W(sceneBook(open2,cut2)); open2=cut2;
   STORY.noSpot=true; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.noSpot=false;
-  // scene 3 (picture): Chintu points at the big piece, Noori is not impressed, Billu is puzzled
+  // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
   aC.remove(); aB2.remove(); await W(sceneBook(open2,open3));
-  const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(39,30.8,18,37,"noori"), b3=anchor(68.8,24,21,52,"billu");
-  Object.assign(STORY.cast,{chintu:c3,noori:n3,billu:b3});
+  const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(68.5,31,19,47,"noori");   // Noori stands on the right (Billu is not in this picture)
+  Object.assign(STORY.cast,{chintu:c3,noori:n3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
   await sLine("chintu","I want the bigger half!");
   await sLine("noori","These pieces aren’t equal, so neither is a half. Let’s learn about fractions!");
