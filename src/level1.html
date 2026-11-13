@@ -3236,7 +3236,7 @@ function sBubbleSay(e,name,text){
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(19,6+len*.25))+"%";
-  bb._set=0; bb.classList.remove("on"); $("ssub").classList.add("bub");
+  bb._set=0; bb.classList.remove("on","bigb"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
     const w=$("sworld").getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
     // each character's face, as a fraction of its picture box: the bubble must never cover a face
@@ -3260,6 +3260,7 @@ function sBubbleSay(e,name,text){
     const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
+    if(STORY.bubAt){ const [l,t,ww]=STORY.bubAt; bb.style.width=ww+"%"; bb.classList.remove("flip"); bb.classList.add("bigb"); bb.style.left=(w.width*l/100)+"px"; bb.style.top=(w.height*t/100)+"px"; }
     (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
     sSpot(me);
     };   // placed once per line, so the bubble stays put while the speaker moves
@@ -3490,12 +3491,15 @@ async function storyContext1(){
   aN.remove(); aB.remove(); await W(sceneBook(open1,open2));
   const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
-  await sLine("chintu","Half a pizza, please!");
+  { const im=open2.querySelector("img:not(.blur)"), F=[0,1,2,3].map(k=>`assets/story/scene2_talk${k}.webp`); F.forEach(u=>{ new Image().src=u; });
+    let k=0; const t0=performance.now(); const t=setInterval(()=>{ if(!im.isConnected) return clearInterval(t); if(PAUSE.on) return;
+      const talking=(window.VOICE&&VOICE.busy())||performance.now()-t0<1800; im.src=talking?F[1+(k++%3)]:F[0]; },150);   // mouth moves while he speaks (at least the first 1.8 s)
+    await sLine("chintu","Half a pizza, please!"); clearInterval(t); im.src=F[0]; }
   await W(sleep(2200));   // a moment on the picture before it changes
   // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="assets/story/scene2_half.webp" alt="">`;
   await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],2500);   // slowly in on Billu and the cut pizza
-  STORY.noSpot=true; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.noSpot=false;
+  STORY.noSpot=true; STORY.bubAt=[10,8,20]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
@@ -4360,3 +4364,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
   new MutationObserver(()=>requestAnimationFrame(all)).observe(document.body,{childList:true,subtree:true,characterData:true});
   addEventListener("resize",all); })();
 </script>
+<style>
+.story .sbub.bigb .t{font-size:2.3cqw!important;line-height:1.2!important}
+.story .sbub.bigb .t b{font-size:.6em!important}
+</style>
