@@ -1655,7 +1655,7 @@ function wedge(cx,cy,r,a0,a1,attrs){
 const PC={x:300,y:302,r:208};
 function plateOverlay(count,d,popLast){
   const step=2*Math.PI/d, start=-Math.PI/2;
-  let s=`<circle cx="${PC.x}" cy="${PC.y}" r="${PC.r}" fill="rgba(255,240,215,.06)" stroke="rgba(255,236,200,.7)" stroke-width="4" stroke-dasharray="16 12"/>`;
+  let s=`<circle cx="${PC.x}" cy="${PC.y}" r="${PC.r}" fill="rgba(255,240,215,.06)" stroke="none"/>`;
   for(let i=0;i<count;i++){ const am=start+(i+.5)*step, rr=PC.r*(d>8?.7:.62), tx=PC.x+rr*Math.cos(am), ty=PC.y+rr*Math.sin(am), fs=Math.max(30,Math.min(64,PC.r*1.9/d+18));
     s+=`<g class="sl${popLast&&i===count-1?' pop':''}" data-i="${i}">${wedge(PC.x,PC.y,PC.r,start+i*step,start+(i+1)*step)}
       <text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-family="Baloo 2, sans-serif" font-weight="800" font-size="${fs.toFixed(0)}"

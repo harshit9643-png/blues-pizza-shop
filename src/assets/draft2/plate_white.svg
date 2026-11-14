@@ -18,5 +18,5 @@
   <circle cx="300" cy="300" r="286" fill="url(#rim)"/>
   <circle cx="300" cy="302" r="242" fill="url(#step)"/>
   <circle cx="300" cy="304" r="230" fill="url(#well)"/>
-  <circle cx="300" cy="302" r="196" fill="none" stroke="#F6E08E" stroke-width="7" stroke-dasharray="22 15" stroke-linecap="round"/>
+  
 </svg>
