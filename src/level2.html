@@ -1867,7 +1867,7 @@ function setView(cls,html){ const v=$("view");
 function plateWidth(){ const v=$("view"), portrait=innerWidth<innerHeight*.84;
   const top=Math.min(150,Math.max(96,innerHeight*.17));              // the contestant row above (see .match --top)
   const h=v.clientHeight-(portrait?260:top)-66-30;                    // who-row, stack button, gaps
-  return Math.max(110,Math.min(380, h*600/630, v.clientWidth*(portrait?.44:.31))); }
+  return Math.max(110,Math.min(430, h*600/630*1.15, v.clientWidth*(portrait?.44:.33))); }   // a bit bigger (they sit higher, see .match .plate)
 function rulesFor(set){ return set==="T"||set==="A" ? ["d"] : set==="B" ? ["d","n"] : ["d","n"]; }
 function activeRule(st){ return st.a.d===st.b.d ? "d" : "n"; }
 
@@ -3796,6 +3796,8 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 .view.match:not(.cardsv) .side.a .plate,.view.match:not(.cardsv) .side.a .stack{left:calc(7*var(--vw))!important}   /* the plates (and their + slice buttons) sit closer to VS */
 .view.match:not(.cardsv) .side.b .plate,.view.match:not(.cardsv) .side.b .stack{left:calc(-7*var(--vw))!important}
 .view.match:not(.cardsv) .side .stack{position:relative}
+.view.match:not(.cardsv) .side .plate,.view.match:not(.cardsv) .side .stack,.view.match:not(.cardsv) .mid{top:calc(-5*var(--vh))!important}   /* the plates, their buttons and VS sit higher */
+.view.match:not(.cardsv) .mid{position:relative}
 .view.match:not(.cardsv) .side .who .ava{width:clamp(100px,calc(19*var(--vh)),180px)!important;height:auto!important;aspect-ratio:1!important;order:0}
 .view.match:not(.cardsv) .side .who .info{order:1;margin-top:calc(clamp(100px,calc(19*var(--vh)),180px) * -.2)!important;position:relative;z-index:2;justify-items:center}
 .view.match:not(.cardsv) .side .plate{margin:0!important;justify-self:center!important}
