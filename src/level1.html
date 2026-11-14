@@ -1199,7 +1199,7 @@ header.top{z-index:450!important}   /* home + QA stay tappable above the QA pane
 .katori.newbowl img{width:100%!important;height:auto!important;max-height:100%}   /* every bowl the same width */
 /* Tutorial 1.1 toppings: just the bowls with their names (no wooden tray, no white tiles) */
 .tut .ttray{background:none!important;box-shadow:none!important;padding:0!important;gap:14px 18px!important}
-.tut .tp{background:none!important;box-shadow:none!important;padding:0!important;width:clamp(96px,calc(12*var(--vh)),124px)!important;gap:2px!important;border-radius:50%!important}
+.tut .tp{background:none!important;box-shadow:none!important;padding:0!important;width:clamp(112px,calc(14.5*var(--vh)),148px)!important;gap:2px!important;border-radius:50%!important}
 .tut .tp img{width:100%!important;filter:drop-shadow(0 6px 6px rgba(0,0,0,.4))}
 .tut .tp>*:not(img){display:none}
 .tut .tp{font-size:0!important}
@@ -1998,7 +1998,7 @@ function showKatoris(){
     const b=COCO.bowls[i], box={x:b.cx-b.ix-30, y:b.cy-b.iy*1.35, w:b.ix*2+60, h:b.iy*2.6};
     const [rx,ry,rw,rh]=[[216,120,332,300],[656,120,332,300],[216,520,332,300],[656,520,332,300]][i];   // two rows with room for the names between them   // the bowl spots on the table
     return `<div class="bowl katori newbowl${S.topping===t.k?' sel':''}" data-top="${t.k}" role="button" tabindex="0" aria-label="${t.name}"
-        style="left:${pct(rx+rw/2-150,COCO.W)};top:${pct(ry+rh-265,COCO.H)};width:${pct(300,COCO.W)};height:${pct(265,COCO.H)}">
+        style="left:${pct(rx+rw/2-180,COCO.W)};top:${pct(ry+rh-318,COCO.H)};width:${pct(360,COCO.W)};height:${pct(318,COCO.H)}">
         <img src="assets/draft2/topbowl_${t.k}.webp" alt=""></div>
       <span class="bowl-label" style="left:${pct(rx+rw/2,COCO.W)};top:${pct(ry+rh+4,COCO.H)}">${t.name}</span>`;
   }).join("");
