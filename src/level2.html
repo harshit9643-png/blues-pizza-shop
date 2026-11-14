@@ -2250,18 +2250,31 @@ function finalWinner(){
     c.onclick=()=>pickChampion(i); c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickChampion(i); } }; });
   document.querySelectorAll(".slot").forEach(s=>s.style.zIndex=2);
 }
+/* the winner's card alone, big in the centre of the board; its picture becomes the one holding the golden trophy */
+function champBig(c,k){
+  const bd=document.querySelector(".fl2 .board5"); if(!bd) return;
+  bd.classList.add("champ1"); c.closest(".slot").classList.add("champslot");
+  const im=c.querySelector(".cimg img"); if(im){ const t=new Image(); t.onload=()=>{ im.src=t.src; }; t.src=`${A}${k}_trophy.webp`; }
+  const fit=()=>{ if(!c.isConnected) return; const tr=c.style.transform; c.style.transition="none"; c.style.transform="none";
+    const r=c.getBoundingClientRect(), R=bd.getBoundingClientRect(), k2=Math.min(1.9,(R.height*.86)/r.height,(R.width*.5)/r.width);
+    const dx=R.left+R.width/2-(r.left+r.width/2), dy=R.top+R.height/2-(r.top+r.height/2);
+    c.style.transform=tr; void c.offsetWidth; c.style.transition="transform .9s cubic-bezier(.3,1.25,.5,1)";
+    c.style.transform=`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${k2.toFixed(3)})`; };
+  fit(); const onR=()=>{ if(!c.isConnected){ removeEventListener("resize",onR); return; } c.style.transition="none"; fit(); };
+  addEventListener("resize",onR);
+}
 function pickChampion(i){ stopGuide();
   if(S.phase!=="finalPick") return;
   const best=[...FINALISTS.keys()].reduce((a,b)=>FINALISTS[b].n/FINALISTS[b].d>FINALISTS[a].n/FINALISTS[a].d?b:a,0);
   if(i===best){
     S.phase="champ"; $("stage").classList.remove("dim"); const c=$("fin-"+i); c.classList.add("win");
-    c.insertAdjacentHTML("beforeend",`<img class="medal" src="${A}trophy.svg" alt="Golden trophy" style="right:-14px;top:-30px">`);
+    champBig(c,FINALISTS[i].k);   // only the winner's card stays: it grows in the middle of the board, holding the trophy
     Sound.win(); confetti(); say("Ant: “One big piece, one golden trophy!”","good","billu"); speak(S.sayPlain);
     button("next",true,true,next);
     // the button is hidden on this screen: move on by itself 1 s after the line has been spoken
     const g=S.gen, t0=performance.now();
     (function go(){ if(!live(g)||S.phase!=="champ") return;
-      if(performance.now()-t0<1200 || (window.speechSynthesis&&speechSynthesis.speaking)){ setTimeout(go,250); return; }
+      if(performance.now()-t0<3000 || (window.speechSynthesis&&speechSynthesis.speaking)){ setTimeout(go,250); return; }
       setTimeout(()=>{ if(live(g)&&S.phase==="champ") next(); },1000); })();
     return;
   }
@@ -3520,6 +3533,11 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 @keyframes glowC{40%{transform:translateY(-8px) scale(1.08);box-shadow:0 0 0 5px #FFFFFF,0 0 0 9px var(--marigold),0 0 34px rgba(255,200,40,1)}}
 .fl2 .fin.pick{cursor:pointer}.fl2 .fin.pick:hover{transform:translateY(-4px)}
 .fl2 .fin.win{box-shadow:0 0 0 5px #FFFFFF,0 0 0 9px var(--marigold),0 0 30px rgba(242,166,44,.95)}
+.fl2 .board5.champ1 .slot:not(.champslot),.fl2 .board5.champ1 .scale5{opacity:0;transition:opacity .5s;pointer-events:none}
+.fl2 .board5.champ1 .slot.champslot{z-index:6!important;background:none!important;border-color:transparent!important;box-shadow:none!important}
+.fl2 .board5.champ1 .fin.win{box-shadow:0 0 0 4px #FFFFFF,0 0 0 7px var(--marigold),0 0 26px rgba(242,166,44,.95)}
+.fl2 .board5.champ1 .fin.win .cimg img{max-width:100%;transform:scale(1.17);transform-origin:50% 100%;transition:transform .5s}
+.fl2 .board5.champ1 .fin.win .mini{transform:scale(.82);transform-origin:50% 100%}
 .fl2 .fin .medal{position:absolute;width:42%;height:auto;z-index:5;left:50%!important;right:auto!important;top:-30%!important;translate:-50% 0}
 /* the board: the game's wooden-framed parchment tile (like the fraction tiles), a long rectangle, little padding;
    five wide dashed spaces; the arrow under them runs smallest -> greatest */
