@@ -2204,12 +2204,25 @@ function wireFinal(){
   view.querySelectorAll(".slot").forEach(sl=>sl.addEventListener("click",e=>{
     if(S.phase!=="order"||!S.sel||e.target.closest(".fin")) return; putIn(S.sel,sl); }));
 }
+/* once the order is right, the board (cards + Smallest/Greatest) slides to the centre of the screen and stays there */
+function centreBoard(g){
+  const bd=document.querySelector(".fl2 .board5"); if(!bd) return;
+  const fit=(anim)=>{ if(!live(g)||!bd.isConnected) return;
+    const t=bd.style.transform; bd.style.transition="none"; bd.style.transform="none";
+    const r=bd.getBoundingClientRect(), dx=innerWidth/2-(r.left+r.width/2), dy=innerHeight/2-(r.top+r.height/2);
+    bd.style.transform=t; void bd.offsetWidth;
+    bd.style.transition=anim?"transform 1s cubic-bezier(.45,0,.2,1)":"none"; bd.style.transform=`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px)`; };
+  fit(true);
+  const onR=()=>{ if(!live(g)||!bd.isConnected){ removeEventListener("resize",onR); return; } fit(false); };
+  addEventListener("resize",onR);
+}
 async function checkOrder(){
   if(S.phase!=="order") return;
   const g=S.gen, p=placed(), want=[...FINALISTS.keys()].sort((x,y)=>FINALISTS[x].n/FINALISTS[x].d-FINALISTS[y].n/FINALISTS[y].d);
   if(p.every((v,s)=>v===want[s])){
     S.phase="ordered"; award(S.i);
     p.forEach(i=>$("fin-"+i).classList.add("lock")); Sound.good(); guideMood("cheer");
+    centreBoard(g);   // the finished row glides by itself to the middle of the screen
     say("Perfect! The more parts a pizza is cut into, the smaller each part.","good","noori"); speak(S.sayPlain);
     button("check",false,false); await wait(2600); if(!live(g)) return;
     finalWinner(); return;
