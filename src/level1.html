@@ -1550,7 +1550,9 @@ function geom(shape,n){
           outline:`<path d="${edgePath(shape,-2)}"/>`};
 }
 /* cut parts stay where they are, no gap between them: each part draws its own cut line instead */
-function offsetsOf(g){ return g.parts.map(()=>({x:0,y:0})); }
+function offsetsOf(g){ const n=g.parts.length; if(n<2) return g.parts.map(()=>({x:0,y:0}));   // cut pieces sit a little apart, so the cuts show as gaps
+  const mx=g.parts.reduce((a,p)=>a+p.cx,0)/n, my=g.parts.reduce((a,p)=>a+p.cy,0)/n, GAP=9;
+  return g.parts.map(p=>{ const dx=p.cx-mx, dy=p.cy-my, L=Math.hypot(dx,dy)||1; return {x:dx/L*GAP,y:dy/L*GAP}; }); }
 function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed);
   t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 /* Toppings cover a part evenly: a jittered honeycomb grid over the part, keeping only
@@ -2109,7 +2111,7 @@ async function loadOrder(){
   if(o.guided){ await guidedOrder(o,gen); return; }
   if(!LEVELS[S.lv].cut){
     // the pizza arrives already cut (no cutter animation in Level 1.1)
-    S.k=o.d; S.phase="cutting"; G=geom(o.shape,S.k); renderParts(false); $("cuts").style.opacity=0; showKatoris();   // each part draws its own cut edge, so the loose cut lines are hidden (they stayed behind after serving)
+    S.k=o.d; S.phase="cutting"; G=geom(o.shape,S.k); renderParts(true); $("cuts").style.opacity=0; showKatoris();   // each part draws its own cut edge, so the loose cut lines are hidden (they stayed behind after serving)
     say(custLine(o)); setDone("done",false); setCount();
     await wait(1500); if(!live(gen)) return;
     setDock(true); await wait(750); if(!live(gen)) return;
@@ -2794,7 +2796,7 @@ function lDraw(svg,d,o={}){
 /* once cut, the parts sit a little apart (a thin gap along each cut), so the equal parts read as separate pieces;
    open: they slide apart now (straight after the cutter), otherwise they are drawn already apart */
 function lSpread(svg,open){ const g=svg._g, n=g.parts.length; if(n<2) return;
-  const mx=g.parts.reduce((s,p)=>s+p.cx,0)/n, my=g.parts.reduce((s,p)=>s+p.cy,0)/n, GAP=10;
+  const mx=g.parts.reduce((s,p)=>s+p.cx,0)/n, my=g.parts.reduce((s,p)=>s+p.cy,0)/n, GAP=16;
   g.parts.forEach((p,i)=>{ const el=lPart(svg,i); if(!el) return; const dx=p.cx-mx, dy=p.cy-my, L=Math.hypot(dx,dy)||1;
     const t=`translate(${(dx/L*GAP).toFixed(1)}px,${(dy/L*GAP).toFixed(1)}px)`;
     el.style.transition=open?"transform .6s cubic-bezier(.3,1.3,.5,1)":"none"; if(!open) el.style.transform=t;
@@ -4088,8 +4090,8 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 /* no yellow highlights in the lesson: what is being talked about pops up instead */
 .tut .lf.hi{animation:lfPop .5s cubic-bezier(.3,1.7,.5,1) both;transform-origin:50% 50%}
 @keyframes lfPop{0%{transform:scale(1)}55%{transform:scale(1.22)}100%{transform:scale(1.1)}}
-.tut .learn .pz .part.lit{filter:none!important;transform-box:view-box;transform-origin:50% 50%;animation:partPop .5s cubic-bezier(.3,1.7,.5,1) both}
-@keyframes partPop{0%{transform:scale(1)}55%{transform:scale(1.12)}100%{transform:scale(1.06)}}
+.tut .learn .pz .part.lit{filter:none!important;animation:partPop 1.1s ease-in-out infinite}   /* the part being talked about pops up again and again (scale, so its gap offset stays) */
+@keyframes partPop{0%,100%{scale:1}45%{scale:1.1}}
 .tut .learn .pz .part.lit .hl,.tut .learn .pz .part .hl{fill:rgba(255,226,120,0)!important;stroke-width:0!important}
 .tut .lf b.lit{background:none!important;box-shadow:none!important;color:#5A3210!important;text-shadow:0 1px 0 rgba(255,250,235,.7)!important;display:inline-block;animation:digPop .5s cubic-bezier(.3,1.7,.5,1) both}
 @keyframes digPop{0%{transform:scale(1)}55%{transform:scale(1.45)}100%{transform:scale(1.2)}}
