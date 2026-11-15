@@ -3503,13 +3503,14 @@ async function storyContext1(){
   P.menuBoard();   // the shop's SLICES! board stands beside the stall the whole time
   
   // 1-4. the shop picture (sheet: Context_Final): Noori by the oven, Billu behind the counter
-  // the supplied scene-1 picture: close on the stall, Noori by the oven, Billu waving behind the slice and the whole pizza
-  const open1=document.createElement("div"); open1.className="sshot"; open1.innerHTML=`<img src="assets/story/scene1_shop.webp?v=__BUILD__" alt="">`;
+  const open1=document.createElement("div"); open1.className="sshot"; open1.innerHTML=`<img src="${S1.src()}" alt="">`; S1.el=open1.querySelector("img");
   $("sworld").appendChild(open1); void open1.offsetWidth; open1.classList.add("in");
-  const aN=anchor(42.1,48.7,8,19.7,"noori"), aB=anchor(58,33,16,33.5,"billu");
+  const aN=anchor(41.9,45.2,6.5,16.5,"noori"), aB=anchor(53.5,33.5,11.5,25.5,"billu");
   STORY.cast.noori=aN; STORY.cast.billu=aB;
-  { picZoom(open1,50,58,1.15,[aN,aB],3500);   // slowly in on the stall
-    await sLine("narr","At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!"); }
+  // the sheet (Context 1): one line from the narrator; Billu waves hello meanwhile, then folds his arms again
+  { let done=false; const wave=(async()=>{ await sleep(600); for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
+    picZoom(open1,47,54,1.5,[aN,aB],3000);   // slowly in on the stall
+    await sLine("narr","At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!"); done=true; await wave; S1.set("billu0"); }
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
   await W(sleep(2200));   // a moment on the picture before it changes
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
