@@ -4084,7 +4084,15 @@ const TITLE=(()=>{ const T="Billu’s Pizza Kitchen!"; let said=false;
 <style>
 /* the lesson: the fraction card (and the way to read it) being talked about glows, a gold ring that breathes */
 .tut .lf.hi{position:relative}
-.tut .lf.hi::after{content:"";position:absolute;inset:-7px;border-radius:24px;pointer-events:none;box-shadow:0 0 0 4px #FFD24A,0 0 26px 6px rgba(255,206,60,.85);animation:lfHi 1.2s ease-in-out infinite}
+.tut .lf.hi::after{content:none!important}
+/* no yellow highlights in the lesson: what is being talked about pops up instead */
+.tut .lf.hi{animation:lfPop .5s cubic-bezier(.3,1.7,.5,1) both;transform-origin:50% 50%}
+@keyframes lfPop{0%{transform:scale(1)}55%{transform:scale(1.22)}100%{transform:scale(1.1)}}
+.tut .learn .pz .part.lit{filter:none!important;transform-box:view-box;transform-origin:50% 50%;animation:partPop .5s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes partPop{0%{transform:scale(1)}55%{transform:scale(1.12)}100%{transform:scale(1.06)}}
+.tut .learn .pz .part.lit .hl,.tut .learn .pz .part .hl{fill:rgba(255,226,120,0)!important;stroke-width:0!important}
+.tut .lf b.lit{background:none!important;box-shadow:none!important;color:#5A3210!important;text-shadow:0 1px 0 rgba(255,250,235,.7)!important;display:inline-block;animation:digPop .5s cubic-bezier(.3,1.7,.5,1) both}
+@keyframes digPop{0%{transform:scale(1)}55%{transform:scale(1.45)}100%{transform:scale(1.2)}}
 @keyframes lfHi{50%{box-shadow:0 0 0 6px #FFE27A,0 0 38px 12px rgba(255,214,60,1)}}
 </style>
 
