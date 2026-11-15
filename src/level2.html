@@ -1880,7 +1880,7 @@ function go(i){
   const st=STEPS[i];
   ({match:showMatch,cards:showCards,intro:showIntro,finalIntro:showFinalIntro,final:showFinal,champion:showChampion})[st.kind](st);
 }
-function next(){ if(S.i+1<STEPS.length) go(S.i+1); else showEnd(); }
+function next(){ if(S.i+1<STEPS.length){ const i=S.i+1; SAUCE(()=>go(i)); } else showEnd(); }   // every new question comes in behind the sauce splat
 function award(i){ if(S.done[i]) return; S.done[i]=true; if(S.tries===0) S.stars++; renderTop(); }
 
 /* ---------- intro screens (Set B, Set C) ---------- */
@@ -3893,4 +3893,83 @@ body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall),body .car
   const soon=()=>{ if(!q) q=requestAnimationFrame(fix); };
   new MutationObserver(soon).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class","hidden","src"]});
   addEventListener("resize",soon); setInterval(soon,1000); soon(); })();
+</script>
+<style>
+/* PLAY → Billu flings sauce at the viewer; the splat covers the screen and drips away. */
+#sauce{position:fixed;inset:0;z-index:2147483600;pointer-events:auto;overflow:hidden}
+#sauce .btl{position:absolute;left:0;top:0;width:clamp(60px,calc(12*var(--vh)),130px);transform-origin:50% 50%;
+  filter:drop-shadow(0 10px 12px rgba(60,10,0,.35));z-index:3}
+</style>
+<script>
+/* A bottle toss sends a blob toward the viewer. It hits the glass, spreads into
+   an uneven splat, then drips down to reveal the next scene. */
+function SAUCE(done){
+  if(document.getElementById("sauce")){ done(); return; }
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ done(); return; }
+  const W=innerWidth, H=innerHeight, ov=document.createElement("div"); ov.id="sauce";
+  ov.innerHTML=`<canvas></canvas><img class="btl" src="assets/web/sauce_bottle.webp" alt="">`; document.body.appendChild(ov);
+  const cv=ov.querySelector("canvas"), btl=ov.querySelector(".btl"), dpr=Math.min(2,devicePixelRatio||1);
+  cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); cv.style.cssText="position:absolute;inset:0;width:100%;height:100%";
+  const g=cv.getContext("2d"); g.scale(dpr,dpr);
+  const bw=btl.getBoundingClientRect().width||90, bh=bw*763/300;
+  const hit={x:W*.53,y:H*.48}, bottle={x:W*.16,y:H*.23};
+  const nozzle={x:bottle.x+(bh/2-5)*Math.sin(65*Math.PI/180),y:bottle.y-(bh/2-5)*Math.cos(65*Math.PI/180)};
+  const ease=u=>u*u*(3-2*u), clamp=u=>Math.max(0,Math.min(1,u));
+  const blob=(x,y,r,color)=>{ g.beginPath(); g.ellipse(x,y,r*1.12,r*.9,-.2,0,Math.PI*2); g.fillStyle=color; g.fill(); };
+  const splatR=Math.hypot(Math.max(hit.x,W-hit.x),Math.max(hit.y,H-hit.y))*1.45;
+  const satellites=Array.from({length:18},(_,i)=>{ const a=i*2.39996, spread=.9+(i%4)*.22;
+    return {a,spread,r:3+(i*7%9)}; });
+  const place=(x,y,angle)=>{ btl.style.transform=`translate(${x-bw/2}px,${y-bh/2}px) rotate(${angle}deg)`; };
+  try{ Sound.pop(); }catch(e){}
+  const t0=performance.now(); let switched=false;
+  function paintSplat(r){
+    g.beginPath();
+    for(let i=0;i<=240;i++){ const a=i*Math.PI/120, wave=1+.11*Math.sin(7*a+.4)+.055*Math.sin(13*a-1)+.02*Math.sin(23*a);
+      const x=hit.x+Math.cos(a)*r*wave, y=hit.y+Math.sin(a)*r*wave;
+      if(i) g.lineTo(x,y); else g.moveTo(x,y);
+    }
+    g.closePath();
+    const gr=g.createRadialGradient(hit.x-r*.22,hit.y-r*.25,r*.08,hit.x,hit.y,r*1.2);
+    gr.addColorStop(0,"#F45538"); gr.addColorStop(.45,"#DF2C1C"); gr.addColorStop(1,"#A91610");
+    g.fillStyle=gr; g.fill();
+    g.strokeStyle="rgba(255,190,145,.55)"; g.lineWidth=Math.max(2,r*.012); g.stroke();
+  }
+  function frame(now){
+    if(!ov.isConnected) return;
+    const t=now-t0; g.clearRect(0,0,W,H);
+    if(t<420){
+      const u=ease(clamp(t/420));
+      place(-bw+bottle.x*u,bottle.y+H*.06*(1-u),-30+95*u);
+    }else if(t<920){
+      const u=clamp((t-420)/500), travel=ease(u);
+      place(bottle.x-W*.15*ease(clamp((t-420)/400)),bottle.y-H*.08*u,65+50*u);
+      // A growing blob and smaller trailing drops make the throw read as coming
+      // toward the camera, rather than as a stream falling into a pool.
+      for(let i=3;i>=0;i--){ const v=Math.max(0,travel-i*.095);
+        if(v<=0) continue;
+        const x=nozzle.x+(hit.x-nozzle.x)*v, y=nozzle.y+(hit.y-nozzle.y)*v-H*.13*Math.sin(Math.PI*v);
+        blob(x,y,(10+50*v)*(i?(.42-i*.06):1),i?"#D4291B":"#E83B26");
+      }
+    }else if(t<1620){
+      btl.style.display="none";
+      const u=ease(clamp((t-920)/700)), r=55+(splatR-55)*u;
+      paintSplat(r);
+      for(const d of satellites){ const reach=r*d.spread*.95;
+        blob(hit.x+Math.cos(d.a)*reach,hit.y+Math.sin(d.a)*reach,d.r*(1+u*1.5),"#D9281B"); }
+    }else{
+      if(!switched){ switched=true; done(); ov.style.pointerEvents="none"; }
+      const u=clamp((t-1780)/800), edge=-H*.16+(H*1.35)*ease(u);
+      if(t<1780) paintSplat(splatR);
+      else{
+        g.beginPath(); g.moveTo(0,H+20); g.lineTo(0,edge);
+        for(let x=0;x<=W+12;x+=12) g.lineTo(x,edge+10*Math.sin(x*.016+t*.008)+5*Math.sin(x*.041-t*.006));
+        g.lineTo(W,H+20); g.closePath(); g.fillStyle="#C82418"; g.fill();
+        g.strokeStyle="rgba(255,185,150,.48)"; g.lineWidth=3; g.stroke();
+      }
+      if(u>=1){ ov.remove(); return; }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
 </script>

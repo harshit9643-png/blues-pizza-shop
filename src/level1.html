@@ -2582,12 +2582,12 @@ function next(){ S.i++;
   if(S.i>=LEVELS[S.lv].orders.length){
     if(S.lv==="1.1"){ endOf11(); return; }   // no end card after Level 1.1: Billu and Noori say the round's lines, then straight on to Level 1.2
     showEnd(); return; }
-  loadOrder(); }
+  SAUCE(()=>loadOrder()); }   // every new question comes in behind the sauce splat
 async function endOf11(){ const L=LEVELS["1.1"], gen=++S.gen; S.phase="idle"; S.busy=true; clearPlateScene(); document.body.classList.remove("platescene");
   Sound.win(); confetti(); setDone("next",false);
   await sayW(L.end[0],"good","billu",gen); if(!live(gen)) return;
   await sayW(L.end[1],"good","noori",gen); if(!live(gen)) return;
-  startLevel("1.2"); }
+  SAUCE(()=>startLevel("1.2")); }
 
 /* ---------- hint, confetti, end ---------- */
 let hintAnim=null;
@@ -3903,7 +3903,7 @@ const PRE=(()=>{ const pre=document.getElementById("pre"), start=document.getEle
 /* A bottle toss sends a blob toward the viewer. It hits the glass, spreads into
    an uneven splat, then drips down to reveal the next scene. */
 function SAUCE(done){
-  if(document.getElementById("sauce")) return;
+  if(document.getElementById("sauce")){ done(); return; }
   if(matchMedia("(prefers-reduced-motion: reduce)").matches){ done(); return; }
   const W=innerWidth, H=innerHeight, ov=document.createElement("div"); ov.id="sauce";
   ov.innerHTML=`<canvas></canvas><img class="btl" src="assets/web/sauce_bottle.webp" alt="">`; document.body.appendChild(ov);
