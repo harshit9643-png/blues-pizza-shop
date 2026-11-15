@@ -1786,11 +1786,16 @@ const frac=(n,d,id)=>`<span class="fr"><b${id?` id="${id}"`:""}>${n}</b><b>${d}<
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6"/></svg>';
 let onDone=null;
+/* the dialogue box shows whoever is speaking: Billu, Noori, or the customer whose quoted line it is ("Tez: “…”") */
+const SPK_PICS=new Set(["noori","mouse","squirrel","monty","jhumru","ant","sloth","madhu","hippo","bear","tez","badal","gorilla","bijli","giraffe","parrot","frog","rabbit","peacock"]);
+function spkPic(text,who){ const m=/^\s*(?:<[^>]+>)*\s*([A-Z][A-Za-z]+)(?:\s*\([^)]*\))?:\s*[“"]/.exec(String(text||""));
+  let w=m?m[1].toLowerCase():(who||"noori");   // a quoted line belongs to the one quoted
+  if(/^ant: “one big piece/i.test(String(text))) w="ant";
+  return w==="billu"?"billu_idle":w==="chintu"?"chintu_face":SPK_PICS.has(w)?w:"noori"; }
 function say(text,tone,speaker){
   const cd=document.querySelector("#app>.card"); if(cd) cd.classList.remove("gone");
   nooriTalk(speaker==="billu"?null:text); S.sayPlain=text; S.saySpk=speaker||"noori"; if($("story").hidden&&$("tut").hidden) speak(text,S.saySpk); $("say").innerHTML=fracify(text); $("say").className="say"+(tone?" "+tone:"");
-  $("guideImg").src = speaker==="billu" ? A+"billu_idle.webp" : A+"noori.webp";
-  $("guide").classList.toggle("billu",speaker==="billu");
+  { const pic=spkPic(text,speaker); $("guideImg").src=A+pic+".webp"; $("guide").classList.toggle("billu",pic==="billu_idle"); $("guide").dataset.spk=pic; }
 }
 /* after a second wrong pick the rule shows up inside the instruction card, with its little picture */
 function sayRule(k){
@@ -3973,3 +3978,7 @@ function SAUCE(done){
   requestAnimationFrame(frame);
 }
 </script>
+<style>
+/* a customer's photo in the dialogue box: the picture fills the round frame, the face at the top */
+body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 8%!important;border-radius:50%}
+</style>
