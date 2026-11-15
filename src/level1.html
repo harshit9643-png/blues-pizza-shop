@@ -1022,6 +1022,22 @@ body.tutoring .top>*:not(.jump):not(.home){pointer-events:none}
 .story .sshot.in{opacity:1;transform:none}
 .story .sshot img{width:100%;height:100%;object-fit:cover;display:block}
 .story .sshot.now{transition:none!important}
+/* scene 2 from above: the table fills the screen; the board and the pizza sit in the middle */
+.story .sshot.topv{overflow:hidden;background:#C9803F}
+.story .sshot.topv img.ttable{transform:scale(1.14)}
+.story .sshot.topv .tstage{position:absolute;left:50%;top:53%;width:min(60vh,46vw);aspect-ratio:1;translate:-50% -50%;filter:drop-shadow(0 18px 18px rgba(60,25,5,.45))}
+.story .sshot.topv .tboard{position:absolute;inset:0;background:url("assets/story/top_board.webp") center/contain no-repeat}
+.story .sshot.topv .tpz{position:absolute;inset:9%}
+.story .sshot.topv .tpz img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:transform .8s cubic-bezier(.3,1.3,.5,1),opacity .35s}
+.story .sshot.topv .tpz .tbig,.story .sshot.topv .tpz .tsmall{opacity:0}
+.story .sshot.topv.cut .tpz .tw{opacity:0}
+.story .sshot.topv.cut .tpz .tbig,.story .sshot.topv.cut .tpz .tsmall{opacity:1}
+.story .sshot.topv.cut .tpz .tbig{transform:translateX(-5%) rotate(-3deg)}
+.story .sshot.topv.cut .tpz .tsmall{transform:translateX(9%) rotate(5deg)}
+.story .sshot.topv .tcut{position:absolute;left:63%;top:0;width:6px;height:100%;translate:-50% 0;border-radius:6px;background:linear-gradient(#FFFFFF,#FFF4C8);box-shadow:0 0 12px 4px rgba(255,255,255,.85);transform:scaleY(0);transform-origin:50% 0;opacity:0}
+.story .sshot.topv.cutting .tcut{animation:tcut .8s cubic-bezier(.4,0,.3,1) forwards}
+.story .sshot.topv.cut .tcut{animation:none;opacity:0}
+@keyframes tcut{0%{transform:scaleY(0);opacity:1}85%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
 .story .sshot.pgleaf{transform-origin:50% 50%;backface-visibility:hidden!important;-webkit-backface-visibility:hidden!important;box-shadow:none}
 .story .sshot .sshade{background:linear-gradient(90deg,rgba(25,12,2,0) 45%,rgba(25,12,2,.55) 50%,rgba(25,12,2,.15) 75%,rgba(25,12,2,0))!important}
 .story .sshot .sshade2{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(25,12,2,.75),rgba(25,12,2,.25) 55%,rgba(25,12,2,0))}
@@ -3028,7 +3044,7 @@ const SFX={ jingle(){ [2093,2637,2349,2794,2093,2637].forEach((f,i)=>sTone(f,i*.
   pop(){ sTone(520,0,.09,"sine",.1); }, cheer(){ [523,659,784,1047,1319].forEach((f,i)=>sTone(f,i*.09,.4,"triangle",.1)); } };
 const NARR_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="#FFF3D6" stroke-width="2" stroke-linejoin="round"><path d="M12 6C9 4 5 4 3 5v14c2-1 6-1 9 1 3-2 7-2 9-1V5c-2-1-6-1-9 1z"/><path d="M12 6v14"/></svg>';
 const SPK={narr:["Narrator",null,"narr"],noori:["Noori","noori","noori"],billu:["Chef Billu","billu_idle","billu"],
-  chintu:["Chintu","monty","guest"],monty:["Monty","monty","guest"],ant:["Ant","ant","guest"]};
+  chintu:["Chintu","chintu_face","guest"],monty:["Monty","monty","guest"],ant:["Ant","ant","guest"]};
 
 /* ---------- puppet rigs: parts cut from the character art (tools/rig_parts.py) ---------- */
 const RIGS={
@@ -3447,6 +3463,17 @@ function sceneChange(oldEl,newEl,kind){ const sw=$("sworld"), P="perspective(260
     .then(()=>back.remove()); }
 /* a story picture turns like a page of a book: the next scene lies underneath, the page lifts from the right and turns over its
    left edge, its paper back showing for the second half, with a shadow sweeping off the page below */
+/* a camera move between two pictures: the old one pushes in (towards fx,fy %) and dissolves, the new one settles from a tilted, closer view */
+function sceneCam(oldEl,newEl,o={}){ const sw=$("sworld"), fx=o.fx??50, fy=o.fy??50;
+  const ims=[...newEl.querySelectorAll("img")].map(i=>i.decode?i.decode().catch(()=>{}):0);
+  return Promise.race([Promise.all(ims),sleep(1500)]).then(()=>{
+    sw.insertBefore(newEl,oldEl.nextSibling); newEl.classList.add("in","now");
+    oldEl.style.transformOrigin=fx+"% "+fy+"%";
+    const a1=oldEl.animate([{transform:"scale(1)",filter:"blur(0px)",opacity:1},{transform:"scale(1.9)",filter:"blur(6px)",opacity:0}],{duration:1400,easing:"cubic-bezier(.5,0,.75,.4)",fill:"forwards"});
+    const a2=newEl.animate([{transform:o.down?"scale(.8) rotate(4deg)":"scale(1.35) rotate(-10deg)",filter:"blur(8px)",opacity:0,offset:0},{opacity:1,filter:"blur(2px)",offset:.45},{transform:"none",filter:"blur(0px)",opacity:1}],{duration:1800,delay:350,easing:"cubic-bezier(.2,.8,.3,1)",fill:"both"});
+    SFX&&SFX.whoosh&&SFX.whoosh();
+    return Promise.all([a1.finished,a2.finished].map(p=>p.catch(()=>{}))).then(()=>{ oldEl.remove(); a2.cancel(); newEl.classList.remove("now"); });
+  }); }
 function sceneBook(oldEl,newEl){ const sw=$("sworld"), P="perspective(3600px) ", done=a=>a.finished.catch(()=>{});
   const im=newEl.querySelector("img"), ready=im&&im.decode?im.decode().catch(()=>{}):Promise.resolve();
   return Promise.race([ready,sleep(1500)]).then(()=>{   // the next picture is ready before the page turns
@@ -3511,29 +3538,24 @@ async function storyContext1(){
   { let done=false; const wave=(async()=>{ await sleep(600); for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
     picZoom(open1,47,54,1.5,[aN,aB],3000);   // slowly in on the stall
     await sLine("narr","At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!"); done=true; await wave; S1.set("billu0"); }
-  // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
+  // scene 2, seen from above: the table, the board and the pizza; Chintu orders and Billu cuts (their lines in the dialogue box)
   await W(sleep(2200));   // a moment on the picture before it changes
-  let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
-  aN.remove(); aB.remove(); await W(sceneBook(open1,open2));
-  const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
-  STORY.cast.chintu=aC; STORY.cast.billu=aB2;
-  { const im=open2.querySelector("img:not(.blur)"), F=[0,1,2,3].map(k=>`assets/story/scene2_talk${k}.webp`); F.forEach(u=>{ new Image().src=u; });
-    let k=0; const t0=performance.now(); const t=setInterval(()=>{ if(!im.isConnected) return clearInterval(t); if(PAUSE.on) return;
-      const talking=(window.VOICE&&VOICE.busy())||performance.now()-t0<1800; im.src=talking?F[1+(k++%3)]:F[0]; },150);   // mouth moves while he speaks (at least the first 1.8 s)
-    await sLine("chintu","Half a pizza, please!"); clearInterval(t); im.src=F[0]; }
-  await W(sleep(2200));   // a moment on the picture before it changes
-  // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
-  const BF=[0,1,2,3].map(k=>`assets/story/scene2_half_talk${k}.webp`); BF.forEach(u=>{ new Image().src=u; });   // Billu's 4 talking faces (0 = mouth shut)
-  const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="${BF[0]}" alt="">`;
-  await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],2500);   // slowly in on Billu and the cut pizza
-  await W(sleep(2500));   // once the zoom has landed, his mouth starts moving and the bubble comes up with it
-  { const stopLips=lipSync(cut2.querySelector("img:not(.blur)"),BF,[0,1,3,2]);   // shut, a little open, open, wide open
-    STORY.noSpot=true; STORY.bubAt=[70,6,27,1]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
-    stopLips(); }
+  const T="assets/story/", open2=document.createElement("div"); open2.className="sshot topv";
+  open2.innerHTML=`<img class="ttable" src="${T}top_table.webp" alt="">
+    <div class="tstage"><div class="tboard"></div>
+      <div class="tpz"><img class="tw" src="${T}top_pizza_whole.webp" alt=""><img class="tbig" src="${T}top_piece_big.webp" alt=""><img class="tsmall" src="${T}top_piece_small.webp" alt=""><i class="tcut"></i></div></div>`;
+  aN.remove(); aB.remove(); STORY.cast.noori=null; STORY.cast.billu=null; STORY.cast.chintu=null;
+  await W(sceneCam(open1,open2,{fx:62,fy:60}));   // the camera rises over the counter and looks down at the pizza
+  STORY.noSpot=true;
+  await sLine("chintu","Half a pizza, please!");
+  await W(sleep(600));
+  { open2.classList.add("cutting"); SFX.roll(); await W(sleep(900)); open2.classList.add("cut"); await W(sleep(700)); }   // the cutter runs down the line, then the two pieces part
+  await sLine("billu","Easy! Two pieces!");
+  STORY.noSpot=false;
   // scene 3 (picture): Chintu points at the big piece, Noori (on the right) is not impressed
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
-  aC.remove(); aB2.remove(); await W(sceneBook(open2,open3));
+  await W(sceneCam(open2,open3,{fx:50,fy:52,down:true}));
   const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(68.5,31,19,47,"noori");   // Noori stands on the right (Billu is not in this picture)
   Object.assign(STORY.cast,{chintu:c3,noori:n3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
@@ -4261,7 +4283,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
     window[name]=function(oldEl,newEl,...rest){
       if(!RW.ff) return f.call(this,oldEl,newEl,...rest);
       const sw=document.getElementById("sworld"); sw.insertBefore(newEl,oldEl); newEl.classList.add("in","now"); oldEl.remove(); return Promise.resolve(); }; };
-  ["sceneBook","sceneChange"].forEach(wrapTurn);
+  ["sceneBook","sceneChange","sceneCam"].forEach(wrapTurn);
   // sounds are silent while winding forward
   if(typeof SFX==="object") Object.keys(SFX).forEach(k=>{ const f=SFX[k]; if(typeof f==="function") SFX[k]=function(...a){ return RW.ff?undefined:f.apply(this,a); }; });
   // waits are cut short and moving pictures jump to their end while winding forward
