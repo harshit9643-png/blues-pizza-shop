@@ -2828,6 +2828,13 @@ function lPulse(svg){ svg.querySelectorAll(".part").forEach((el,i)=>setTimeout((
 /* the topped parts slide out of the pizza (towards dx,dy in pizza units) and fade */
 function lServeRow(svg,parts){ const g=svg._g; parts.forEach((i,k)=>{ const el=lPart(svg,i), p=g.parts[i]; setTimeout(()=>{
     const tx=300+(k-(parts.length-1)/2)*165-p.cx, ty=560-p.cy; el.style.transform=`translate(${tx}px,${ty}px) scale(.55)`; el.classList.add("served"); if(Sound.plop) Sound.plop(); },(TUT.fast?0:k*450)); }); }
+/* serve parts onto a plate: they keep their places in the pizza, smaller, centred on the plate */
+function lServePlate(svg,plate,parts){ const g=svg._g, pr=svg.getBoundingClientRect(), qr=plate.getBoundingClientRect(), k=600/pr.width;
+  const dx=((qr.left+qr.width/2)-(pr.left+pr.width/2))*k, dy=((qr.top+qr.height/2)-(pr.top+pr.height/2))*k, sc=Math.min(.8,qr.width*.66/(pr.width*.9));
+  parts.forEach((i,k2)=>{ const el=lPart(svg,i), p=g.parts[i]; setTimeout(()=>{
+    const tx=dx+(300+(p.cx-300)*sc)-p.cx, ty=dy+(300+(p.cy-300)*sc)-p.cy;
+    el.classList.remove("lit"); el.style.transition="transform .9s cubic-bezier(.45,0,.2,1)"; el.style.transform=`translate(${tx.toFixed(1)}px,${ty.toFixed(1)}px) scale(${sc.toFixed(3)})`;
+    el.classList.add("served"); if(Sound.plop) setTimeout(()=>Sound.plop(),800); },TUT.fast?0:k2*170); }); }
 function lServe(svg,parts,dx,dy){ parts.forEach((i,k)=>{ const el=lPart(svg,i); setTimeout(()=>{ el.style.transform=`translate(${dx}px,${dy}px) scale(.35)`; el.classList.add("gone"); },k*300); }); }
 const lStage=(html,cls="")=>{ const s=$("tutLearn"); s.className="learn "+cls; s.innerHTML=html; return s; };
 const lHi=(...els)=>els.forEach(e=>e&&e.classList.add("hi"));   // the fraction card being talked about glows
@@ -2836,8 +2843,8 @@ const lGlow=(card,which,on=true)=>card.querySelector(which==="n"?"b.n":"b.d").cl
 async function runLearning(ok){
   const page=document.querySelector(".tut .page"), ttl=document.querySelector(".tut .ttl");
   page.classList.add("learning"); ttl.innerHTML="<b>What is a fraction?</b>"; ttl.classList.remove("gone"); ttl._n=0;
-  const say=(who,t)=>{ TUT.fast=!!(window.TUT_RW&&(TUT_RW.ff||TUT_RW.abort)); return tutSay(who,t,{extra:3500}); };   /* while BACK replays the lesson, everything stays instant */   // the lesson goes slower: 3.5 s to look after each line
-  const wait=ms=>TUT.fast?sleep(1):sleep(ms*3.2);
+  const say=(who,t,x)=>{ TUT.fast=!!(window.TUT_RW&&(TUT_RW.ff||TUT_RW.abort)); return tutSay(who,t,{extra:x||4500}); };   /* while BACK replays the lesson, everything stays instant */   // the lesson goes slower: 3.5 s to look after each line
+  const wait=ms=>TUT.fast?sleep(1):sleep(ms*3.8);
   // 1. one whole
   lStage(`<div class="li">${lPizzaHTML("lA")}<div class="lword lwhole">1 whole</div></div>`); lDraw($("lA"),2);
   await say("noori","This is one whole pizza."); if(!ok()) return;
@@ -2856,12 +2863,18 @@ async function runLearning(ok){
     const s=say("noori","Two halves make one whole: 2/2."); lLit(A,1); await wait(700); lLit(A,1,false); lLit(B,0); await wait(700); lLit(B,0,false); lLit(C,0); lLit(C,1); lHi($("lC2")); await s; if(!ok()) return; }
   // 5. one pizza at a time: 4/5 first (cut, top, serve), then 3/8 on its own screen
   for(const [n,d,top,line] of [[4,5,"tomato","For 4/5 of a pizza, cut 5 equal parts and serve 4."],[3,8,"corn","For 3/8, cut 8 equal parts and serve 3."]]){
-    lStage(`<div class="li">${lPizzaHTML("lA")}<div id="lAc"></div></div>`); lDraw($("lA"),d,{top});
-    const s=say("noori",line), P=$("lA");
-    await lCut(P,{ms:d>6?300:380}); if(!ok()) return;
-    for(let i=0;i<n;i++){ lTop(P,i); await wait(220); }
-    $("lAc").innerHTML=lCard(n,d); lHi($("lAc").firstChild); await wait(400); lServeRow(P,[...Array(n).keys()]);
-    await s; if(!ok()) return; }
+    // the pizza alone in the middle; once cut and topped, a white plate slides in beside it and the topped parts are served onto it
+    lStage(`<div class="lsrv"><div class="li lsp">${lPizzaHTML("lA")}</div><div class="lplw" id="lPlw"><img class="lplate" id="lPl" src="assets/draft2/plate_white.svg" alt=""></div><div id="lAc"></div></div>`,"serveplate");
+    lDraw($("lA"),d,{top});
+    const s=say("noori",line,d>6?32000:27000), P=$("lA");   // the line stays up until the parts are on the plate
+    await lCut(P,{ms:d>6?340:440}); if(!ok()) return;
+    await wait(250);
+    for(let i=0;i<n;i++){ lTop(P,i); await wait(300); }
+    await wait(350); if(!ok()) return;
+    $("lPlw").classList.add("in"); if(Sound.pop) Sound.pop(); await wait(420); if(!ok()) return;   // the plate comes in; the pizza moves over to make room
+    lServePlate(P,$("lPl"),[...Array(n).keys()]); await wait(TUT.fast?0:350+n*170); if(!ok()) return;
+    $("lAc").innerHTML=lCard(n,d); $("lAc").classList.add("in"); lHi($("lAc").firstChild);
+    await s; if(!ok()) return; await wait(300); }
   // 6 and 7: each fraction card with its cut pizza above it; the served parts are topped and glow
   const pzCards=list=>{ lStage(list.map(([n,d],k)=>`<div class="li pzc">${lPizzaHTML("lQ"+k)}${lCard(n,d,"","lQc"+k)}</div>`).join(""),"pzcards pz"+list.length);
     list.forEach(([n,d,top],k)=>{ const P=$("lQ"+k); lDraw(P,d,{cut:true,top});
@@ -4131,6 +4144,15 @@ aside.qap.qa2{width:min(420px,94vw)!important;padding:0!important;display:flex;f
 .tut .learn.halves .li.hl2 .tpaddle{display:none!important}   /* a half on its own, no board */
 .tut .learn.halves .li.hl2 .pz{aspect-ratio:324/600!important;width:calc(var(--ls) * .54)!important;height:auto!important}   /* only the half that is there */
 .tut .learn.halves .part.gone{display:none}
+.tut .learn.serveplate .lsrv{display:flex;align-items:center;justify-content:center}
+.tut .learn.serveplate .lsp{z-index:3}
+.tut .learn.serveplate .lplw{position:relative;width:0;opacity:0;margin-left:0;transform:translateX(60px) scale(.7);display:grid;place-items:center;
+  transition:width .9s cubic-bezier(.45,0,.2,1),margin-left .9s cubic-bezier(.45,0,.2,1),opacity .6s .25s,transform .8s .25s cubic-bezier(.3,1.35,.5,1)}
+.tut .learn.serveplate .lplw.in{width:calc(var(--ls) * .95);margin-left:clamp(30px,calc(5*var(--vw)),90px);opacity:1;transform:none}
+.tut .learn.serveplate .lplate{width:calc(var(--ls) * .95);max-width:none;height:auto;filter:drop-shadow(0 10px 10px rgba(0,0,0,.35))}
+.tut .learn.serveplate #lAc{min-height:0;width:0;opacity:0;overflow:visible;display:grid;place-items:center;transition:width .7s cubic-bezier(.45,0,.2,1),margin-left .7s cubic-bezier(.45,0,.2,1),opacity .4s .3s}
+.tut .learn.serveplate #lAc.in{width:calc(var(--ls) * .42);margin-left:clamp(20px,calc(3*var(--vw)),56px);opacity:1}
+.tut .learn.serveplate #lAc .lf{font-size:clamp(26px,calc(4.4*var(--vh)),42px)!important}
 .tut .learn .lop{font-style:normal;font-family:var(--display);font-weight:800;font-size:clamp(40px,calc(6.4*var(--vh)),68px);line-height:1;color:#FFE08A;align-self:flex-start;
   text-shadow:0 3px 0 rgba(0,0,0,.35);margin-top:calc(var(--ls) * .5 - .5em)}
 </style>
