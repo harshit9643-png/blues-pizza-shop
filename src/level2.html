@@ -4291,21 +4291,21 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     document.body.appendChild(cv); ctx=cv.getContext("2d"); };
   const size=()=>{ const d=Math.min(2,devicePixelRatio||1); cv.width=innerWidth*d; cv.height=innerHeight*d; ctx.setTransform(d,0,0,d,0,0); };
   const burst=(x,y,dir,n)=>{ const s=Math.min(innerWidth,innerHeight);
-    for(let i=0;i<n;i++){ const a=dir+R(-.38,.38), v=R(.9,1.9)*s*1.9, kind=Math.random();
+    for(let i=0;i<n;i++){ const a=dir+R(-.38,.38), v=R(.8,1.45)*s*1.75, kind=Math.random();
       parts.push({x:x+R(-6,6),y:y+R(-6,6),vx:Math.cos(a)*v,vy:Math.sin(a)*v,
         k:kind<.5?"sq":kind<.72?"strip":kind<.88?"dot":"curl",
         w:R(5,9)*(s/700+.4),h:R(3,6)*(s/700+.4),c:COLS[(Math.random()*COLS.length)|0],
-        rot:R(0,6.28),vr:R(-14,14),flip:R(0,6.28),vf:R(8,20),sw:R(0,6.28),life:0,max:R(4.2,6)}); } };
+        rot:R(0,6.28),vr:R(-14,14),flip:R(0,6.28),vf:R(8,20),sw:R(0,6.28),life:0,max:12}); } };
   const step=t=>{ const dt=Math.min(.034,(t-last)/1000||.016); last=t; size();
     ctx.clearRect(0,0,innerWidth,innerHeight);
-    parts=parts.filter(p=>p.life<p.max&&p.y<innerHeight+40);
+    parts=parts.filter(p=>p.life<p.max&&p.y<innerHeight+30&&p.x>-60&&p.x<innerWidth+60);   // each piece stays until it has fallen off the bottom
     for(const p of parts){ p.life+=dt;
       const drag=p.k==="dot"?1.7:2.2;   // paper slows down quickly in the air
       p.vx-=p.vx*drag*dt; p.vy-=p.vy*drag*dt; p.vy+=300*dt;   // gravity
-      const top=p.k==="dot"?150:p.k==="curl"?85:105; if(p.vy>top) p.vy=top;   // paper floats down slowly
+      const top=p.k==="dot"?280:p.k==="curl"?200:235; if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
       p.sw+=dt*R(2,4); p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
       p.rot+=p.vr*dt; p.flip+=p.vf*dt;
-      const fade=Math.min(1,(p.max-p.life)/.6);
+      const fade=Math.min(1,(p.max-p.life)/.6, 1);
       ctx.save(); ctx.globalAlpha=fade; ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.c;
       const sy=Math.cos(p.flip);   // the paper turns over: it looks thin edge-on
       if(p.k==="sq"){ ctx.scale(1,sy); ctx.fillRect(-p.w/2,-p.w/2,p.w,p.w); }
@@ -4315,11 +4315,20 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
         for(let u=0;u<=10;u++){ const xx=(u-5)*p.w*.32, yy=Math.sin(u*.9+p.flip)*p.h*.9; u?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); } ctx.stroke(); }
       ctx.restore(); }
     if(parts.length) raf=requestAnimationFrame(step); else { raf=0; ctx.clearRect(0,0,innerWidth,innerHeight); } };
-  return function(){
+  const fire=function(){
     setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(340,Math.max(200,W*H/4200)));
     burst(W*.04,H*1.0,-Math.PI/2+.55,n);     // the left popper fires up and to the right
     burst(W*.96,H*1.0,-Math.PI/2-.55,n);     // the right popper up and to the left
     setTimeout(()=>{ burst(W*.5,H*.98,-Math.PI/2,Math.round(n*.45)); if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } },180);   // a small third pop in the middle
     if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } };
+  fire.busy=()=>parts.length>0;   // true while any piece is still in the air
+  return fire;
 })();
+/* the next question's sauce pour waits until the confetti has fallen all the way down, then a short breath */
+(()=>{ const S0=window.SAUCE; if(typeof S0!=="function") return; let pend=null;
+  window.SAUCE=function(done){ const c=window.confetti;
+    if(c&&c.busy&&c.busy()){ const first=!pend; pend=done;   // NEXT tapped again while waiting: still only one pour
+      if(first) (function w(){ if(c.busy()) return setTimeout(w,120); setTimeout(()=>{ const d=pend; pend=null; S0(d); },350); })();
+      return; }
+    S0(done); }; })();
 </script>
