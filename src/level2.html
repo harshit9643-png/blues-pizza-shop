@@ -4018,4 +4018,10 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 #t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(6*var(--vh))}
 #t2learn .l2cap:empty{display:none}
 </style>
-
+<style>
+/* the "tap me" bounce: no yellow edge or ring any more, just a gentle pop (the whole game) */
+@keyframes ready{50%{transform:scale(1.05)}}
+#t2learn .l2side{border:0!important;box-shadow:none!important;background:none!important}
+#t2learn .l2side.pick{box-shadow:none!important;border:0!important}
+#t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(13*var(--vh))!important}   /* the pizzas sit lower */
+</style>
