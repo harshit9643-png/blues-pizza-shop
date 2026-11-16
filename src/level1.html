@@ -2425,14 +2425,14 @@ async function serve(){
     await sleep(1800); if(!live(gen)) return; document.body.classList.remove("platescene");
     await sayW("Meow-gnificent! Your turn now!","good","billu",gen); if(!live(gen)) return;
     await sayW("Read the order, add the topping, and serve!","","noori",gen); if(!live(gen)) return;
-    S.tut=null; S.i=0; loadOrder(); return; }
+    S.tut=null; S.i=0; SAUCE(()=>loadOrder()); return; }   // after the confetti has landed, the sauce brings the first real order
   if(o.tut){   // Tutorial 1.2: the plates, Noori's line about them, then Billu brings in the first real order
     await plateScene(gen); if(!live(gen)) return; confetti();
     await sleep(1200); if(!live(gen)) return;
     document.body.classList.remove("platescene");
     await sayW(`The parrot got ${o.n} parts out of ${o.d}: ${o.n}/${o.d}. And ${o.d-o.n} part out of ${o.d} is left. I'll eat the remaining parts!`,"","noori",gen); if(!live(gen)) return;
     await sayW("Now we can cut, top and serve! Here comes the next order!","good","billu",gen); if(!live(gen)) return;
-    S.tut=null; S.i=0; loadOrder(); return; }
+    S.tut=null; S.i=0; SAUCE(()=>loadOrder()); return; }   // after the confetti has landed, the sauce brings the first real order
   document.body.classList.add("platescene");   // the Served / Left plates need no instruction box
   await plateScene(gen); if(!live(gen)) return;
   confetti(); renderTop();
@@ -4677,22 +4677,24 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
   const setup=()=>{ if(cv&&cv.isConnected) return; cv=document.createElement("canvas"); cv.id="popfx";
     cv.style.cssText="position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:99990";
     document.body.appendChild(cv); ctx=cv.getContext("2d"); };
-  const size=()=>{ const d=Math.min(2,devicePixelRatio||1); cv.width=innerWidth*d; cv.height=innerHeight*d; ctx.setTransform(d,0,0,d,0,0); };
+  const size=()=>{ const d=Math.min(1.5,devicePixelRatio||1), w=Math.round(innerWidth*d), h=Math.round(innerHeight*d);
+    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; } ctx.setTransform(d,0,0,d,0,0); };   // only when the window size changes (resizing every frame made the game lag)
   const burst=(x,y,dir,n)=>{ const s=Math.min(innerWidth,innerHeight);
     for(let i=0;i<n;i++){ const a=dir+R(-.38,.38), v=R(.8,1.45)*s*1.75, kind=Math.random();
       parts.push({x:x+R(-6,6),y:y+R(-6,6),vx:Math.cos(a)*v,vy:Math.sin(a)*v,
         k:kind<.5?"sq":kind<.72?"strip":kind<.88?"dot":"curl",
         w:R(5,9)*(s/700+.4),h:R(3,6)*(s/700+.4),c:COLS[(Math.random()*COLS.length)|0],
         rot:R(0,6.28),vr:R(-14,14),flip:R(0,6.28),vf:R(8,20),sw:R(0,6.28),life:0,max:12}); } };
-  const step=t=>{ const dt=Math.min(.034,(t-last)/1000||.016); last=t; size();
+  const step=t=>{ const all=Math.min(.25,(t-last)/1000||.016); last=t; size();   // real time: a slow frame moves the pieces further, so the fall always takes the same time
     ctx.clearRect(0,0,innerWidth,innerHeight);
     parts=parts.filter(p=>p.life<p.max&&p.y<innerHeight+30&&p.x>-60&&p.x<innerWidth+60);   // each piece stays until it has fallen off the bottom
-    for(const p of parts){ p.life+=dt;
+    const nsub=Math.max(1,Math.ceil(all/.02)), dt=all/nsub;
+    for(const p of parts){ for(let q=0;q<nsub;q++){ p.life+=dt;
       const drag=p.k==="dot"?1.7:2.2;   // paper slows down quickly in the air
       p.vx-=p.vx*drag*dt; p.vy-=p.vy*drag*dt; p.vy+=300*dt;   // gravity
       const top=p.k==="dot"?280:p.k==="curl"?200:235; if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
       p.sw+=dt*R(2,4); p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
-      p.rot+=p.vr*dt; p.flip+=p.vf*dt;
+      p.rot+=p.vr*dt; p.flip+=p.vf*dt; }
       const fade=Math.min(1,(p.max-p.life)/.6, 1);
       ctx.save(); ctx.globalAlpha=fade; ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.c;
       const sy=Math.cos(p.flip);   // the paper turns over: it looks thin edge-on
@@ -4704,7 +4706,7 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
       ctx.restore(); }
     if(parts.length) raf=requestAnimationFrame(step); else { raf=0; ctx.clearRect(0,0,innerWidth,innerHeight); } };
   const fire=function(){
-    setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(340,Math.max(200,W*H/4200)));
+    setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(240,Math.max(160,W*H/5200)));
     burst(W*.04,H*1.0,-Math.PI/2+.55,n);     // the left popper fires up and to the right
     burst(W*.96,H*1.0,-Math.PI/2-.55,n);     // the right popper up and to the left
     setTimeout(()=>{ burst(W*.5,H*.98,-Math.PI/2,Math.round(n*.45)); if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } },180);   // a small third pop in the middle
@@ -4716,7 +4718,14 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
 (()=>{ const S0=window.SAUCE; if(typeof S0!=="function") return; let pend=null;
   window.SAUCE=function(done){ const c=window.confetti;
     if(c&&c.busy&&c.busy()){ const first=!pend; pend=done;   // NEXT tapped again while waiting: still only one pour
-      if(first) (function w(){ if(c.busy()) return setTimeout(w,120); setTimeout(()=>{ const d=pend; pend=null; S0(d); },350); })();
+      if(first){ const t0=performance.now(); (function w(){ if(c.busy()&&performance.now()-t0<12000) return setTimeout(w,120); setTimeout(()=>{ const d=pend; pend=null; S0(d); },350); })(); }
       return; }
     S0(done); }; })();
+/* NEXT itself waits too: while the confetti is still falling, NEXT only remembers it was pressed (further taps are ignored),
+   and the moment the last piece lands the game moves on: the sauce pours and the next question comes in */
+(()=>{ const N0=window.next; if(typeof N0!=="function") return; let waiting=false;
+  window.next=function(...a){ const c=window.confetti, self=this; if(waiting) return;
+    if(c&&c.busy&&c.busy()){ waiting=true; const t0=performance.now();
+      (function w(){ if(c.busy()&&performance.now()-t0<12000) return setTimeout(w,100); setTimeout(()=>{ N0.apply(self,a); waiting=false; },400); })(); return; }   // a short breath after the last piece lands
+    return N0.apply(this,a); }; })();
 </script>
