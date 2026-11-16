@@ -3165,13 +3165,13 @@ body.paused #story *,body.paused #tut *{animation-play-state:paused!important}
 body.paused #story::after,body.paused #tut::after{content:"";position:absolute;inset:0;z-index:8999;background:rgba(20,12,4,.28);pointer-events:none}
 </style>
 <div class="pctl" id="pctl" aria-label="Story controls">
-  <button id="pcPause" aria-label="Pause"><img src="assets/web/btn_pause.webp" alt="Pause"></button>
-  <button id="pcNext" aria-label="Next"><img src="assets/web/btn_next.webp" alt="Next"></button>
+  <button id="pcPause" aria-label="Pause"><img src="assets/web/rbtn_pause.webp" alt="Pause"></button>
+  <button id="pcNext" aria-label="Next"><img src="assets/web/rbtn_next.webp" alt="Next"></button>
 </div>
 <script>
 /* Pause and Next (review: "The story part is moving very fast. Add pause & forward button") */
 (()=>{ const bar=document.getElementById("pctl"), pb=document.getElementById("pcPause"), nb=document.getElementById("pcNext");
-  const IMG={pause:"assets/web/btn_pause.webp",play:"assets/web/btn_resume.webp"}; new Image().src=IMG.play;
+  const IMG={pause:"assets/web/rbtn_pause.webp",play:"assets/web/rbtn_play.webp"}; new Image().src=IMG.play;
   const st=document.getElementById("story"), tu=document.getElementById("tut");
   function setPause(on){ PAUSE.on=on; document.body.classList.toggle("paused",on);
     pb.querySelector("img").src=on?IMG.play:IMG.pause; pb.setAttribute("aria-label",on?"Play":"Pause");
@@ -3670,7 +3670,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
 (()=>{
   const bar=document.getElementById("pctl"), nb=document.getElementById("pcNext"); if(!bar||!nb) return;
   const bk=document.createElement("button"); bk.id="pcBack"; bk.setAttribute("aria-label","Back");
-  bk.innerHTML='<img src="assets/web/btn_back.webp" alt="Back">'; bar.insertBefore(bk,bar.firstChild);
+  bk.innerHTML='<img src="assets/web/rbtn_back.webp" alt="Back">'; bar.insertBefore(bk,bar.firstChild);
   const st=document.getElementById("story");
   const RW={ff:false,target:-1,req:false,cur:-1,busy:false};
   window.STORY_RW=RW;
@@ -4152,3 +4152,14 @@ body::after{background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(1
 body:has(.view.cardsv .side.win) .spotlay{display:none!important}
 </style>
 
+
+<style>
+/* PAUSE / NEXT / BACK are round wooden keys like QA: BACK and PAUSE in the top-left corner, NEXT in the top-right */
+.pctl{left:16px!important;right:16px!important;top:14px!important;translate:none!important;display:flex!important;justify-content:flex-start!important;
+  gap:12px!important;transform:translateY(-24px)}
+.pctl.on{transform:none}
+.pctl button{height:calc(var(--pch,60px)*1.05)!important;width:calc(var(--pch,60px)*1.05)!important;border-radius:50%}
+.pctl button img{width:100%!important;height:100%!important}
+.pctl #pcNext{margin-left:auto!important}
+.pctl button:focus-visible{border-radius:50%}
+</style>
