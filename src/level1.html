@@ -4562,3 +4562,12 @@ body::after{background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(1
 .pctl #pcNext{margin-left:auto!important}
 .pctl button:focus-visible{border-radius:50%}
 </style>
+
+<style>
+/* the denominator lights up yellow once, right after the pizza is cut (a yellow patch behind the number) */
+.tut #lDc b.d.lit{position:relative;isolation:isolate;animation:denPop 1.6s ease-in-out both!important}
+.tut #lDc b.d.lit::before{content:"";position:absolute;inset:.1em -.2em -.02em;border-radius:.25em;z-index:-1;background:#FFD84A;
+  box-shadow:0 0 0 4px #F6B92E,0 0 26px 8px rgba(255,214,60,.9);opacity:0;animation:denYel 1.6s ease-in-out both}
+@keyframes denYel{0%{opacity:0}18%{opacity:1}70%{opacity:1}100%{opacity:0}}
+@keyframes denPop{0%{transform:scale(1)}18%{transform:scale(1.18)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+</style>
