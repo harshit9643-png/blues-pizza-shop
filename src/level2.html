@@ -2830,8 +2830,8 @@ async function storyContext2(){
   SFX.chomp();
   // 3. the scoreboard: Monty 1/8, Ant 1/4; Billu hands Monty the trophy
   sc=await next(sc,"assets/story/l2_scene3.webp"); SFX.cheer();
-  keep=[anchor(5,25,29,50),anchor(69,32,29,50)];   // Monty with his medal and the scoreboard stay clear
-  await say("billu",[39,14,21,34],"8 is bigger than 4, so Monty wins!"); keep.forEach(a=>a.remove());
+  keep=[anchor(26,42,24,46),anchor(75,47,22,47)];   // Monty with his medal and the scoreboard stay clear
+  await say("billu",[53,31,18,30],"8 is bigger than 4, so Monty wins!"); keep.forEach(a=>a.remove());
   // 4. the ant points at the plates (the empty space on hers is bigger); Noori beside the scoreboard
   sc=await next(sc,"assets/story/l2_scene4.webp");
   await say("ant",[45,18,17,36],"Wait! Look at our plates!");
