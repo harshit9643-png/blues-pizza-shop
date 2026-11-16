@@ -3826,7 +3826,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
    the whole screen moves up, so "5/8 is more than 3/8" sits higher too */
 #t2learn.tight .l2row{gap:clamp(40px,calc(8*var(--vw)),150px)!important;margin-top:calc(1*var(--vh))!important}
 #t2learn.tight .l2side{display:grid!important;grid-template-columns:auto auto;grid-template-areas:"ava pz" ". cap";align-items:center;justify-items:center;column-gap:clamp(10px,calc(1.6*var(--vw)),24px);row-gap:clamp(6px,calc(1.4*var(--vh)),14px)}
-#t2learn.tight .l2side:last-child{grid-template-columns:auto auto;grid-template-areas:"pz ava" "cap ."}
+#t2learn.tight .l2side:nth-child(2){grid-template-columns:auto auto;grid-template-areas:"pz ava" "cap ."}
 #t2learn.tight .l2side .l2ava{grid-area:ava}
 #t2learn.tight .l2side .l2pz{grid-area:pz;width:clamp(140px,calc(30*var(--vh)),240px)!important}
 #t2learn.tight .l2side .l2cap{grid-area:cap}
@@ -4012,7 +4012,7 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 #t2learn .l2row>.l2side{position:relative}
 #t2learn .l2row>.l2side>.l2who{position:absolute;top:calc(-7*var(--vh));display:flex;flex-direction:column;align-items:center;z-index:2}
 #t2learn .l2row>.l2side:first-child>.l2who{right:calc(100% + 1*var(--vw))}
-#t2learn .l2row>.l2side:last-child>.l2who{left:calc(100% + 1*var(--vw))}
+#t2learn .l2row>.l2side:nth-child(2)>.l2who{left:calc(100% + 1*var(--vw))}
 #t2learn .l2who>.l2f{margin-top:calc(-3*var(--vh));position:relative;z-index:2}
 #t2learn .l2row{gap:clamp(60px,calc(12*var(--vw)),230px)!important}
 #t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(6*var(--vh))}
@@ -4102,4 +4102,22 @@ setInterval(()=>{ const L=document.querySelector("#t2learn.tight"); if(!L) retur
 #t2learn.tight>.l2more:not(.l2wide){margin-top:calc(1*var(--vh))!important}
 #t2learn.tight .l2more .l2f{font-size:clamp(20px,calc(3.4*var(--vh)),30px)!important}
 </style>
+<style>
+/* the two pizzas in the lesson are bigger (the busy Tez-and-Jhumru screen keeps its size) */
+#t2learn:not(.tight) .l2row .l2pz,#t2learn:not(.tight) .l2row .l2sl{width:clamp(160px,calc(38*var(--vh)),330px)!important}
+</style>
+<style>
+/* a VS badge between the two sides in the lesson, as on the match screens */
+#t2learn .l2row{position:relative}
+#t2learn .l2row>.l2vs{position:absolute;left:50%;top:var(--vsy,50%);translate:-50% -50%;display:grid;place-items:center;border-radius:50%;font-family:var(--display);font-weight:800;
+  width:clamp(56px,calc(5.6*var(--vw)),88px);aspect-ratio:1;font-size:clamp(20px,calc(2.2*var(--vw)),34px);color:#FFE08A;-webkit-text-stroke:2px #4A2610;paint-order:stroke fill;
+  background:radial-gradient(circle at 40% 35%,#B8784A,#7C4520 65%,#5A2E14);box-shadow:0 0 0 3px #4A2610,0 0 0 6px #F6C34A,0 8px 14px rgba(60,25,0,.3);z-index:2;pointer-events:none}
+</style>
+<script>
+/* put the VS into every two-sided lesson row, level with the middle of the pizzas */
+setInterval(()=>{ document.querySelectorAll("#t2learn .l2row").forEach(r=>{ const sides=r.querySelectorAll(":scope>.l2side"); if(sides.length!==2) return;
+  let v=r.querySelector(":scope>.l2vs"); if(!v){ v=document.createElement("div"); v.className="l2vs"; v.textContent="VS"; v.setAttribute("aria-hidden","true"); r.appendChild(v); }
+  const pz=sides[0].querySelector(".l2pz,.l2sl"); if(!pz) return; const a=pz.getBoundingClientRect(), q=r.getBoundingClientRect();
+  r.style.setProperty("--vsy",(a.top+a.height/2-q.top).toFixed(0)+"px"); }); },150);
+</script>
 
