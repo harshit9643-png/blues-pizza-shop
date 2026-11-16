@@ -2053,15 +2053,13 @@ function showCustomer(){
   const o=cur(), keys=[o.cust].concat(o.duo?[o.duo]:[]);
   const frac=`${o.n}/${o.d}`, name=custName(o);
   $("cust").innerHTML=`
-    <article class="rcpt enter" id="slip" aria-label="Order receipt ${S.i+1}: ${name} wants ${o.n} out of ${o.d} of a pizza">
-      <div class="rc">
-        <div class="rc-ava who ${o.duo?'duo':''} enter" id="who">${keys.map(k=>`<img src="${A}${k}.webp" alt="${NAMES[k]}">`).join("")}</div>
-        <div class="rc-leaf l"><svg viewBox="0 0 86 56" aria-hidden="true"><path d="M84 30C64 4 24 0 2 26c22 26 62 26 82 4z" fill="#58B44A" stroke="#2D6A27" stroke-width="3"/><path d="M80 29C58 22 30 22 8 27" fill="none" stroke="#C9EC9E" stroke-width="2.5" stroke-linecap="round"/></svg></div>
-        <div class="rc-leaf r"><svg viewBox="0 0 86 56" aria-hidden="true"><path d="M84 30C64 4 24 0 2 26c22 26 62 26 82 4z" fill="#58B44A" stroke="#2D6A27" stroke-width="3"/><path d="M80 29C58 22 30 22 8 27" fill="none" stroke="#C9EC9E" stroke-width="2.5" stroke-linecap="round"/></svg></div>
-        <div class="rc-name ${name.length>8?'long':''}">${name}</div>
-        <div class="rc-rays">${RAYS}</div>
-        <div class="rc-badge"><div><span class="rc-frac ${frac.length>3?'wide':''}" aria-label="${o.n} out of ${o.d}"><b>${o.n}</b><i></i><b>${o.d}</b></span></div></div>
-        <div class="rc-of">of a pizza</div>
+    <article class="rcpt ocard enter" id="slip" aria-label="Order receipt ${S.i+1}: ${name} wants ${o.n} out of ${o.d} of a pizza">
+      <div class="oc-top">ORDER</div>
+      <div class="oc-body">
+        <div class="oc-ava who ${o.duo?'duo':''} enter" id="who">${keys.map(k=>`<img src="${A}${k}.webp" alt="${NAMES[k]}">`).join("")}</div>
+        <div class="oc-name">${name}</div>
+        <div class="oc-fr"><span class="rc-frac ${frac.length>3?'wide':''}" aria-label="${o.n} out of ${o.d}"><b>${o.n}</b><i></i><b>${o.d}</b></span></div>
+        <div class="oc-of">of a pizza</div>
       </div>
     </article>`;
 }
@@ -4522,5 +4520,26 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 body{background:#F2C48C!important}
 body::before{background:url("assets/ui/table_wood.webp") center/cover no-repeat,#F2C48C!important}
 body::after{background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(110,60,20,.14) 100%)!important}
+</style>
+<style>
+/* the order card (the supplied design): brown ORDER header, cream body, round green photo, name pill, the fraction in a big soft box, "of a pizza" */
+#slip.rcpt.ocard{background:#F7E9D2!important;background-image:none!important;aspect-ratio:2/3;border-radius:28px;overflow:hidden;
+  container-type:inline-size;display:flex;flex-direction:column;border:6px solid #E9B873;
+  box-shadow:0 0 0 3px #C88A45,0 14px 22px rgba(70,35,10,.35),inset 0 0 0 3px #FFF6E6!important}
+.ocard .oc-top{flex:0 0 auto;background:linear-gradient(#B8601F,#9A4A14);color:#FFF6E6;font-family:var(--display);font-weight:800;
+  font-size:13cqw;letter-spacing:.06em;text-align:center;padding:3.5cqw 0 3cqw;text-shadow:0 .5cqw 0 rgba(0,0,0,.25)}
+.ocard .oc-body{flex:1 1 auto;min-height:0;margin:3cqw 4cqw 4cqw;background:#FCF3E4;border-radius:7cqw;display:flex;flex-direction:column;align-items:center;justify-content:space-evenly;padding:3cqw 0}
+.ocard .oc-ava{position:relative;width:44cqw;flex:0 0 auto;aspect-ratio:1;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#D3EFA6,#9CCB64);
+  box-shadow:0 0 0 1.4cqw #FFFFFF,0 1.5cqw 3cqw rgba(60,30,10,.25);display:flex;align-items:flex-end;justify-content:center}
+.ocard .oc-ava img{height:96%;width:auto;display:block;margin-bottom:-2%}
+.ocard .oc-ava.duo img{height:80%;margin:0 -8% -2%}
+.ocard .oc-name{background:#F4D9AE;border-radius:999px;padding:1.2cqw 9cqw;font-family:var(--display);font-weight:800;font-size:8.5cqw;color:#3E2210;line-height:1.15;white-space:nowrap}
+.ocard .oc-fr{width:72%;background:#F6DDB6;border-radius:6cqw;display:grid;place-items:center;padding:4cqw 0;flex:0 0 auto}
+.ocard .rc-frac{position:static!important;translate:none!important;margin:0!important;display:grid;justify-items:center;
+  font-family:var(--display);font-weight:800;font-size:17cqw!important;line-height:1;color:#3E2210!important;text-shadow:none!important;-webkit-text-stroke:0!important}
+.ocard .rc-frac.wide{font-size:13cqw!important}
+.ocard .rc-frac b{display:block}
+.ocard .rc-frac i{display:block;width:150%;height:1.6cqw;margin:1.5cqw 0;background:#3E2210;border-radius:1cqw}
+.ocard .oc-of{font-family:var(--display);font-weight:800;font-size:8cqw;color:#3E2210}
 </style>
 
