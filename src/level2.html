@@ -2999,7 +2999,9 @@ async function runLearning2(ok){
   duel.style.display="none"; ttl.innerHTML="<b>Who ate more?</b>"; ttl.style.display="none";
   const L=document.createElement("div"); L.id="t2learn"; page.insertBefore(L,duel);
   const stage=html=>{ L.innerHTML=html; };
-  const side=(k,svg,cap,id)=>`<div class="l2side" ${id?`id="${id}"`:""}><div class="l2ava"><img src="${A}${k==="monty"?"chintu_full":k}.webp" alt="${NAMES[k]}"${k==="monty"?' class="newmonty"':""}></div>${svg}<div class="l2cap">${cap||""}</div></div>`;
+  // the character with its card right under it sits outside the pizza's top corner (as on the match screens); other captions stay under the pizza
+  const side=(k,svg,cap,id)=>{ const card=/class="l2f"/.test(cap||"");
+    return `<div class="l2side" ${id?`id="${id}"`:""}><div class="l2who"><div class="l2ava"><img src="${A}${k==="monty"?"chintu_full":k}.webp" alt="${NAMES[k]}"${k==="monty"?' class="newmonty"':""}></div>${card?cap:""}</div>${svg}<div class="l2cap">${card?"":(cap||"")}</div></div>`; };
   const say=(w,t,o)=>tutSay(w,t,Object.assign({extra:3500},o||{}));
   // 1. two whole pizzas, the same size
   stage(`<div class="l2row">${side("monty",l2Pizza(1,{}),"")}${side("ant",l2Pizza(1,{}),"")}</div>`);
@@ -3983,3 +3985,37 @@ function SAUCE(done){
 /* a customer's photo in the dialogue box: the picture fills the round frame, the face at the top */
 body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 8%!important;border-radius:50%}
 </style>
+<style>
+/* no yellow highlights anywhere in the game: whatever is being pointed at pops up instead (scale, so other moves still apply) */
+@keyframes ylPop{0%,100%{scale:1}45%{scale:1.14}}
+@keyframes ylPopSm{0%,100%{scale:1}45%{scale:1.07}}
+.showme{filter:none!important;animation:ylPop 1s ease-in-out infinite!important}
+.holep{fill:transparent!important;stroke:#FFFFFF!important}
+.tut .order.glow{box-shadow:none!important}
+.tut .order .tf b.lit{background:none!important;box-shadow:none!important;color:inherit!important;display:inline-block;animation:ylPop .7s ease-in-out 3!important}
+.l2lit{fill:transparent!important;stroke:none!important;filter:none!important}
+.l2pz :has(+ .l2lit),.l2pz .l2lit{transform-box:view-box;transform-origin:100px 100px;animation:ylPopSm 1.1s ease-in-out infinite}
+.fr b.blink,.view.cardsv .fr b.blink{background:none!important;box-shadow:none!important;color:inherit!important;display:inline-block;animation:ylPop .6s ease-in-out 5!important}
+.side .eat.t2lit{box-shadow:none!important;animation:ylPop 1.1s ease-in-out infinite!important}
+.side.glow .plate,.side.glow .fcard,.side.glow .diag,#t2learn .l2side.glow{filter:none!important}
+.side.glow .plate,.side.glow .fcard,#t2learn .l2side.glow{animation:ylPopSm 1s ease-in-out infinite}
+.diag.glowd{filter:none!important;animation:ylPop 1s ease-in-out infinite!important}
+.slot.glow,.final .slot.glow::before,.fline .slot.glow,.fl2 .slot.glow{box-shadow:none!important}
+.slot.glow{animation:ylPopSm 1s ease-in-out 3}
+.tut .tag.glow{box-shadow:none!important;animation:ylPop 1s ease-in-out infinite}
+.fl2 .fin.glowc{animation:ylPop 1.1s ease-in-out!important;box-shadow:none!important;filter:none!important}
+.fl2 .fin.sel{box-shadow:none!important;scale:1.08}
+.fl2 .fin.win{box-shadow:none!important}
+</style>
+<style>
+/* the lesson's two sides: each character, with its fraction card right under it, stands outside its pizza at the top corner (as on the match screens) */
+#t2learn .l2row>.l2side{position:relative}
+#t2learn .l2row>.l2side>.l2who{position:absolute;top:calc(-7*var(--vh));display:flex;flex-direction:column;align-items:center;z-index:2}
+#t2learn .l2row>.l2side:first-child>.l2who{right:calc(100% + 1*var(--vw))}
+#t2learn .l2row>.l2side:last-child>.l2who{left:calc(100% + 1*var(--vw))}
+#t2learn .l2who>.l2f{margin-top:calc(-3*var(--vh));position:relative;z-index:2}
+#t2learn .l2row{gap:clamp(60px,calc(12*var(--vw)),230px)!important}
+#t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(6*var(--vh))}
+#t2learn .l2cap:empty{display:none}
+</style>
+

@@ -4463,3 +4463,21 @@ body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall),body .car
 /* a customer's photo in the dialogue box: the picture fills the round frame, the face at the top */
 body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 8%!important;border-radius:50%}
 </style>
+<style>
+/* no yellow highlights anywhere in the game: whatever is being pointed at pops up instead (scale, so other moves still apply) */
+@keyframes ylPop{0%,100%{scale:1}45%{scale:1.14}}
+@keyframes ylPopSm{0%,100%{scale:1}45%{scale:1.07}}
+.showme{filter:none!important;animation:ylPop 1s ease-in-out infinite!important}
+.holep{fill:transparent!important;stroke:#FFFFFF!important}
+.tut .order.glow{box-shadow:none!important}
+.tut .order .tf b.lit{background:none!important;box-shadow:none!important;color:inherit!important;display:inline-block;animation:ylPop .7s ease-in-out 3!important}
+.hit.hov{fill:transparent!important}
+#pz .part,.tut .pz .part{transform-box:view-box}
+#pz .part:has(.hit.hov),.tut .pz .part.over{transform-origin:300px 300px;animation:ylPopSm .9s ease-in-out infinite}
+.tut .pz .hl,.tut .pz .part .hl{fill:transparent!important;stroke-width:0!important}
+.tut .tp.sel{box-shadow:none!important}
+.tut .tp.sel img,.bowl.sel svg,.katori.sel img{filter:drop-shadow(0 6px 6px rgba(0,0,0,.4))!important}
+.tut .tp.sel,.bowl.sel,.katori.sel{scale:1.12;transition:scale .25s cubic-bezier(.3,1.5,.5,1)}
+.rc-frac b.blinknum{background:none!important;box-shadow:none!important;color:inherit!important}
+.mould.pulseok{filter:none!important}
+</style>
