@@ -2581,6 +2581,10 @@ function sSpot(face,rr){ let s=$("sspot");
   void s.offsetWidth; s.style.transition=""; s.classList.add("on"); s.style.setProperty("--sr",r+"px"); }
 /* focus on a thing in the picture (the narrator has no bubble) */
 function sLook(el){ if(!el) return; const q=el.getBoundingClientRect(); sSpot({l:q.left,t:q.top,r:q.right,b:q.bottom-q.height*.1},Math.max(q.width,q.height)*.42); }   // a tight circle on the thing
+/* the bubble's text shrinks until all of it fits inside the bubble */
+function fitBubText(bb){ const t=bb&&bb.querySelector(".t"); if(!t) return; t.style.removeProperty("font-size");
+  let fs=parseFloat(getComputedStyle(t).fontSize)||16;
+  for(let i=0;i<30&&(t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1)&&fs>9;i++){ fs*=.93; t.style.setProperty("font-size",fs.toFixed(1)+"px","important"); } }
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
@@ -2589,6 +2593,7 @@ function sBubbleSay(e,name,text){
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(19,6+len*.25))+"%";
   bb._set=0; bb.classList.remove("on"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
+    fitBubText(bb);
     const w=$("sworld").getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
     // each character's face, as a fraction of its picture box: the bubble must never cover a face
     const FACE={noori:[.22,0,.72,.46],billu:[.18,0,.82,.52],monty:[.15,0,.85,.5],chintu:[.15,0,.85,.5],ant:[.18,0,.82,.55],rabbit:[.2,0,.8,.5]};

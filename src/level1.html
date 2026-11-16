@@ -3257,6 +3257,10 @@ function sSpot(face,rr){ let s=$("sspot");
   void s.offsetWidth; s.style.transition=""; s.classList.add("on"); s.style.setProperty("--sr",r+"px"); }
 /* focus on a thing in the picture (the narrator has no bubble) */
 function sLook(el){ if(!el) return; const q=el.getBoundingClientRect(); sSpot({l:q.left,t:q.top,r:q.right,b:q.bottom-q.height*.1},Math.max(q.width,q.height)*.42); }   // a tight circle on the thing
+/* the bubble's text shrinks until all of it fits inside the bubble */
+function fitBubText(bb){ const t=bb&&bb.querySelector(".t"); if(!t) return; t.style.removeProperty("font-size");
+  let fs=parseFloat(getComputedStyle(t).fontSize)||16;
+  for(let i=0;i<30&&(t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1)&&fs>9;i++){ fs*=.93; t.style.setProperty("font-size",fs.toFixed(1)+"px","important"); } }
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
@@ -3265,6 +3269,7 @@ function sBubbleSay(e,name,text){
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(16,Math.min(26,9+len*.36))+"%";
   bb._set=0; bb.classList.remove("on","bigb"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
+    fitBubText(bb);
     const w=$("sworld").getBoundingClientRect(), bw=bb.offsetWidth, bh=bb.offsetHeight;
     // each character's face, as a fraction of its picture box: the bubble must never cover a face
     const FACE={noori:[.22,0,.72,.46],billu:[.18,0,.82,.52],monty:[.15,0,.85,.5],chintu:[.15,0,.85,.5],ant:[.18,0,.82,.55],rabbit:[.2,0,.8,.5]};
@@ -3287,7 +3292,7 @@ function sBubbleSay(e,name,text){
     const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=Math.max(best.y,-w.top+((document.getElementById("pcNext")||{}).offsetHeight||60)+26)+"px";   // never up among the round keys
-    if(STORY.bubAt){ const [l,t,ww,fl]=STORY.bubAt; bb.style.width=ww+"%"; bb.classList.toggle("flip",!!fl); bb.classList.add("bigb"); let x=w.width*l/100, y=w.height*t/100;
+    if(STORY.bubAt){ const [l,t,ww,fl]=STORY.bubAt; bb.style.width=ww+"%"; bb.classList.toggle("flip",!!fl); bb.classList.add("bigb"); fitBubText(bb); let x=w.width*l/100, y=w.height*t/100;
       // keep it on the screen (the picture may be cropped on a wide screen) and clear of the round keys in the corners
       const k=(document.getElementById("pcNext")||{}).offsetHeight||60, bw2=bb.offsetWidth, bh2=bb.offsetHeight;
       y=Math.max(y,-w.top+k+26); y=Math.min(y,-w.top+innerHeight-bh2-90); x=Math.min(x,-w.left+innerWidth-bw2-k-30);
