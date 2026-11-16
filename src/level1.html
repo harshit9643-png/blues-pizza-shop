@@ -2473,7 +2473,7 @@ async function plateScene(gen){
     await wait(1050); if(!live(gen)) return;
     layer.querySelectorAll("figure>img").forEach(im=>{ im.style.animation="none"; void im.offsetWidth; im.style.animation=""; });
     layer.style.visibility="";
-    await wait(700); if(!live(gen)) return;
+    await wait(900); if(!live(gen)) return;   // the plate slides in from the left
   }
   const m=PZ.getScreenCTM(); if(!m) return;
   const inv=m.inverse(), unit=PZ.getBoundingClientRect().width/600;
@@ -4503,5 +4503,10 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 /* the supplied PLAY badge (chef hat, wooden pizza board): no steam or rays around it */
 .pre .pplay .psteam,.pre .pplay .prays{display:none!important}
 .pre .pplay{width:min(15%,calc(30*var(--vh)))!important}
+</style>
+<style>
+/* the white "served" plate slides in from the left (not up from below) */
+.servelayer figure.a>img{animation:plateInL .8s cubic-bezier(.25,1.15,.45,1) both!important}
+@keyframes plateInL{from{transform:translateX(-60vw) rotate(-25deg);opacity:1}}
 </style>
 
