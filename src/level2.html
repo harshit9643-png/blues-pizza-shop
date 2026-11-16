@@ -4025,3 +4025,15 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 #t2learn .l2side.pick{box-shadow:none!important;border:0!important}
 #t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(13*var(--vh))!important}   /* the pizzas sit lower */
 </style>
+<style>
+/* the busier lesson screens (with the rule cards): the pictures and cards stay below the dialogue box, the "is more than" row lower */
+#t2learn.tight .l2row>.l2side>.l2who{top:calc(1*var(--vh))!important}
+#t2learn.tight .l2row>.l2side>.l2pz{margin-top:calc(11*var(--vh))!important}
+#t2learn.tight{padding-top:calc(6*var(--vh))!important;justify-content:flex-start!important}
+#t2learn.tight .l2more{margin-top:calc(4*var(--vh))!important}
+</style>
+<style>
+/* no yellow on lit or eaten slices (beats the older, more specific rules) */
+body #t2learn .l2pz .l2lit,body #t2learn .l2sl .l2lit,body .view.cardsv .cpz .l2lit,body .l2pz .l2lit,body .l2sl .l2lit{fill:transparent!important;stroke:none!important;stroke-width:0!important;filter:none!important}
+</style>
+
