@@ -4542,4 +4542,12 @@ body::after{background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(1
 .ocard .rc-frac i{display:block;width:150%;height:1.6cqw;margin:1.5cqw 0;background:#3E2210;border-radius:1cqw}
 .ocard .oc-of{font-family:var(--display);font-weight:800;font-size:8cqw;color:#3E2210}
 </style>
+<style>
+/* the order's fraction stands out: a bold tomato-red box with a white ring and cream numbers, gently breathing */
+.ocard .oc-fr{background:linear-gradient(180deg,#F0603F,#C8382A)!important;box-shadow:0 0 0 1.2cqw #FFFFFF,0 0 0 2.2cqw #E9B873,0 2cqw 4cqw rgba(140,40,20,.35)!important;
+  animation:ocBreathe 1.8s ease-in-out infinite}
+.ocard .rc-frac{color:#FFF6E6!important;text-shadow:0 .6cqw 0 rgba(90,20,5,.35)!important}
+.ocard .rc-frac i{background:#FFF6E6!important}
+@keyframes ocBreathe{0%,100%{scale:1}50%{scale:1.05}}
+</style>
 
