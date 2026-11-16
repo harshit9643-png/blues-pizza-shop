@@ -3527,7 +3527,7 @@ async function storyContext1(){
   const aN=anchor(41.9,45.2,6.5,16.5,"noori"), aB=anchor(53.5,33.5,11.5,25.5,"billu");
   STORY.cast.noori=aN; STORY.cast.billu=aB;
   // the sheet (Context 1): one line from the narrator; Billu waves hello meanwhile, then folds his arms again
-  { let done=false; const wave=(async()=>{ await sleep(600); for(const k of [0,1,2,1,2,1,3]){ if(done) break; S1.set("wave"+k); await sleep(220); } })();
+  { let done=false; const wave=(async()=>{ await sleep(600); let i=0; const seq=[0,1,2,1,2,1,3,1,2,1]; while(!done){ if(!PAUSE.on) S1.set("wave"+seq[i++%seq.length]); await sleep(200); } })();   // Billu waves and his mouth moves the whole time the line is spoken
     picZoom(open1,47,54,1.5,[aN,aB],3000);   // slowly in on the stall
     await sLine("narr","At Billu’s Pizza Kitchen, order a whole pizza, or just a few slices!"); done=true; await wave; S1.set("billu0"); }
   // scene 2 (picture): Chintu with his 1/2 card, Billu behind the whole pizza
