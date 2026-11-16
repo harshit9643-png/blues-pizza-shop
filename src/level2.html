@@ -3083,7 +3083,7 @@ let _rz; window.addEventListener("resize",()=>{ clearTimeout(_rz); _rz=setTimeou
   .forEach(src=>{ const im=new Image(); im.src=src; });
 renderTop();
 /* arriving from the end of Level 1.2: start the Level 2 tutorial straight away */
-if(location.hash==="#play"){ history.replaceState(null,"",location.pathname); startLevel2(); }   // used once: a refresh goes back to the start
+if(location.hash==="#play"){ history.replaceState(null,"",location.pathname); const go2=()=>startLevel2(); if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",go2,{once:true}); else go2(); }   // started once the whole page (with BACK) is set up   // used once: a refresh goes back to the start
 
 /* Noori comes alive on every screen: her pictures play the supplied 36-frame sheet (blinks, talking, waving) */
 (()=>{ const OPEN=[7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,26,27,28,29,30,31];   // only the frames with her eyes open

@@ -4304,7 +4304,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
     const ss=document.getElementById("ssub"); ss.classList.remove("bub","dlg-out");
     const cam=document.getElementById("scam"); if(cam){ cam.style.transition="none"; cam.style.transform="none"; }
     st.classList.remove("dusk"); document.getElementById("sLine").innerHTML=""; document.getElementById("sWho").innerHTML="";
-    STORY.cast={}; STORY.noSpot=false; RW.cur=-1;
+    STORY.cast={}; STORY.noSpot=false; STORY.bubAt=null; RW.cur=-1;
   }
   // the story runs inside a loop, so going back restarts the same script without leaving the story
   const play0=window.playStory;
