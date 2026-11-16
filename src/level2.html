@@ -2265,6 +2265,19 @@ function finalWinner(){
   placed().forEach(i=>{ const c=$("fin-"+i); c.classList.remove("lock"); c.classList.add("pick");
     c.onclick=()=>pickChampion(i); c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pickChampion(i); } }; });
   document.querySelectorAll(".slot").forEach(s=>s.style.zIndex=2);
+  sweepHand(placed().map(i=>$("fin-"+i)));
+}
+/* a hand glides over all the cards, left to right and back, without stopping, for 3 seconds; then it goes away */
+function sweepHand(cards){
+  const old=document.getElementById("swhand"); if(old) old.remove();
+  const pts=cards.filter(Boolean).map(c=>{ const r=c.getBoundingClientRect(); return [r.left+r.width/2,r.top+r.height*.93]; }).sort((a,b)=>a[0]-b[0]);
+  if(pts.length<2) return;
+  const h=document.createElement("img"); h.id="swhand"; h.className="swhand"; h.src="assets/draft2/hand_point.webp"; h.alt=""; document.body.appendChild(h);
+  const path=pts.concat(pts.slice(0,-1).reverse()), n=path.length-1;
+  const a=h.animate(path.map(([x,y],k)=>({left:x+"px",top:y+"px",offset:k/n})),{duration:3000,easing:"ease-in-out"});
+  h.animate([{opacity:0},{opacity:1,offset:.08},{opacity:1,offset:.92},{opacity:0}],{duration:3000});
+  const g=S.gen, stop=()=>{ h.remove(); document.removeEventListener("pointerdown",stop,true); };
+  a.finished.then(stop,stop); document.addEventListener("pointerdown",stop,true);   // a tap on a card takes the hand away at once
 }
 /* the winner's card alone, big in the centre of the board; its picture becomes the one holding the golden trophy */
 function champBig(c,k){
@@ -4213,4 +4226,12 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
 .view.match:not(.cardsv) .side .who .info .eat>span.ate{font-size:clamp(40px,calc(6.6*var(--vh)),64px)!important}
 .view.match:not(.cardsv) .side.a .who{left:calc(-6*var(--vw))!important}
 .view.match:not(.cardsv) .side.b .who{left:calc(6*var(--vw))!important}
+</style>
+
+<style>
+/* the final line-up: no dark shade over the board while the champion is picked */
+.stage.dim:has(.view.fl2)::after{opacity:0!important}
+.stage.dim:has(.view.fl2) .mid .board{filter:none!important}
+.swhand{position:fixed;z-index:140;width:clamp(48px,calc(4.8*var(--vw)),72px);height:auto;pointer-events:none;transform:translate(-73%,0);
+  filter:drop-shadow(0 8px 8px rgba(0,0,0,.35))}
 </style>
