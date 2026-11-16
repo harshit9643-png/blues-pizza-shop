@@ -3292,7 +3292,7 @@ button.stack{gap:3px!important}
   function targets(){
     let s=[...document.querySelectorAll(".view.cardsv.focus .side")]; if(s.length) return s.map(e=>({el:e,parts:[e.querySelector(".ava"),e.querySelector(".eat")]}));
     s=[...document.querySelectorAll(".tut .duel.dim .tsd.pick")]; if(s.length) return s.map(e=>({el:e,parts:[e.querySelector(".ava"),e.querySelector(".tag"),e.querySelector(".board2")]}));
-    s=[...document.querySelectorAll(".side.spot")]; if(s.length) return s.map(e=>({el:e,parts:[e.querySelector(".ava"),e.querySelector(".eat"),e.querySelector(".plate")]}));
+    s=[...document.querySelectorAll(".side.spot")]; if(s.length) return s.map(e=>({el:e,parts:[e.querySelector(".plate>img")||e.querySelector(".plate")]}));   // the plate the child taps
     return []; }
   (function loop(){ const T=targets();
     lit.forEach(e=>{ if(!T.some(t=>t.el===e)) e.classList.remove("spot-lit"); }); lit=T.map(t=>t.el);
@@ -3301,12 +3301,16 @@ button.stack{gap:3px!important}
       while(pools.length<T.length){ const p=document.createElement("i"); p.className="pool"; lay.appendChild(p); pools.push(p); }
       pools.forEach((p,i)=>p.style.display=i<T.length?"":"none");
       T.forEach((t,i)=>{ t.el.classList.add("spot-lit"); const b=box(t.parts.filter(Boolean)); if(!b) return;
-        const rx=b.w*.5*1.32+18, ry=b.h*.5*1.2+18, x=b.x-o.left, y=b.y-o.top;
-        masks.push(`radial-gradient(${rx}px ${ry}px at ${x}px ${y}px,transparent 0,transparent 78%,#000 100%)`);
-        Object.assign(pools[i].style,{left:x+"px",top:y+"px",width:rx*2+"px",height:ry*2+"px"}); });
-      dk.style.webkitMaskImage=dk.style.maskImage=masks.join(","); lay.classList.add("on"); }
+        const pad=Math.max(14,Math.min(b.w,b.h)*.08), w=b.w+pad*2, h=b.h+pad*2, x=b.x-o.left, y=b.y-o.top, rr=Math.min(28,Math.min(w,h)*.14);
+        masks.push(`<rect x="${(x-w/2).toFixed(1)}" y="${(y-h/2).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${rr}" ry="${rr}"/>`);
+        Object.assign(pools[i].style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px",borderRadius:rr+"px"}); });
+      // the dim layer has a rounded-rectangle hole over each choice
+      const W=o.width, H=o.height, svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="100%" height="100%" fill="#fff"/><g fill="#000">${masks.join("")}</g></svg>`;
+      const url=`url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+      if(dk._m!==url){ dk._m=url; dk.style.webkitMaskImage=dk.style.maskImage=url; dk.style.webkitMaskSize=dk.style.maskSize="100% 100%"; dk.style.maskMode="luminance"; }
+      lay.classList.add("on"); }
     else lay.classList.remove("on");
-    requestAnimationFrame(loop); })();
+    setTimeout(loop,120); })();   // a few times a second is enough (every frame made slow machines lag)
 })();
 </script>
 <style>
@@ -4123,4 +4127,10 @@ setInterval(()=>{ document.querySelectorAll("#t2learn .l2row").forEach(r=>{ cons
 /* the buttons' hover planks are fetched up front, so a button never shows blank while its hover picture loads */
 ["assets/ui/plank_green_hi.webp","assets/ui/plank_orange_hi.webp","assets/ui/plank_parch_hi.webp","assets/ui/plank_green.webp"].forEach(u=>{ const i=new Image(); i.src=u; });
 </script>
+<style>
+/* the spotlight on each choice: a rounded box with a soft glowing gold edge (no round pool) */
+.spotlay .pool{border-radius:24px!important;background:rgba(255,248,225,.08)!important;animation:poolEdge 1.6s ease-in-out infinite!important;
+  box-shadow:0 0 0 3px #FFD54A,0 0 18px 6px rgba(255,206,60,.75),inset 0 0 22px rgba(255,214,90,.35)!important}
+@keyframes poolEdge{50%{box-shadow:0 0 0 3px #FFE27A,0 0 28px 10px rgba(255,214,70,.95),inset 0 0 26px rgba(255,214,90,.45)}}
+</style>
 
