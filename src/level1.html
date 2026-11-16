@@ -3534,7 +3534,7 @@ async function storyContext1(){
   await W(sleep(2200));   // a moment on the picture before it changes
   let open2=document.createElement("div"); open2.className="sshot"; open2.innerHTML=`<img src="assets/story/scene2_whole.webp" alt="">`;
   aN.remove(); aB.remove(); await W(sceneBook(open1,open2));
-  const aC=anchor(15.5,39,17.5,36,"chintu"), aB2=anchor(60.5,35,16,40,"billu");
+  const aC=anchor(7.5,26,22.8,46.9,"chintu"), aB2=anchor(59.8,30.8,18.5,42.5,"billu");
   STORY.cast.chintu=aC; STORY.cast.billu=aB2;
   { const im=open2.querySelector("img:not(.blur)"), F=[0,1,2,3].map(k=>`assets/story/scene2_talk${k}.webp`); F.forEach(u=>{ new Image().src=u; });
     let k=0; const t0=performance.now(); const t=setInterval(()=>{ if(!im.isConnected) return clearInterval(t); if(PAUSE.on) return;
