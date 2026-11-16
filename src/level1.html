@@ -3469,6 +3469,7 @@ function sceneChange(oldEl,newEl,kind){ const sw=$("sworld"), P="perspective(260
 function sceneBook(oldEl,newEl){ const sw=$("sworld"), P="perspective(3600px) ", done=a=>a.finished.catch(()=>{});
   const im=newEl.querySelector("img"), ready=im&&im.decode?im.decode().catch(()=>{}):Promise.resolve();
   return Promise.race([ready,sleep(1500)]).then(()=>{   // the next picture is ready before the page turns
+    if(!oldEl||oldEl.parentNode!==sw){ sw.appendChild(newEl); newEl.classList.add("in","now"); return; }   // nothing to turn from (after BACK): just show it
     sw.insertBefore(newEl,oldEl); newEl.classList.add("in","now");
     const leaf=(src,clip,z)=>{ const c=src.cloneNode(true); c.classList.add("in","now","pgleaf"); c.style.clipPath=clip; c.style.zIndex=z; sw.appendChild(c); return c; };
     const keepL=leaf(oldEl,"inset(0 50% 0 0)",26);        // the old picture's left page stays until the leaf lands on it
@@ -3553,7 +3554,7 @@ async function storyContext1(){
   await W(sleep(2200));   // a moment on the picture before it changes
   const open3=document.createElement("div"); open3.className="sshot"; open3.innerHTML=`<img src="assets/story/scene3_puzzled.webp" alt="">`;
   aC.remove(); aB2.remove(); await W(sceneBook(open2,open3));
-  const c3=anchor(12,33.5,21.5,43,"chintu"), n3=anchor(68.5,31,19,47,"noori");   // Noori stands on the right (Billu is not in this picture)
+  const c3=anchor(9,33,24,44,"chintu"), n3=anchor(69,31,19,46,"noori");   // Noori stands on the right (Billu is not in this picture)
   Object.assign(STORY.cast,{chintu:c3,noori:n3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
   await sLine("chintu","I want the bigger half!");
@@ -4288,7 +4289,7 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
   const wrapTurn=name=>{ const f=window[name]; if(typeof f!=="function") return;
     window[name]=function(oldEl,newEl,...rest){
       if(!RW.ff) return f.call(this,oldEl,newEl,...rest);
-      const sw=document.getElementById("sworld"); sw.insertBefore(newEl,oldEl); newEl.classList.add("in","now"); oldEl.remove(); return Promise.resolve(); }; };
+      const sw=document.getElementById("sworld"); if(oldEl&&oldEl.parentNode===sw) sw.insertBefore(newEl,oldEl); else sw.appendChild(newEl); newEl.classList.add("in","now"); if(oldEl) oldEl.remove(); return Promise.resolve(); }; };   // the old picture may already be gone after BACK
   ["sceneBook","sceneChange"].forEach(wrapTurn);
   // sounds are silent while winding forward
   if(typeof SFX==="object") Object.keys(SFX).forEach(k=>{ const f=SFX[k]; if(typeof f==="function") SFX[k]=function(...a){ return RW.ff?undefined:f.apply(this,a); }; });
