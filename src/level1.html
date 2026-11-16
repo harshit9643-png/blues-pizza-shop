@@ -2686,7 +2686,7 @@ const SPEAK={noori:["noori","Noori"],billu:["billu_idle","Billu"],guest:["giraff
 let tutNext=null;
 function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const [img,name]=SPEAK[who], w=$("tutWho");
-  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":who==="guest"?" guestc":""); w.innerHTML=`<img class="still" src="${A}${img}.webp" alt="${name}">`;
+  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":who==="guest"?" guestc":""); { const cur=w.querySelector("img"), want=`${A}${img}.webp`; if(!cur) w.innerHTML=`<img class="still" src="${want}" alt="${name}">`; else if(cur.getAttribute("src")!==want){ cur.src=want; cur.alt=name; } }   // the photo is kept between lines (no blank circle while a new one loads)
   // the "Let's learn" title shows with the first line only, then gives its space back
   const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
@@ -3295,7 +3295,7 @@ function sBubbleSay(e,name,text){
 /* show a line under the scene; resolves when NEXT is tapped */
 function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   const [name,img,cls]=SPK[who], w=$("sWho");
-  w.className="who "+cls; w.innerHTML=img?`<img src="${A}${img}.webp" alt="${name}">`:NARR_ICON;
+  w.className="who "+cls; { const cur=w.querySelector("img"), want=img?`${A}${img}.webp`:null; if(want&&cur){ if(cur.getAttribute("src")!==want){ cur.src=want; cur.alt=name; } } else w.innerHTML=img?`<img src="${want}" alt="${name}">`:NARR_ICON; }   // keep the photo between lines
   const p=$("sLine"); p.className=""; void p.offsetWidth; p.className="in";
   p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
   sBubbleSay(STORY.cast[who],name,text);
@@ -4511,5 +4511,9 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 <script>
 /* the buttons' hover planks are fetched up front, so a button never shows blank while its hover picture loads */
 ["assets/ui/plank_green_hi.webp","assets/ui/plank_orange_hi.webp","assets/ui/plank_parch_hi.webp","assets/ui/plank_green.webp"].forEach(u=>{ const i=new Image(); i.src=u; });
+</script>
+<script>
+/* the speakers' photos are fetched up front, so the dialogue box never shows an empty circle */
+["assets/web/noori.webp","assets/web/billu_idle.webp","assets/web/giraffe.webp","assets/web/chintu_face.webp"].forEach(u=>{ const i=new Image(); i.src=u; });
 </script>
 

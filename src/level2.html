@@ -2616,7 +2616,7 @@ function sBubbleSay(e,name,text){
 /* show a line under the scene; resolves when NEXT is tapped */
 function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   const [name,img,cls]=SPK[who], w=$("sWho");
-  w.className="who "+cls; w.innerHTML=img?`<img src="${A}${img}.webp" alt="${name}">`:NARR_ICON;
+  w.className="who "+cls; { const cur=w.querySelector("img"), want=img?`${A}${img}.webp`:null; if(want&&cur){ if(cur.getAttribute("src")!==want){ cur.src=want; cur.alt=name; } } else w.innerHTML=img?`<img src="${want}" alt="${name}">`:NARR_ICON; }   // keep the photo between lines
   const p=$("sLine"); p.className=""; void p.offsetWidth; p.className="in";
   p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
   sBubbleSay(STORY.cast[who],name,text);
@@ -2889,7 +2889,7 @@ let tutNext=null;
 const ARROW_T='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   const [img,name]=SPEAK[who], w=$("tutWho");
-  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":""); w.innerHTML=`<img class="still" src="${A}${img}.webp" alt="${name}">`;
+  w.className="who"+(who==="noori"?" isnoori":"")+(who==="billu"?" billu":""); { const cur=w.querySelector("img"), want=`${A}${img}.webp`; if(!cur) w.innerHTML=`<img class="still" src="${want}" alt="${name}">`; else if(cur.getAttribute("src")!==want){ cur.src=want; cur.alt=name; } }   // the photo is kept between lines (no blank circle while a new one loads)
   // the "Let's learn" title shows with the first line only, then gives its space back
   const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
@@ -4133,4 +4133,8 @@ setInterval(()=>{ document.querySelectorAll("#t2learn .l2row").forEach(r=>{ cons
   box-shadow:0 0 0 3px #FFD54A,0 0 18px 6px rgba(255,206,60,.75),inset 0 0 22px rgba(255,214,90,.35)!important}
 @keyframes poolEdge{50%{box-shadow:0 0 0 3px #FFE27A,0 0 28px 10px rgba(255,214,70,.95),inset 0 0 26px rgba(255,214,90,.45)}}
 </style>
+<script>
+/* the speakers' photos are fetched up front, so the dialogue box never shows an empty circle */
+["assets/web/noori.webp","assets/web/billu_idle.webp","assets/web/giraffe.webp","assets/web/chintu_face.webp"].forEach(u=>{ const i=new Image(); i.src=u; });
+</script>
 
