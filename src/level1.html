@@ -4485,3 +4485,18 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 /* the "tap me" bounce: no yellow edge or ring any more, just a gentle pop (the whole game) */
 @keyframes ready{50%{transform:scale(1.05)}}
 </style>
+<script>
+/* nothing in a lesson board may sit under the dialogue box: if the top of anything on the board reaches into the box, the whole board moves down just enough */
+(()=>{ const fix=()=>{ const box=document.querySelector(".tut .talk"); if(!box||!box.offsetParent) return;
+  const b=box.getBoundingClientRect().bottom+10;
+  document.querySelectorAll("#t2learn,#tutLearn").forEach(st=>{ if(!st.offsetParent) return;
+    const cur=parseFloat(st.dataset.dy||"0"); let top=Infinity;
+    st.querySelectorAll(".l2ava,.l2who,.l2pz,.l2f,.pz,.lf,.tpzw,.lchintu,.l2rules,.l2antwin,img").forEach(e=>{ const r=e.getBoundingClientRect(); if(r.width&&r.height) top=Math.min(top,r.top); });
+    if(top===Infinity) return;
+    const need=Math.max(0,cur+(b-top));   // how far down the board must sit
+    const room=Math.max(0,window.innerHeight*.12);   // never more than this
+    const dy=Math.min(room,need);
+    if(Math.abs(dy-cur)>1){ st.dataset.dy=dy; st.style.translate=`0 ${dy.toFixed(0)}px`; } }); };
+  setInterval(fix,250); addEventListener("resize",fix); })();
+</script>
+

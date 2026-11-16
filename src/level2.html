@@ -4036,4 +4036,32 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 /* no yellow on lit or eaten slices (beats the older, more specific rules) */
 body #t2learn .l2pz .l2lit,body #t2learn .l2sl .l2lit,body .view.cardsv .cpz .l2lit,body .l2pz .l2lit,body .l2sl .l2lit{fill:transparent!important;stroke:none!important;stroke-width:0!important;filter:none!important}
 </style>
+<style>
+/* every lesson screen: the pictures sit a little lower, beside the top of the pizza (never up under the dialogue box) */
+#t2learn .l2row>.l2side>.l2who{top:calc(2*var(--vh))!important}
+#t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(12*var(--vh))!important}
+</style>
+
+<script>
+/* nothing in a lesson board may sit under the dialogue box: if the top of anything on the board reaches into the box, the whole board moves down just enough */
+(()=>{ const fix=()=>{ const box=document.querySelector(".tut .talk"); if(!box||!box.offsetParent) return;
+  const b=box.getBoundingClientRect().bottom+10;
+  document.querySelectorAll("#t2learn,#tutLearn").forEach(st=>{ if(!st.offsetParent) return;
+    const cur=parseFloat(st.dataset.dy||"0"); let top=Infinity;
+    st.querySelectorAll(".l2ava,.l2who,.l2pz,.l2f,.pz,.lf,.tpzw,.lchintu,.l2rules,.l2antwin,img").forEach(e=>{ const r=e.getBoundingClientRect(); if(r.width&&r.height) top=Math.min(top,r.top); });
+    if(top===Infinity) return;
+    const need=Math.max(0,cur+(b-top));   // how far down the board must sit
+    const room=Math.max(0,window.innerHeight*.12);   // never more than this
+    const dy=Math.min(room,need);
+    if(Math.abs(dy-cur)>1){ st.dataset.dy=dy; st.style.translate=`0 ${dy.toFixed(0)}px`; } }); };
+  setInterval(fix,250); addEventListener("resize",fix); })();
+</script>
+<style>
+/* "Who ate more? Tap their plate.": the two pizzas take turns popping up, inviting a tap */
+#t2learn .l2side.pick{animation:none!important}
+#t2learn .l2side.pick>.l2pz{animation:tapPop 1.6s ease-in-out infinite;transform-origin:50% 50%}
+#t2learn .l2row>.l2side.pick:last-child>.l2pz{animation-delay:.8s}
+@keyframes tapPop{0%,50%,100%{scale:1}20%{scale:1.16}}
+#t2learn .l2side.pick:hover>.l2pz{scale:1.1}
+</style>
 
