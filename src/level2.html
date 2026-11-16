@@ -4138,4 +4138,10 @@ setInterval(()=>{ document.querySelectorAll("#t2learn .l2row").forEach(r=>{ cons
 /* the speakers' photos are fetched up front, so the dialogue box never shows an empty circle */
 ["assets/web/noori.webp","assets/web/billu_idle.webp","assets/web/giraffe.webp","assets/web/chintu_face.webp"].forEach(u=>{ const i=new Image(); i.src=u; });
 </script>
+<style>
+/* the game table: the supplied light wood with green-check napkins in the corners (replaces the pink gingham everywhere) */
+body{background:#F2C48C!important}
+body::before{background:url("assets/ui/table_wood.webp") center/cover no-repeat,#F2C48C!important}
+body::after{background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(110,60,20,.14) 100%)!important}
+</style>
 
