@@ -2469,7 +2469,7 @@ async function plateScene(gen){
         <path d="${pt.d}" fill="none" stroke="rgba(255,244,225,.6)" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="14 7"/>`; }).join("");
     PZ.insertAdjacentHTML("afterbegin",`<defs><filter id="flourblur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="4"/></filter>${served0.map(i=>`<clipPath id="stainclip${i}"><path d="${G.parts[i].d}"/></clipPath>`).join("")}</defs><g class="stains">${stains}</g>`);
     await wait(1050); if(!live(gen)) return;
-    layer.querySelectorAll("figure>img").forEach(im=>{ im.style.animation="none"; void im.offsetWidth; im.style.animation=""; });
+    layer.querySelectorAll("figure>img").forEach(im=>{ im.getAnimations().forEach(an=>{ an.cancel(); an.play(); }); });   // the slide-in starts now, as the plate appears (it had run while hidden)
     layer.style.visibility="";
     await wait(900); if(!live(gen)) return;   // the plate slides in from the left
   }
