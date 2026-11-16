@@ -4086,4 +4086,20 @@ setInterval(()=>{ const L=document.querySelector("#t2learn.tight"); if(!L) retur
 <style>
 #t2learn.tight .l2row{gap:clamp(170px,calc(22*var(--vw)),340px)!important}   /* room for the middle comparison */
 </style>
+<style>
+/* busy lesson screen (Tez 3/8 and Jhumru 5/8): smaller pictures and pizzas higher; "5/8 is more than 3/8" back in one line under the pizzas, as everywhere else */
+#t2learn.tight>.l2more:not(.l2wide){position:static!important;translate:none!important;flex-direction:row!important;gap:14px!important;margin-top:calc(3*var(--vh))!important}
+#t2learn.tight>.l2more:not(.l2wide)>span{font-size:clamp(20px,calc(3.6*var(--vh)),34px)!important}
+#t2learn.tight .l2row{gap:clamp(60px,calc(12*var(--vw)),230px)!important}
+#t2learn.tight .l2ava{width:clamp(70px,calc(14*var(--vh)),130px)!important;height:clamp(70px,calc(14*var(--vh)),130px)!important}
+#t2learn.tight .l2row>.l2side{margin-top:calc(7*var(--vh))!important}
+#t2learn.tight .l2row>.l2side>.l2who{top:calc(-8*var(--vh))!important}
+#t2learn.tight{padding-top:calc(3*var(--vh))!important}
+</style>
+<style>
+#t2learn.tight .l2row>.l2side{margin-top:calc(4*var(--vh))!important;padding-bottom:0!important}
+#t2learn.tight .l2row>.l2side>.l2who{top:calc(-5*var(--vh))!important}
+#t2learn.tight>.l2more:not(.l2wide){margin-top:calc(1*var(--vh))!important}
+#t2learn.tight .l2more .l2f{font-size:clamp(20px,calc(3.4*var(--vh)),30px)!important}
+</style>
 
