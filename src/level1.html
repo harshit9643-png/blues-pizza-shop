@@ -4456,8 +4456,7 @@ body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall),body .car
       if(!isFinite(L)) return; const nx=Math.round(old-((L+R)/2-W/2));
       if(Math.abs(nx-old)>=1){ b.dataset.cx=nx; b.style.setProperty("translate",nx+"px 0","important"); } }); };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fix); };
-  new MutationObserver(soon).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class","hidden","src"]});
-  addEventListener("resize",soon); setInterval(soon,1000); soon(); })();
+  addEventListener("resize",soon); setInterval(soon,300); soon(); })();   // a light check a few times a second (no watching every picture swap)
 </script>
 <style>
 /* a customer's photo in the dialogue box: the picture fills the round frame, the face at the top */
@@ -4497,7 +4496,7 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
     const room=Math.max(0,window.innerHeight*.12);   // never more than this
     const dy=Math.min(room,need);
     if(Math.abs(dy-cur)>1){ st.dataset.dy=dy; st.style.translate=`0 ${dy.toFixed(0)}px`; } }); };
-  setInterval(fix,250); addEventListener("resize",fix); })();
+  setInterval(()=>{ if(document.querySelector("#t2learn,#tutLearn.learn")) fix(); },500); addEventListener("resize",fix); })();
 </script>
 <style>
 /* the supplied PLAY badge (chef hat, wooden pizza board): no steam or rays around it */
@@ -4509,4 +4508,8 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 .servelayer figure.a>img{animation:plateInL .8s cubic-bezier(.25,1.15,.45,1) both!important}
 @keyframes plateInL{from{transform:translateX(-60vw) rotate(-25deg);opacity:1}}
 </style>
+<script>
+/* the buttons' hover planks are fetched up front, so a button never shows blank while its hover picture loads */
+["assets/ui/plank_green_hi.webp","assets/ui/plank_orange_hi.webp","assets/ui/plank_parch_hi.webp","assets/ui/plank_green.webp"].forEach(u=>{ const i=new Image(); i.src=u; });
+</script>
 

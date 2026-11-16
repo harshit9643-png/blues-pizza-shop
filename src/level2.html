@@ -3899,8 +3899,7 @@ body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall),body .car
       if(!isFinite(L)) return; const nx=Math.round(old-((L+R)/2-W/2));
       if(Math.abs(nx-old)>=1){ b.dataset.cx=nx; b.style.setProperty("translate",nx+"px 0","important"); } }); };
   const soon=()=>{ if(!q) q=requestAnimationFrame(fix); };
-  new MutationObserver(soon).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["class","hidden","src"]});
-  addEventListener("resize",soon); setInterval(soon,1000); soon(); })();
+  addEventListener("resize",soon); setInterval(soon,300); soon(); })();   // a light check a few times a second (no watching every picture swap)
 </script>
 <style>
 /* PLAY → Billu flings sauce at the viewer; the splat covers the screen and drips away. */
@@ -4053,7 +4052,7 @@ body #t2learn .l2pz .l2lit,body #t2learn .l2sl .l2lit,body .view.cardsv .cpz .l2
     const room=Math.max(0,window.innerHeight*.12);   // never more than this
     const dy=Math.min(room,need);
     if(Math.abs(dy-cur)>1){ st.dataset.dy=dy; st.style.translate=`0 ${dy.toFixed(0)}px`; } }); };
-  setInterval(fix,250); addEventListener("resize",fix); })();
+  setInterval(()=>{ if(document.querySelector("#t2learn,#tutLearn.learn")) fix(); },500); addEventListener("resize",fix); })();
 </script>
 <style>
 /* "Who ate more? Tap their plate.": both plates sit in their boxes with the gold edge (as before) and pop up together */
@@ -4081,7 +4080,7 @@ body #t2learn .l2pz .l2lit,body #t2learn .l2sl .l2lit,body .view.cardsv .cpz .l2
 <script>
 /* keep that middle line level with the pizzas' centres */
 setInterval(()=>{ const L=document.querySelector("#t2learn.tight"); if(!L) return; const pz=L.querySelector(".l2row .l2pz"); if(!pz) return;
-  const r=pz.getBoundingClientRect(), q=L.getBoundingClientRect(); L.style.setProperty("--l2mid",(r.top+r.height/2-q.top).toFixed(0)+"px"); },200);
+  const r=pz.getBoundingClientRect(), q=L.getBoundingClientRect(); L.style.setProperty("--l2mid",(r.top+r.height/2-q.top).toFixed(0)+"px"); },500);
 </script>
 <style>
 #t2learn.tight .l2row{gap:clamp(170px,calc(22*var(--vw)),340px)!important}   /* room for the middle comparison */
@@ -4118,6 +4117,10 @@ setInterval(()=>{ const L=document.querySelector("#t2learn.tight"); if(!L) retur
 setInterval(()=>{ document.querySelectorAll("#t2learn .l2row").forEach(r=>{ const sides=r.querySelectorAll(":scope>.l2side"); if(sides.length!==2) return;
   let v=r.querySelector(":scope>.l2vs"); if(!v){ v=document.createElement("div"); v.className="l2vs"; v.textContent="VS"; v.setAttribute("aria-hidden","true"); r.appendChild(v); }
   const pz=sides[0].querySelector(".l2pz,.l2sl"); if(!pz) return; const a=pz.getBoundingClientRect(), q=r.getBoundingClientRect();
-  r.style.setProperty("--vsy",(a.top+a.height/2-q.top).toFixed(0)+"px"); }); },150);
+  r.style.setProperty("--vsy",(a.top+a.height/2-q.top).toFixed(0)+"px"); }); },400);
+</script>
+<script>
+/* the buttons' hover planks are fetched up front, so a button never shows blank while its hover picture loads */
+["assets/ui/plank_green_hi.webp","assets/ui/plank_orange_hi.webp","assets/ui/plank_parch_hi.webp","assets/ui/plank_green.webp"].forEach(u=>{ const i=new Image(); i.src=u; });
 </script>
 
