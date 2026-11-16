@@ -1550,9 +1550,15 @@ function geom(shape,n){
           outline:`<path d="${edgePath(shape,-2)}"/>`};
 }
 /* cut parts stay where they are, no gap between them: each part draws its own cut line instead */
-function offsetsOf(g){ const n=g.parts.length; if(n<2) return g.parts.map(()=>({x:0,y:0}));   // cut pieces sit a little apart, so the cuts show as gaps
-  const mx=g.parts.reduce((a,p)=>a+p.cx,0)/n, my=g.parts.reduce((a,p)=>a+p.cy,0)/n, GAP=9;
-  return g.parts.map(p=>{ const dx=p.cx-mx, dy=p.cy-my, L=Math.hypot(dx,dy)||1; return {x:dx/L*GAP,y:dy/L*GAP}; }); }
+/* cut pieces sit a little apart, so the cuts show as gaps, and EVERY gap is the same width:
+   grid pieces move by their row and column (neighbours always GAP apart); round slices move out along their middle
+   just far enough that two neighbouring slices are GAP apart, whatever the number of slices */
+const CUT_GAP=10;
+function offsetsOf(g){ const n=g.parts.length; if(n<2) return g.parts.map(()=>({x:0,y:0}));
+  if(g.parts[0].kind==="cell"){ const {rows,cols}=g.parts[0];
+    return g.parts.map(p=>({x:(p.c-(cols-1)/2)*CUT_GAP,y:(p.r-(rows-1)/2)*CUT_GAP})); }
+  const out=CUT_GAP/(2*Math.sin(Math.PI/n));
+  return g.parts.map(p=>({x:Math.cos(p.mid)*out,y:Math.sin(p.mid)*out})); }
 function rng(seed){ return ()=>{ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed);
   t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
 /* Toppings cover a part evenly: a jittered honeycomb grid over the part, keeping only
@@ -2808,9 +2814,9 @@ function lDraw(svg,d,o={}){
 /* once cut, the parts sit a little apart (a thin gap along each cut), so the equal parts read as separate pieces;
    open: they slide apart now (straight after the cutter), otherwise they are drawn already apart */
 function lSpread(svg,open){ const g=svg._g, n=g.parts.length; if(n<2) return;
-  const mx=g.parts.reduce((s,p)=>s+p.cx,0)/n, my=g.parts.reduce((s,p)=>s+p.cy,0)/n, GAP=16;
-  g.parts.forEach((p,i)=>{ const el=lPart(svg,i); if(!el) return; const dx=p.cx-mx, dy=p.cy-my, L=Math.hypot(dx,dy)||1;
-    const t=`translate(${(dx/L*GAP).toFixed(1)}px,${(dy/L*GAP).toFixed(1)}px)`;
+  const out=16/(2*Math.sin(Math.PI/n));   // the same gap between every two neighbouring slices, for any number of slices
+  g.parts.forEach((p,i)=>{ const el=lPart(svg,i); if(!el) return;
+    const t=`translate(${(Math.cos(p.mid)*out).toFixed(1)}px,${(Math.sin(p.mid)*out).toFixed(1)}px)`;
     el.style.transition=open?"transform .6s cubic-bezier(.3,1.3,.5,1)":"none"; if(!open) el.style.transform=t;
     requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.transform=t; setTimeout(()=>{ el.style.transition=""; },open?650:0); })); }); }
 /* roll the cutter along the lines, then show the pizza in equal parts */
