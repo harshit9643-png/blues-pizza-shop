@@ -4248,7 +4248,8 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
 (()=>{ const BOX=new Set(["noori","billu_idle","chintu_face","ant","mouse","squirrel","jhumru","sloth","madhu","parrot","hippo","giraffe","gorilla","bijli","bear","tez","badal","frog"]);
   const IM={}; BOX.forEach(n=>{ const i=new Image(); i.src="assets/ui/dbox/"+n+".webp"; IM[n]=i; });
   const L=560, R=260, SH=452;   // the box picture: left end (photo circle) and right end keep their shape, the even middle stretches
-  const nameOf=s=>{ const m=/assets\/web\/(?:face\/)?(noori_anim\/\d+|[a-z_]+)\.webp/.exec(s||""); return m?(m[1].startsWith("noori_anim/")?"noori":m[1]):null; };
+  const ALIAS={monty:"chintu_face",chintu_full:"chintu_face"};   // Monty is the monkey with the blue cap: the same box as Chintu
+  const nameOf=s=>{ const m=/assets\/web\/(?:face\/)?(noori_anim\/\d+|[a-z_]+)\.webp/.exec(s||""); const n=m?(m[1].startsWith("noori_anim/")?"noori":m[1]):null; return ALIAS[n]||n; };
   // the whole box is painted as ONE picture at the box's exact pixel size, so there are no joins to show
   const paint=host=>{ const n=host._dbx, img=IM[n]; if(!n||!img) return;
     if(!img.complete||!img.naturalWidth){ img.addEventListener("load",()=>paint(host),{once:true}); return; }
