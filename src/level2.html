@@ -3057,7 +3057,7 @@ async function runTutorial2(){
   await rollScroll(false,TUT2.gen);
 }
 function startLevel2(story=true){ $("start").hidden=true; $("end").hidden=true; S.gen++; $("jump").value=story?"S":"T";
-  const fl=FLOW; (story?playStory(storyContext2):Promise.resolve()).then(()=>fl===FLOW&&runTutorial2()).then(()=>{ if(fl===FLOW) tutorialMatch(); }); }
+  const fl=FLOW; (story?playStory(storyContext2):Promise.resolve()).then(()=>fl===FLOW&&runTutorial2()).then(()=>{ if(fl===FLOW){ document.body.classList.remove("tutoring"); SAUCE(()=>go(0)); } }); }   // no guided squirrel-and-peacock match after Tutorial 2: straight on to Match 1
 $("play").addEventListener("click",startLevel2);
 /* Level 1 is the previous page of the same game (online it is served at /) */
 function goLevel1(lv){ CURTAIN.cover().then(()=>{ location.href=new URL((location.protocol==="file:"?"index.html":"./")+"#"+lv,location.href).href; }); }
@@ -4071,5 +4071,19 @@ body #t2learn .l2pz .l2lit,body #t2learn .l2sl .l2lit,body .view.cardsv .cpz .l2
 #t2learn.tight .l2row>.l2side>.l2who{top:calc(-10*var(--vh))!important}
 #t2learn .l2row>.l2side.pick{padding:12px!important}
 @keyframes tapReady{0%,100%{transform:none;box-shadow:0 6px 0 #D98A00}50%{transform:translateY(-4px) scale(1.06);box-shadow:0 10px 0 #D98A00,0 0 0 6px rgba(242,166,44,.3)}}
+</style>
+<style>
+/* the "5/8 is more than 3/8" line on the busy screen sits in the middle, between the two pizzas (it never drops under the buttons) */
+#t2learn.tight{position:relative}
+#t2learn.tight>.l2more:not(.l2wide){position:absolute!important;left:50%;top:var(--l2mid,55%);translate:-50% -50%;margin:0!important;flex-direction:column;gap:6px!important;z-index:3}
+#t2learn.tight>.l2more:not(.l2wide)>span{font-size:clamp(16px,calc(2.8*var(--vh)),26px)!important;white-space:nowrap}
+</style>
+<script>
+/* keep that middle line level with the pizzas' centres */
+setInterval(()=>{ const L=document.querySelector("#t2learn.tight"); if(!L) return; const pz=L.querySelector(".l2row .l2pz"); if(!pz) return;
+  const r=pz.getBoundingClientRect(), q=L.getBoundingClientRect(); L.style.setProperty("--l2mid",(r.top+r.height/2-q.top).toFixed(0)+"px"); },200);
+</script>
+<style>
+#t2learn.tight .l2row{gap:clamp(170px,calc(22*var(--vw)),340px)!important}   /* room for the middle comparison */
 </style>
 
