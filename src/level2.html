@@ -2790,7 +2790,8 @@ function wheelPt(e){ const w=e.querySelector(".hold .whl"); if(!w) return null; 
 
 /* a story picture turns like a page of a book: the next scene lies underneath, the page lifts from the right and turns over its
    left edge, its paper back showing for the second half, with a shadow sweeping off the page below */
-function sceneBook(oldEl,newEl){ const sw=$("sworld"), P="perspective(3600px) ", done=a=>a.finished.catch(()=>{});
+function sceneBook(oldEl,newEl){ document.querySelectorAll("#sworld>.sbub").forEach(b=>b.classList.remove("on")); if(typeof sSpot==="function") sSpot(null);   // the last line's bubble is gone before the page turns
+ const sw=$("sworld"), P="perspective(3600px) ", done=a=>a.finished.catch(()=>{});
   const im=newEl.querySelector("img"), ready=im&&im.decode?im.decode().catch(()=>{}):Promise.resolve();
   return Promise.race([ready,sleep(1500)]).then(()=>{   // the next picture is ready before the page turns
     if(!oldEl||oldEl.parentNode!==sw){ sw.appendChild(newEl); newEl.classList.add("in","now"); return; }   // nothing to turn from (after BACK): just show it
