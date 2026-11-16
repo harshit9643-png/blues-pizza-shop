@@ -4205,3 +4205,12 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
   [...N].forEach(n=>{ new Image().src="assets/web/face/"+n+".webp"; });   // small: fetched early so a new speaker never shows an empty circle
 })();
 </script>
+
+<style>
+/* matches: bigger fraction tiles, slightly smaller pictures, and each player beside its own plate */
+.view.match:not(.cardsv) .side .who .ava{width:clamp(84px,calc(15.5*var(--vh)),150px)!important}
+.view.match:not(.cardsv) .side .who .info{margin-top:calc(clamp(84px,calc(15.5*var(--vh)),150px) * -.16)!important}
+.view.match:not(.cardsv) .side .who .info .eat>span.ate{font-size:clamp(40px,calc(6.6*var(--vh)),64px)!important}
+.view.match:not(.cardsv) .side.a .who{left:calc(-6*var(--vw))!important}
+.view.match:not(.cardsv) .side.b .who{left:calc(6*var(--vw))!important}
+</style>
