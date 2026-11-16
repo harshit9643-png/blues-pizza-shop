@@ -4021,8 +4021,7 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
 <style>
 /* the "tap me" bounce: no yellow edge or ring any more, just a gentle pop (the whole game) */
 @keyframes ready{50%{transform:scale(1.05)}}
-#t2learn .l2side{border:0!important;box-shadow:none!important;background:none!important}
-#t2learn .l2side.pick{box-shadow:none!important;border:0!important}
+#t2learn .l2side:not(.pick){border:0!important;box-shadow:none!important;background:none!important}
 #t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(13*var(--vh))!important}   /* the pizzas sit lower */
 </style>
 <style>
@@ -4038,7 +4037,7 @@ body #t2learn .l2pz .l2lit,body #t2learn .l2sl .l2lit,body .view.cardsv .cpz .l2
 </style>
 <style>
 /* every lesson screen: the pictures sit a little lower, beside the top of the pizza (never up under the dialogue box) */
-#t2learn .l2row>.l2side>.l2who{top:calc(2*var(--vh))!important}
+#t2learn .l2row>.l2side>.l2who{top:calc(-2*var(--vh))!important}
 #t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:calc(12*var(--vh))!important}
 </style>
 
@@ -4057,11 +4056,20 @@ body #t2learn .l2pz .l2lit,body #t2learn .l2sl .l2lit,body .view.cardsv .cpz .l2
   setInterval(fix,250); addEventListener("resize",fix); })();
 </script>
 <style>
-/* "Who ate more? Tap their plate.": the two pizzas take turns popping up, inviting a tap */
-#t2learn .l2side.pick{animation:none!important}
-#t2learn .l2side.pick>.l2pz{animation:tapPop 1.6s ease-in-out infinite;transform-origin:50% 50%}
-#t2learn .l2row>.l2side.pick:last-child>.l2pz{animation-delay:.8s}
-@keyframes tapPop{0%,50%,100%{scale:1}20%{scale:1.16}}
-#t2learn .l2side.pick:hover>.l2pz{scale:1.1}
+/* "Who ate more? Tap their plate.": both plates sit in their boxes with the gold edge (as before) and pop up together */
+#t2learn .l2row>.l2side.pick{border:2px solid rgba(255,255,255,.14)!important;border-radius:24px!important;background:rgba(255,255,255,.03)!important;padding:14px!important;
+  animation:tapReady 1.2s ease-in-out infinite!important;cursor:pointer}
+#t2learn .l2row>.l2side.pick>.l2pz{animation:none!important}
+@keyframes tapReady{0%,100%{transform:none;box-shadow:0 5px 0 var(--marigold-deep)}50%{transform:translateY(-4px) scale(1.06);box-shadow:0 9px 0 var(--marigold-deep),0 0 0 6px rgba(242,166,44,.25)}}
+</style>
+<style>
+/* the space above each pizza is now taken by the side itself (so a box around it hugs the pizza); the picture keeps its place */
+#t2learn .l2row>.l2side>.l2pz,#t2learn .l2row>.l2side>.l2sl{margin-top:0!important}
+#t2learn .l2row>.l2side{margin-top:calc(12*var(--vh))}
+#t2learn .l2row>.l2side>.l2who{top:calc(-14*var(--vh))!important}
+#t2learn.tight .l2row>.l2side{margin-top:calc(11*var(--vh))}
+#t2learn.tight .l2row>.l2side>.l2who{top:calc(-10*var(--vh))!important}
+#t2learn .l2row>.l2side.pick{padding:12px!important}
+@keyframes tapReady{0%,100%{transform:none;box-shadow:0 6px 0 #D98A00}50%{transform:translateY(-4px) scale(1.06);box-shadow:0 10px 0 #D98A00,0 0 0 6px rgba(242,166,44,.3)}}
 </style>
 
