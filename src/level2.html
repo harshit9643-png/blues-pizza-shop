@@ -3103,7 +3103,7 @@ if(location.hash==="#play"){ history.replaceState(null,"",location.pathname); co
     // in step with the voice: she talks while her clip plays and stops the moment it ends; with no clip, for the reading time
     const talking=NT.on && (clip || (!clipSeen && now<NT.until)); if(NT.on && !talking && (clipSeen || now>=NT.until)) NT.on=false;
     const src=talking ? FR[f=(f+1)%FR.length] : REST;
-    document.querySelectorAll("img:not(.still):not(.guide img)").forEach(im=>{ const a=im.getAttribute("src"); if(isNoori(a) && a!==src) im.src=src; }); },120); })();
+    document.querySelectorAll("img:not(.still):not(.guide img)").forEach(im=>{ const a=im.getAttribute("src"), want=(im.classList.contains("faceimg")&&window.toFace)?toFace(src):src; if(isNoori(a) && a!==want) im.src=want; }); },120); })();
 </script>
 <script>
 /* QA panel: the whole game on one map, on both pages. Tap a step to jump there; a step on the other page opens that page
@@ -4180,3 +4180,23 @@ body:has(.view.cardsv .side.win) .spotlay{display:none!important}
 /* in the lesson the round keys sit on the board's top wooden log */
 .pctl.intut{top:max(2px,calc(4.6*var(--vh,1vh) - var(--pch,60px)*.525))!important}
 </style>
+
+<style>
+/* every dialogue box shows only the speaker's face (assets/web/face: square head crops), filling its round frame */
+html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html body #tutWho img.faceimg.faceimg,html body #sWho img.faceimg.faceimg{position:absolute!important;inset:0!important;left:0!important;top:0!important;right:auto!important;bottom:auto!important;width:100%!important;height:100%!important;
+  max-width:none!important;max-height:none!important;margin:0!important;object-fit:cover!important;object-position:50% 50%!important;border-radius:50%!important;
+  transform:none!important;translate:none!important;scale:none!important;clip-path:none!important}
+</style>
+<script>
+/* dialogue photos: whenever one is set to a character's full picture, the face crop is shown instead */
+(()=>{ const N=new Set(["noori","billu_idle","chintu_face","mouse","squirrel","monty","jhumru","ant","sloth","madhu","hippo","bear","tez","badal","gorilla","bijli","giraffe","parrot","frog","rabbit","peacock"]);
+  window.toFace=s=>{ const m=/^(.*?)assets\/web\/(noori_anim\/\d+|[a-z_]+)\.webp(?:\?.*)?$/.exec(s||""); if(!m) return s;
+    return (m[2].startsWith("noori_anim/")||N.has(m[2]))?m[1]+"assets/web/face/"+m[2]+".webp":s; };
+  const SEL="#guide img,#guideImg,#tutWho img,#sWho img";
+  const fix=()=>document.querySelectorAll(SEL).forEach(im=>{ const a=im.getAttribute("src")||"", f=toFace(a);
+    if(f!==a) im.src=f; im.classList.toggle("faceimg",/assets\/web\/face\//.test(im.getAttribute("src")||"")); });
+  new MutationObserver(fix).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src"]});
+  fix();
+  [...N].forEach(n=>{ new Image().src="assets/web/face/"+n+".webp"; });   // small: fetched early so a new speaker never shows an empty circle
+})();
+</script>
