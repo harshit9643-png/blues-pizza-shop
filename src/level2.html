@@ -1816,8 +1816,14 @@ function confetti(){ const fx=$("fx"), cols=["#F2A62C","#FBD584","#C8402E","#3A5
   for(let i=0;i<60;i++){ const s=document.createElement("i"); s.style.left=Math.random()*100+"%"; s.style.background=cols[i%cols.length];
     s.style.clipPath=i%3?"polygon(50% 0,100% 100%,0 100%)":"circle(50%)"; s.style.animationDelay=(Math.random()*.35)+"s";
     s.style.animationDuration=(1.3+Math.random()*.9)+"s"; fx.appendChild(s); setTimeout(()=>s.remove(),2600); } }
+/* moves the hand onto el; small changes (a glowing target pulsing) are ignored so the hand stays still */
+function handTo(h,el,glide){ const r=el.getBoundingClientRect(), x=r.left+r.width/2, y=Math.min(r.top+r.height*.5,innerHeight-20);
+  const ox=parseFloat(h.style.left)||0, oy=parseFloat(h.style.top)||0;
+  if(!glide&&Math.hypot(x-ox,y-oy)<14) return;
+  h.classList.add("glide"); h.style.left=x+"px"; h.style.top=y+"px"; }
 /* the white pointing hand from the art pack, bobbing with its fingertip on an element (third wrong attempt: show how) */
-function pointAt(el){ let h=document.getElementById("phand"); if(h) h.remove(); if(!el) return;
+function pointAt(el){ let h=document.getElementById("phand"); if(!el){ if(h) h.remove(); return; }
+  if(h){ handTo(h,el,true); return; }   // already showing: glide over to the next target instead of jumping
   const r=el.getBoundingClientRect(); h=document.createElement("img"); h.id="phand"; h.className="phand"; h.src="assets/draft2/hand_point.webp"; h.alt="";
   h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; document.body.appendChild(h); }
 /* show how, step by step: every 300 ms the hand moves to the next thing the child must tap,
@@ -1837,7 +1843,7 @@ function guide(target){ const id=++GUIDE; let last=null;
     if(!el){ unpoint(); return; }
     LOCK=el;
     const r=el.getBoundingClientRect(), key=el; if(key!==last||!document.getElementById("phand")){ last=key; pointAt(el); }
-    else { const h=document.getElementById("phand"); h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; }
+    else handTo(document.getElementById("phand"),el,false);
     setTimeout(tick,150); })(); }
 function stopGuide(){ GUIDE++; unpoint(); }
 /* show how to drag: the hand picks up the card and carries it to its slot, over and over; only that card and slot work */
@@ -4162,4 +4168,9 @@ body:has(.view.cardsv .side.win) .spotlay{display:none!important}
 .pctl button img{width:100%!important;height:100%!important}
 .pctl #pcNext{margin-left:auto!important}
 .pctl button:focus-visible{border-radius:50%}
+</style>
+
+<style>
+/* the pointing hand glides smoothly from one target to the next */
+.phand.glide{transition:left .55s cubic-bezier(.45,.05,.3,1),top .55s cubic-bezier(.45,.05,.3,1)}
 </style>

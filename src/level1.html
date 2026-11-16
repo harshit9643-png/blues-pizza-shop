@@ -2067,8 +2067,14 @@ function showCustomer(){
 function blinkNum(which,times){ const f=document.querySelector("#slip .rc-frac"); if(!f) return; const b=f.querySelectorAll("b")[which==="n"?0:1]; if(!b) return;
   b.classList.remove("blinknum"); void b.offsetWidth; b.style.setProperty("--blinks",Math.max(1,Math.min(times,12))); b.classList.add("blinknum");
   clearTimeout(b._bt); b._bt=setTimeout(()=>b.classList.remove("blinknum"),Math.max(1,Math.min(times,12))*500+200); }
+/* moves the hand onto el; small changes (a glowing slice pulsing) are ignored so the hand stays still */
+function handTo(h,el,glide){ const r=el.getBoundingClientRect(), x=r.left+r.width/2, y=Math.min(r.top+r.height*.5,innerHeight-20);
+  const ox=parseFloat(h.style.left)||0, oy=parseFloat(h.style.top)||0;
+  if(!glide&&Math.hypot(x-ox,y-oy)<14) return;
+  h.classList.add("glide"); h.style.left=x+"px"; h.style.top=y+"px"; }
 /* the white pointing hand from the art pack, bobbing with its fingertip on an element (third wrong attempt: show how) */
-function pointAt(el){ let h=document.getElementById("phand"); if(h) h.remove(); if(!el) return;
+function pointAt(el){ let h=document.getElementById("phand"); if(!el){ if(h) h.remove(); return; }
+  if(h){ handTo(h,el,true); return; }   // already showing: glide over to the next target instead of jumping
   const r=el.getBoundingClientRect(); h=document.createElement("img"); h.id="phand"; h.className="phand"; h.src="assets/draft2/hand_point.webp"; h.alt="";
   h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; document.body.appendChild(h); }
 /* show how, step by step: every 300 ms the hand moves to the next thing the child must tap,
@@ -2088,7 +2094,7 @@ function guide(target){ const id=++GUIDE; let last=null;
     if(!el){ unpoint(); return; }
     LOCK=el._lockTo||el;   // what may be tapped (the hand still points at el)
     const r=el.getBoundingClientRect(), key=el; if(key!==last||!document.getElementById("phand")){ last=key; pointAt(el); }
-    else { const h=document.getElementById("phand"); h.style.left=(r.left+r.width/2)+"px"; h.style.top=Math.min(r.top+r.height*.5,innerHeight-20)+"px"; }
+    else handTo(document.getElementById("phand"),el,false);
     setTimeout(tick,150); })(); }
 function stopGuide(){ GUIDE++; unpoint(); }
 function unpoint(){ LOCK=null; const h=document.getElementById("phand"); if(h) h.remove(); }
@@ -4570,4 +4576,9 @@ body::after{background:radial-gradient(ellipse at 50% 50%,transparent 62%,rgba(1
   box-shadow:0 0 0 4px #F6B92E,0 0 26px 8px rgba(255,214,60,.9);opacity:0;animation:denYel 1.6s ease-in-out both}
 @keyframes denYel{0%{opacity:0}18%{opacity:1}70%{opacity:1}100%{opacity:0}}
 @keyframes denPop{0%{transform:scale(1)}18%{transform:scale(1.18)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+</style>
+
+<style>
+/* the pointing hand glides smoothly from one target to the next */
+.phand.glide{transition:left .55s cubic-bezier(.45,.05,.3,1),top .55s cubic-bezier(.45,.05,.3,1)}
 </style>
