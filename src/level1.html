@@ -1427,7 +1427,7 @@ body.platescene #app>.card{opacity:0!important;pointer-events:none;transition:op
         <button class="pplay" id="mainPlay" aria-label="Play">
           <span class="pglow"></span><span class="pripple"></span><span class="prays" id="prays"></span>
           <span class="psteam"><i></i><i></i><i></i></span>
-          <img src="assets/prelbd/plate_pizza.webp" alt="">
+          <img src="assets/prelbd/play_button.webp" alt="">
         </button>
       </div>
       <div class="pburst" id="pburst" aria-hidden="true"></div>
@@ -4499,4 +4499,9 @@ body .card .guide:not([data-spk="noori"]):not([data-spk="billu_idle"]) img{left:
     if(Math.abs(dy-cur)>1){ st.dataset.dy=dy; st.style.translate=`0 ${dy.toFixed(0)}px`; } }); };
   setInterval(fix,250); addEventListener("resize",fix); })();
 </script>
+<style>
+/* the supplied PLAY badge (chef hat, wooden pizza board): no steam or rays around it */
+.pre .pplay .psteam,.pre .pplay .prays{display:none!important}
+.pre .pplay{width:min(15%,calc(30*var(--vh)))!important}
+</style>
 
