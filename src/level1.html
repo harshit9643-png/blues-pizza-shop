@@ -3544,7 +3544,7 @@ async function storyContext1(){
   // ...then the same picture with the pizza cut into one big and one tiny piece, as Billu says it
   const BF=[0,1,2,3].map(k=>`assets/story/scene2_half_talk${k}.webp`); BF.forEach(u=>{ new Image().src=u; });   // Billu's 4 talking faces (0 = mouth shut)
   const cut2=document.createElement("div"); cut2.className="sshot"; cut2.innerHTML=`<img src="${BF[0]}" alt="">`;
-  await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,66,55,1.5,[aB2],2500);   // slowly in on Billu and the cut pizza
+  await W(sceneBook(open2,cut2)); open2=cut2; picZoom(cut2,62,66,1.4,[aB2],2500);   // slowly in on Billu and the cut pizza
   await W(sleep(2500));   // once the zoom has landed, his mouth starts moving and the bubble comes up with it
   { const stopLips=lipSync(cut2.querySelector("img:not(.blur)"),BF,[0,1,3,2]);   // shut, a little open, open, wide open
     STORY.noSpot=true; STORY.bubAt=[70,6,27,1]; SFX.roll(); await sLine("billu","Easy! Two pieces!"); STORY.bubAt=null; STORY.noSpot=false;
