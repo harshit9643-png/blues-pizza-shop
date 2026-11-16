@@ -2614,10 +2614,13 @@ function sBubbleSay(e,name,text){
       return {l:q.left+q.width*f[0]-w.left,t:q.top+q.height*f[1]-w.top,r:q.left+q.width*f[2]-w.left,b:q.top+q.height*f[3]-w.top}; };
     const me=faceOf(e);
     const faces=[...document.querySelectorAll("#slayer .act, #sworld>.anch")].filter(a=>a.offsetParent||a.classList.contains("anch")).map(faceOf);
-    const ui=[...document.querySelectorAll("#sworld .bubble, #sworld>.orderc, .top>.jump, .top>.home, #sSkip, #ssub:not(.bub), #ssub .snext")]
+    const shown=o=>{ const c=getComputedStyle(o); return c.display!=="none"&&c.visibility!=="hidden"&&+c.opacity>.05; };   // hidden things (the story's own hidden NEXT) are not in the way
+    const ui=[...document.querySelectorAll("#sworld .bubble, #sworld>.orderc, .top>.jump, .top>.home, #sSkip, #ssub:not(.bub), #ssub .snext")].filter(shown)
       .map(o=>o.getBoundingClientRect()).filter(o=>o.width).map(o=>({l:o.left-w.left,t:o.top-w.top,r:o.right-w.left,b:o.bottom-w.top,vt:o.top}));
-    const obs=faces.map(f=>({l:f.l-6,t:f.t-6,r:f.r+6,b:f.b+6})).concat(ui);
-    const menuB=Math.max(8-w.top,...ui.filter(o=>o.vt<60).map(o=>o.b+6));   // never under the menu bar
+    const keys=[...document.querySelectorAll("#pctl.on button")].filter(shown).map(o=>o.getBoundingClientRect()).filter(o=>o.width)
+      .map(o=>({l:o.left-w.left-10,t:o.top-w.top-10,r:o.right-w.left+10,b:o.bottom-w.top+10}));   // the round keys are steered around, not a ceiling
+    const obs=faces.map(f=>({l:f.l-6,t:f.t-6,r:f.r+6,b:f.b+6})).concat(ui,keys);
+    const menuB=Math.max(14-w.top,...ui.filter(o=>o.vt<60).map(o=>o.b+6));   // never under the menu bar, never cut at the top edge
     const vw=innerWidth-w.left, vh=innerHeight-w.top, x0=Math.max(8,8-w.left);
     const fit=(x,y)=>({x:Math.max(x0,Math.min(x,Math.min(w.width,vw)-bw-8)),y:Math.max(menuB,Math.min(y,Math.min(w.height,vh)-bh-8))});
     // the tail tip (69% down the bubble's side) sits just beside the face, level with the top of the head
