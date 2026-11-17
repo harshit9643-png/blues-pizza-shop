@@ -3584,8 +3584,9 @@ async function storyContext1(){
   const c3=anchor(9,33,24,44,"chintu"), n3=anchor(69,31,19,46,"noori");   // Noori stands on the right (Billu is not in this picture)
   Object.assign(STORY.cast,{chintu:c3,noori:n3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
-  await sLine("chintu","I want the bigger half!");
-  await sLine("noori","These pieces aren’t equal, so neither is a half. Let’s learn about fractions!");
+  // the monkey's bubble sits up on the LEFT (its tail points at him), Noori's on the RIGHT (tail at her): both clear of Billu's face
+  STORY.bubAt=[2,20,16,0]; await sLine("chintu","I want the bigger half!"); STORY.bubAt=[77,20,16,1];
+  await sLine("noori","These pieces aren’t equal, so neither is a half. Let’s learn about fractions!"); STORY.bubAt=null;
   STORY.noSpot=false;
 }
 $("home").addEventListener("click",()=>{ hideHint(); S.gen++; $("end").hidden=true; $("start").hidden=false; S.phase="idle"; });
