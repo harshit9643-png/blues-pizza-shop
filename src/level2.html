@@ -2914,7 +2914,7 @@ function ropeSVG(){
     </g></svg>`;
 }
 const tw=(ms,fn,ease=t=>t)=>new Promise(res=>{ const t0=performance.now();
-  (function f(now){ const t=Math.min(1,(now-t0)/ms); fn(ease(t)); if(t<1) requestAnimationFrame(f); else res(); })(t0); });
+  (function f(now){ const t=(window.TUT&&TUT.fast&&window.TUT_RW&&!document.getElementById("tut").hidden)?1:Math.min(1,(now-t0)/ms); fn(ease(t)); if(t<1) requestAnimationFrame(f); else res(); })(t0); });
 const easeOutBack=t=>{ const c1=1.4, c3=c1+1; return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2); };
 const easeInOut=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 const SPEAK={noori:["noori","Noori"],billu:["billu_idle","Billu"]};
@@ -3790,8 +3790,8 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
   window.tutSay=function(who,text,opts={}){
     if(opts&&opts.wait){   // a "tap" step: while winding forward the child's earlier choice is tapped again by itself
       if(RT.ff) setTimeout(()=>{ const el=(RT.pick&&document.getElementById(RT.pick))||[...document.querySelectorAll("#tut .pick")].pop(); if(el&&el.onclick) el.onclick(); },60);
-      return say0.apply(this,arguments); }
-    const i=++RT.cur;
+      RT.onWait=true; return say0.apply(this,arguments); }
+    const i=++RT.cur; RT.onWait=false;
     if(RT.ff&&i<RT.target){ if(window.TUT) TUT.fast=true; return Promise.resolve(); }
     if(RT.ff) endFF();
     return say0.apply(this,arguments);
@@ -3810,7 +3810,8 @@ body .tut .talk p,body .tut .talk p .nm,body #ssub:not(.bub) p{font-size:clamp(1
   function goBackTut(){
     if(RT.ff||RT.abort||RT.cur<0) return;
     if(PAUSE.on&&PAUSE.set) PAUSE.set(false);
-    RT.target=Math.max(0,RT.cur-1); RT.abort=true;
+    RT.target=Math.max(0,RT.onWait?RT.cur:RT.cur-1); RT.abort=true; RT.onWait=false;   // on a "tap" step the line before it is the one on screen
+    { clearInterval(tick); const t0=performance.now(); tick=setInterval(()=>{ if((!RT.ff&&!RT.abort)||tu.hidden||performance.now()-t0>9000){ clearInterval(tick); return; } PAUSE.hurry=true; if(window.TUT) TUT.fast=true; fin(); },16); }   // the lesson's waits and animations end at once (BACK used to take about 4 s)
     try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){}
     try{ if(window.VOICE&&VOICE.stop) VOICE.stop(); }catch(e){}
     tu.classList.add("rewinding");
@@ -4441,3 +4442,22 @@ body .tut .talk.talk,body .tut .talk.talk:has(p.tall){width:max-content!importan
 /* the Final and the podium have the music and QA keys in the top-right corner: the box stops short of them (and stays centred) */
 body:has(.view.fl2) .card.card,body:has(.view.podium) .card.card,body:has(.view.final) .card.card,body:has(.view.fline) .card.card{max-width:min(1100px,calc(100*var(--vw) - 340px))!important}
 </style>
+
+<script>
+/* NEXT in the story never lags: a tap that lands between two lines (a page turning, Billu cutting, someone walking in)
+   finishes what is moving and skips the waits until the next line is on screen */
+(()=>{ const nb=document.getElementById("pcNext"), sn=document.getElementById("sNext"), st=document.getElementById("story"); if(!nb||!st) return;
+  let tick=0;
+  const fin=()=>document.getAnimations().forEach(a=>{ try{ const t=a.effect&&a.effect.getTiming(); if(t&&t.iterations!==Infinity&&a.playState==="running") a.finish(); }catch(e){} });
+  const go=()=>{ if(st.hidden) return; const RW=window.STORY_RW; if(!RW) return; const c0=RW.cur, t0=performance.now();
+    clearInterval(tick); tick=setInterval(()=>{ if(st.hidden||RW.cur!==c0||RW.ff||performance.now()-t0>6000){ clearInterval(tick); return; }
+      if(performance.now()-t0>120){ PAUSE.hurry=true; fin(); } },16); };
+  nb.addEventListener("click",go); if(sn) sn.addEventListener("click",e=>{ if(e.isTrusted) go(); });
+  // the same on the lesson board: NEXT shows the next line at once (a tap step still waits for the child's tap)
+  const tu=document.getElementById("tut"), tn=document.getElementById("tutNext");
+  const goT=()=>{ const RT=window.TUT_RW; if(!tu||tu.hidden||!st.hidden||!RT) return; const c0=RT.cur, t0=performance.now();
+    clearInterval(tick); tick=setInterval(()=>{ if(tu.hidden||RT.cur!==c0||RT.onWait||RT.ff||RT.abort||performance.now()-t0>5000){ clearInterval(tick); return; }
+      if(performance.now()-t0>120){ PAUSE.hurry=true; if(window.TUT) TUT.fast=true; fin(); } },16); };
+  nb.addEventListener("click",goT); if(tn) tn.addEventListener("click",e=>{ if(e.isTrusted) goT(); });
+})();
+</script>
