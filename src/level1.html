@@ -4726,9 +4726,26 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     S0(done); }; })();
 /* NEXT itself waits too: while the confetti is still falling, NEXT only remembers it was pressed (further taps are ignored),
    and the moment the last piece lands the game moves on: the sauce pours and the next question comes in */
-(()=>{ const N0=window.next; if(typeof N0!=="function") return; let waiting=false;
-  window.next=function(...a){ const c=window.confetti, self=this; if(waiting) return;
+(()=>{ const N0=window.next; if(typeof N0!=="function") return; let waiting=false, fired=0;
+  // once the move to the next question has started, further NEXT taps (and the automatic one) are ignored until it is on screen:
+  // a second tap during the sauce pour used to skip a question and load two orders over each other (an empty board, the wrong tray)
+  const go=(self,a)=>{ fired=performance.now(); return N0.apply(self,a); };
+  window.next=function(...a){ const c=window.confetti, self=this;
+    if(waiting||document.getElementById("sauce")||performance.now()-fired<4000) return;
     if(c&&c.busy&&c.busy()){ waiting=true; const t0=performance.now();
-      (function w(){ if(c.busy()&&performance.now()-t0<12000) return setTimeout(w,100); setTimeout(()=>{ N0.apply(self,a); waiting=false; },400); })(); return; }   // a short breath after the last piece lands
-    return N0.apply(this,a); }; })();
+      (function w(){ if(c.busy()&&performance.now()-t0<12000) return setTimeout(w,100); setTimeout(()=>{ go(self,a); waiting=false; },400); })(); return; }   // a short breath after the last piece lands
+    return go(this,a); }; })();
+</script>
+
+<style>
+/* CHECK stays hidden until the step before it is done (it pops in then); NEXT is never hidden */
+#done{transition:opacity .3s ease}
+#done.chkwait{opacity:0!important;pointer-events:none!important}
+</style>
+<script>
+/* CHECK appears only once the child has started the last step: after the mould has cut the pizza and a first slice has its topping */
+(()=>{ const b=document.getElementById("done"); if(!b) return;
+  setInterval(()=>{ const isCheck=/CHECK/i.test(b.textContent||"");
+    const wait=isCheck&&typeof S==="object"&&(S.phase==="mould"||S.phase==="cutting"||(S.phase==="top"&&!(S.covered&&S.covered.size>0)));
+    b.classList.toggle("chkwait",!!wait); },120); })();
 </script>
