@@ -2701,7 +2701,7 @@ function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   // the "Let's learn" title shows with the first line only, then gives its space back
   const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
-  p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
+  p.innerHTML=fracify(text);   // the panel shows only the words, never the speaker's name
   speak(text,who);
   const b=$("tutNext"); b.hidden=!!opts.wait; b.innerHTML=(opts.label||"NEXT")+" "+ARROW_T; b._auto=(b._auto||0)+1; if(!opts.wait) autoClick(b,text,opts.extra??2500);
   return opts.wait ? Promise.resolve() : new Promise(res=>{ tutNext=res; });
@@ -3321,7 +3321,7 @@ function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   const [name,img,cls]=SPK[who], w=$("sWho");
   w.className="who "+cls; { const cur=w.querySelector("img"), want=img?`${A}${img}.webp`:null; if(want&&cur){ if(cur.getAttribute("src")!==want){ cur.src=want; cur.alt=name; } } else w.innerHTML=img?`<img src="${want}" alt="${name}">`:NARR_ICON; }   // keep the photo between lines
   const p=$("sLine"); p.className=""; void p.offsetWidth; p.className="in";
-  p.innerHTML=`<span class="nm">${name}:</span> ${fracify(text)}`;
+  p.innerHTML=fracify(text);   // the panel shows only the words, never the speaker's name
   sBubbleSay(STORY.cast[who],name,text);
   if(STORY.talkOff) STORY.talkOff();
   sTalk(STORY.cast[who],text,who); $("sNext").classList.remove("wait"); autoClick($("sNext"),text,2600);   // the story goes slowly: 2.6 s to look after each line
