@@ -4462,7 +4462,7 @@ body .card.card:has(.say.tall),body .tut .talk.talk:has(p.tall),body #ssub#ssub:
 </style>
 <script>
 (()=>{ const chk=()=>["say","tutLine","sLine"].forEach(id=>{ const p=document.getElementById(id); if(!p) return; p.classList.remove("tall"); if(p.scrollHeight>p.clientHeight+12) p.classList.add("tall"); });
-  new MutationObserver(()=>requestAnimationFrame(chk)).observe(document.body,{childList:true,subtree:true,characterData:true}); addEventListener("resize",chk); })();
+  let qc=0; new MutationObserver(()=>{ if(!qc) qc=requestAnimationFrame(()=>{ qc=0; chk(); }); }).observe(document.body,{childList:true,subtree:true,characterData:true}); addEventListener("resize",chk); })();   // the check runs once per frame at most
 </script>
 <style>
 /* long lines: the box may grow wide (up to most of the screen) before it needs more rows */
@@ -4622,7 +4622,7 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
   const SEL="#guide img,#guideImg,#tutWho img,#sWho img";
   const fix=()=>document.querySelectorAll(SEL).forEach(im=>{ const a=im.getAttribute("src")||"", f=toFace(a);
     if(f!==a) im.src=f; im.classList.toggle("faceimg",/assets\/web\/face\//.test(im.getAttribute("src")||"")); });
-  new MutationObserver(fix).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src"]});
+  let qf=0; new MutationObserver(()=>{ if(!qf) qf=requestAnimationFrame(()=>{ qf=0; fix(); }); }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src"]});   // once per frame at most
   fix();
   [...N].forEach(n=>{ new Image().src="assets/web/face/"+n+".webp"; });   // small: fetched early so a new speaker never shows an empty circle
 })();
@@ -4665,7 +4665,7 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
             RO.observe(host); paint(host); } }
         else if(host._dbx){ host._dbx=null; host._dbxKey=null; host.classList.remove("dbx"); RO.unobserve(host);
           ["border-image","border-width","background","--dbxshift"].forEach(k=>host.style.removeProperty(k)); } }); }); };
-  new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src","class"]});
+  let qa=0; new MutationObserver(()=>{ if(!qa) qa=requestAnimationFrame(()=>{ qa=0; apply(); }); }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src","class"]});   // once per frame at most
   addEventListener("resize",()=>{ document.querySelectorAll(".dbx").forEach(h=>{ h._dbx=null; }); apply(); });
   apply();
 })();
@@ -4681,7 +4681,7 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     cv.style.cssText="position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:99990";
     document.body.appendChild(cv); ctx=cv.getContext("2d"); };
   const size=()=>{ const d=Math.min(1.5,devicePixelRatio||1), w=Math.round(innerWidth*d), h=Math.round(innerHeight*d);
-    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; } ctx.setTransform(d,0,0,d,0,0); };   // only when the window size changes (resizing every frame made the game lag)
+    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; cv.style.width=innerWidth+"px"; cv.style.height=innerHeight+"px"; } ctx.setTransform(d,0,0,d,0,0); };   // sized in the page's own units, so it covers the whole screen at any zoom   // only when the window size changes (resizing every frame made the game lag)
   const burst=(x,y,dir,n)=>{ const s=Math.min(innerWidth,innerHeight), D=Math.hypot(innerWidth,innerHeight);
     for(let i=0;i<n;i++){ const a=dir+R(-.5,.5), v=R(.5,1.0)*D*1.7, kind=Math.random();   // a wide fan, fast enough to cross the screen
       parts.push({x:x+R(-6,6),y:y+R(-6,6),vx:Math.cos(a)*v,vy:Math.sin(a)*v,

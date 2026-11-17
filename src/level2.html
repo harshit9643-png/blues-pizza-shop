@@ -3915,7 +3915,7 @@ body .card.card:has(.say.tall),body .tut .talk.talk:has(p.tall),body #ssub#ssub:
 </style>
 <script>
 (()=>{ const chk=()=>["say","tutLine","sLine"].forEach(id=>{ const p=document.getElementById(id); if(!p) return; p.classList.remove("tall"); if(p.scrollHeight>p.clientHeight+12) p.classList.add("tall"); });
-  new MutationObserver(()=>requestAnimationFrame(chk)).observe(document.body,{childList:true,subtree:true,characterData:true}); addEventListener("resize",chk); })();
+  let qc=0; new MutationObserver(()=>{ if(!qc) qc=requestAnimationFrame(()=>{ qc=0; chk(); }); }).observe(document.body,{childList:true,subtree:true,characterData:true}); addEventListener("resize",chk); })();   // the check runs once per frame at most
 </script>
 <style>
 /* long lines: the box may grow wide (up to most of the screen) before it needs more rows */
@@ -4218,7 +4218,7 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
   const SEL="#guide img,#guideImg,#tutWho img,#sWho img";
   const fix=()=>document.querySelectorAll(SEL).forEach(im=>{ const a=im.getAttribute("src")||"", f=toFace(a);
     if(f!==a) im.src=f; im.classList.toggle("faceimg",/assets\/web\/face\//.test(im.getAttribute("src")||"")); });
-  new MutationObserver(fix).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src"]});
+  let qf=0; new MutationObserver(()=>{ if(!qf) qf=requestAnimationFrame(()=>{ qf=0; fix(); }); }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src"]});   // once per frame at most
   fix();
   [...N].forEach(n=>{ new Image().src="assets/web/face/"+n+".webp"; });   // small: fetched early so a new speaker never shows an empty circle
 })();
@@ -4278,7 +4278,7 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
             RO.observe(host); paint(host); } }
         else if(host._dbx){ host._dbx=null; host._dbxKey=null; host.classList.remove("dbx"); RO.unobserve(host);
           ["border-image","border-width","background","--dbxshift"].forEach(k=>host.style.removeProperty(k)); } }); }); };
-  new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src","class"]});
+  let qa=0; new MutationObserver(()=>{ if(!qa) qa=requestAnimationFrame(()=>{ qa=0; apply(); }); }).observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:["src","class"]});   // once per frame at most
   addEventListener("resize",()=>{ document.querySelectorAll(".dbx").forEach(h=>{ h._dbx=null; }); apply(); });
   apply();
 })();
@@ -4294,7 +4294,7 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     cv.style.cssText="position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:99990";
     document.body.appendChild(cv); ctx=cv.getContext("2d"); };
   const size=()=>{ const d=Math.min(1.5,devicePixelRatio||1), w=Math.round(innerWidth*d), h=Math.round(innerHeight*d);
-    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; } ctx.setTransform(d,0,0,d,0,0); };   // only when the window size changes (resizing every frame made the game lag)
+    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; cv.style.width=innerWidth+"px"; cv.style.height=innerHeight+"px"; } ctx.setTransform(d,0,0,d,0,0); };   // sized in the page's own units, so it covers the whole screen at any zoom   // only when the window size changes (resizing every frame made the game lag)
   const burst=(x,y,dir,n)=>{ const s=Math.min(innerWidth,innerHeight), D=Math.hypot(innerWidth,innerHeight);
     for(let i=0;i<n;i++){ const a=dir+R(-.5,.5), v=R(.5,1.0)*D*1.7, kind=Math.random();   // a wide fan, fast enough to cross the screen
       parts.push({x:x+R(-6,6),y:y+R(-6,6),vx:Math.cos(a)*v,vy:Math.sin(a)*v,
@@ -4364,4 +4364,27 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
       if(S.phase==="build") wait=!(S.cnt&&S.cnt.a>0&&S.cnt.b>0);
       else if(S.phase==="order"&&typeof placed==="function") wait=placed().some(v=>v===null); }
     b.classList.toggle("chkwait",wait); },120); })();
+</script>
+
+<style>
+/* plate matches: when the medal is given, the plates, the slice buttons, the loser and the middle words all go;
+   only the winner (with the medal) and their fraction stay, big, in the middle of the screen */
+.view.match:not(.cardsv) .gone{opacity:0!important;pointer-events:none!important;transition:opacity .35s ease!important}
+body:has(.view.match .side.win.centred) .spotlay{display:none!important}
+.view.match:not(.cardsv) .who.centred{transition:transform .8s cubic-bezier(.3,1.2,.5,1)!important;z-index:6}
+</style>
+<script>
+(()=>{ const P0=window.pickWinner; if(typeof P0!=="function") return;
+  window.pickWinner=async function(st,sd){ const ok=S.phase==="winner"&&sd===st.win; const r=await P0.apply(this,arguments);
+    const v=$("view"); if(!ok||!v||!v.classList.contains("match")||v.classList.contains("cardsv")) return r;
+    const w=$("side-"+sd), l=$("side-"+(sd==="a"?"b":"a")), who=w&&w.querySelector(".who"); if(!who) return r;
+    [l,v.querySelector(".mid"),...w.querySelectorAll(".plate,.stack")].forEach(e=>e&&e.classList.add("gone"));
+    w.classList.add("centred");
+    requestAnimationFrame(()=>{ const vr=v.getBoundingClientRect(), wr=who.getBoundingClientRect(), H=innerHeight;
+      const k=Math.max(1.4,Math.min(2.1,(H*.55)/wr.height));   // as big as fits: about half the screen's height
+      const cx=vr.left+vr.width/2, cy=Math.min(vr.top+vr.height/2,H*.5)+H*.02;   // the middle of the play area
+      const dx=cx-(wr.left+wr.width/2), dy=cy-(wr.top+wr.height/2);
+      who.classList.add("centred"); who.style.setProperty("transform-origin","50% 50%","important");
+      who.style.setProperty("transform",`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${k.toFixed(2)})`,"important"); });
+    return r; }; })();
 </script>
