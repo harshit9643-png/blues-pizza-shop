@@ -2146,7 +2146,9 @@ async function loadOrder(){
       await sayW("Choose the correct pizza mould. It will cut the pizza into equal parts, as many as required.","","noori",gen); if(!live(gen)) return;
       await sayW(`The parrot has ordered ${o.n}/${o.d} of a pizza. Let's make it.`,"","noori",gen); if(!live(gen)) return;
       blinkNum("d",3); const rm=document.querySelector(`.mould[data-m="${o.d}"]`); if(rm){ rm.classList.remove("pulseok"); void rm.offsetWidth; rm.classList.add("pulseok"); setTimeout(()=>rm.classList.remove("pulseok"),3200); }
-      say(`The bottom number is ${o.d}. Which mould will you choose?`); S.busy=false; armIdle(); return; }
+      say(`The bottom number is ${o.d}. Which mould will you choose?`); S.busy=false; armIdle();
+      { const key=S.lv+":"+S.i; guide(()=>S.phase==="mould"&&!S.busy&&S.lv+":"+S.i===key?document.querySelector(`.mould[data-m="${o.d}"]`):null); }   // hands-on, as with the giraffe: the hand shows the right mould (only it can be tapped)
+      return; }
     say(custLine(o));
     await wait(1500); if(!live(gen)) return;
     setDock(true); await wait(750); if(!live(gen)) return;
@@ -2177,7 +2179,8 @@ function beginTopping(){
   if(o.tut){ S.busy=true;
     sayW("Now choose any topping you like!","","noori",gen).then(()=>{ if(!live(gen)) return; blinkNum("n",o.n);
       PZ.querySelectorAll(".hit").forEach(h=>{ h.classList.remove("showme"); void h.getBBox(); h.classList.add("showme"); setTimeout(()=>h.classList.remove("showme"),2400); });
-      say(`The top number is ${o.n}. The parrot wants ${o.n} parts. Tap them to add the topping.`); S.busy=false; });
+      say(`The top number is ${o.n}. The parrot wants ${o.n} parts. Tap them to add the topping.`); S.busy=false;
+      showSlices(o.n,true); });   // hands-on, as with the giraffe: the hand shows a topping, then the parts one by one, then CHECK
     return; }
   if(LEVELS[S.lv].cut) say(o.top);   // Level 1.2: Noori; Level 1.1 keeps the customer's order on screen
   armIdle();
@@ -2358,7 +2361,7 @@ function uncover(i){
 function afterChange(){
   const o=cur(); setCount(); setDone("done",S.covered.size>0,S.covered.size===o.n);
   if(o.guided){ if(S.covered.size===o.n) say("Great! Now tap CHECK to serve it."); return; }
-  if(o.tut){ if(S.covered.size===o.n&&!/Two parts are ready/.test(S.sayPlain)){ say("Great! Two parts are ready. Now, serve it."); pointAt($("done")); setTimeout(unpoint,3500); } return; }
+  if(o.tut){ if(S.covered.size===o.n&&!/Two parts are ready/.test(S.sayPlain)){ say("Great! Two parts are ready. Now, serve it."); } return; }   // the guiding hand moves on to CHECK by itself
   if(/^(Is that|Pick a topping|Now tap|That slice|Put the topping)/.test(S.sayPlain)) say(LEVELS[S.lv].cut?o.top:custLine(o));
 }
 PZ.addEventListener("click",e=>{
