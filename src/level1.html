@@ -2360,11 +2360,11 @@ function afterChange(){
   if(/^(Is that|Pick a topping|Now tap|That slice|Put the topping)/.test(S.sayPlain)) say(LEVELS[S.lv].cut?o.top:custLine(o));
 }
 PZ.addEventListener("click",e=>{
-  const h=e.target.closest&&e.target.closest(".hit");
+  // a tap anywhere on a slice counts, also on its topping pieces (they lie over the slice's tap area)
+  const h=e.target.closest&&(e.target.closest(".hit")||e.target.closest(".part"));
   if(!h||S.phase!=="top"||S.busy) return;
-  const i=+h.dataset.i;
-  if(S.covered.has(i)){ say("That slice already has a topping. Put it on a slice with no topping.","bad"); Sound.bad&&Sound.bad();
-    const hp=partEl(i); if(hp){ hp.classList.remove("nope"); void hp.getBBox(); hp.classList.add("nope"); setTimeout(()=>hp.classList.remove("nope"),600); } return; }
+  const i=+(h.dataset.i??(h.closest(".part")||{dataset:{}}).dataset.i); if(!(i>=0)) return;
+  if(S.covered.has(i)){ uncover(i); return; }   // tapping a topped slice takes its topping off again
   if(!S.topping){ say("Pick a topping first: drag a bowl onto a slice.");
     document.querySelectorAll(".katori").forEach(b=>{ b.classList.remove("ask"); void b.offsetWidth; b.classList.add("ask"); }); return; }
   cover(i,S.topping,toSvg(e.clientX,e.clientY));
@@ -4749,3 +4749,8 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     const wait=isCheck&&typeof S==="object"&&(S.phase==="mould"||S.phase==="cutting"||(S.phase==="top"&&!(S.covered&&S.covered.size>0)));
     b.classList.toggle("chkwait",!!wait); },120); })();
 </script>
+
+<style>
+/* the cut lines are only drawn, never tapped: once hidden after the cut they used to catch taps meant for a slice (a topping could not be tapped off) */
+#cuts,#cuts *,.cut,line.cut{pointer-events:none!important}
+</style>
