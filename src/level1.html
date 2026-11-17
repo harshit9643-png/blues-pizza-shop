@@ -3316,7 +3316,10 @@ function sBubbleSay(e,name,text){
         if(!fl) x=w.width*(l+ww)/100-aw; y+=.69*(nh-ah); }
       // keep it on the screen (the picture may be cropped on a wide screen) and clear of the round keys in the corners
       const k=(document.getElementById("pcNext")||{}).offsetHeight||60, bw2=bb.offsetWidth, bh2=bb.offsetHeight;
-      y=Math.max(y,-w.top+k+26); y=Math.min(y,-w.top+innerHeight-bh2-90); x=Math.min(x,-w.left+innerWidth-bw2-k-30); x=Math.max(x,-w.left+16);   // and never off the left edge (on a narrow screen the picture's sides are cut off)
+      y=Math.max(y,-w.top+k+26); y=Math.min(y,-w.top+innerHeight-bh2-90); x=Math.min(x,-w.left+innerWidth-bw2-16); x=Math.max(x,-w.left+16);   // (it is already below the corner keys, so it may reach the right edge)
+      if(fl){ const want=w.width*l/100; if(want-x>bw2*.15){ bb.classList.remove("flip"); const A=STORY.bubAt[4];   // no room on the right (a narrow screen): it sits on the speaker's left instead, the tail still pointing at them
+        if(A){ const [l2,t2,ww2]=A, nh2=w.width*ww2/100*381/900; x=w.width*(l2+ww2)/100-bw2; y=Math.max(w.height*t2/100+.69*(nh2-bh2),-w.top+k+26); }   // (a line can give its own spot for that)
+        else x=want-bw2; x=Math.max(x,-w.left+16); } }   // and never off the left edge (on a narrow screen the picture's sides are cut off)
       bb.style.left=x+"px"; bb.style.top=y+"px"; }
     (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
     sSpot(me);
@@ -3592,8 +3595,8 @@ async function storyContext1(){
   const c3=anchor(9,33,24,44,"chintu"), n3=anchor(69,31,19,46,"noori");   // Noori stands on the right (Billu is not in this picture)
   Object.assign(STORY.cast,{chintu:c3,noori:n3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
-  // the monkey's bubble sits up on the LEFT (its tail points at him); Noori's sits just above her head, the tail pointing down at it: both clear of Billu's face
-  STORY.bubAt=[2,20,16,0]; await sLine("chintu","I want the bigger half!"); STORY.bubAt=[66,20,16,0];
+  // the monkey's bubble sits up on the LEFT (its tail points at him); Noori's sits up on her RIGHT, the tail pointing at her head: both clear of Billu's face
+  STORY.bubAt=[2,20,16,0]; await sLine("chintu","I want the bigger half!"); STORY.bubAt=[73,21,16,1,[63,17,16,0]];
   await sLine("noori","These pieces aren’t equal, so neither is a half. Let’s learn about fractions!"); STORY.bubAt=null;
   STORY.noSpot=false;
 }
