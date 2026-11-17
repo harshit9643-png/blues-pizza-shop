@@ -1742,6 +1742,8 @@ const cur = () => S.tut || LEVELS[S.lv].orders[S.i];
 const TUT11 = {cust:"giraffe", n:3, d:4, shape:"round", line:"3/4 of a pizza, please!", ok:"Yummy! Just what I ordered!", guided:true};
 const TUT12 = {cust:"parrot", n:2, d:3, shape:"round", moulds:[2,3,4], line:"2/3 of a pizza, please!", ok:"Perfect!", tut:true};
 const fracify = s => s.replace(/(\d+)\/(\d+)/g,'<span class="fr"><b>$1</b><b>$2</b></span>');
+/* the boxes never show who is speaking: "Tez: “…”" is shown as just the words (the name stays in the text itself, for the voice and the photo) */
+const noNames = s => { let t=String(s).replace(/(^|\s{2,})[A-Z][A-Za-z]+(?: and [A-Z][A-Za-z]+)?(?:\s*\([^)]*\))?:\s*(?=[“"])/g,"$1"); const m=/^\s*[“"]([^“”"]*)[”"](\s*⭐)?\s*$/.exec(t); return m?m[1]+(m[2]||""):t; };
 const custName = o => o.name || NAMES[o.cust];
 const custWho  = o => o.who  || NAMES[o.cust];
 const SHAPE_NAME = {round:"Round",square:"Square",rect:"Rectangle"};
@@ -1760,7 +1762,7 @@ function spkPic(text,who){ const m=/^\s*(?:<[^>]+>)*\s*([A-Z][A-Za-z]+)(?:\s*\([
   if(/^ant: “one big piece/i.test(String(text))) w="ant";
   return w==="billu"?"billu_idle":w==="chintu"?"chintu_face":SPK_PICS.has(w)?w:"noori"; }
 function say(text,tone,who){ { const g=document.querySelector("#guide img"), pic=spkPic(text,who); if(g){ g.src=A+pic+".webp"; } $("guide").classList.toggle("billu",pic==="billu_idle"); $("guide").dataset.spk=pic; }
-  nooriTalk(who&&who!=="noori"?null:text); S.sayPlain=text; S.saySpk=who||"noori"; if($("story").hidden&&$("tut").hidden) speak(text,who||"noori"); const el=$("say"); el.innerHTML=fracify(text); el.className="say"+(tone?" "+tone:""); }
+  nooriTalk(who&&who!=="noori"?null:text); S.sayPlain=text; S.saySpk=who||"noori"; if($("story").hidden&&$("tut").hidden) speak(text,who||"noori"); const el=$("say"); el.innerHTML=fracify(noNames(text)); el.className="say"+(tone?" "+tone:""); }
 /* says a line and resolves once it has been spoken (or after a reading time), plus a short pause */
 function sayW(text,tone,who,gen){ say(text,tone,who); const t0=performance.now(), est=Math.max(1600,String(text).split(/\s+/).length*330+500);
   return new Promise(r=>{ let spoke=false; (function t(){ if(gen!==undefined&&!live(gen)) return r();
@@ -2701,7 +2703,7 @@ function tutSay(who,text,opts={}){ nooriTalk(who==="noori"?text:null);
   // the "Let's learn" title shows with the first line only, then gives its space back
   const ttl=document.querySelector(".tut .ttl"); if(ttl){ ttl._n=(ttl._n||0)+1; if(ttl._n>1) ttl.classList.add("gone"); }
   const p=$("tutLine"); p.className=opts.bad?"bad in":"in"; void p.offsetWidth;
-  p.innerHTML=fracify(text);   // the panel shows only the words, never the speaker's name
+  p.innerHTML=fracify(noNames(text));   // the panel shows only the words, never the speaker's name
   speak(text,who);
   const b=$("tutNext"); b.hidden=!!opts.wait; b.innerHTML=(opts.label||"NEXT")+" "+ARROW_T; b._auto=(b._auto||0)+1; if(!opts.wait) autoClick(b,text,opts.extra??2500);
   return opts.wait ? Promise.resolve() : new Promise(res=>{ tutNext=res; });
@@ -3273,7 +3275,7 @@ function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
-  bb.querySelector(".t").innerHTML=`<b>${name}</b><span>${fracify(text)}</span>`;
+  bb.querySelector(".t").innerHTML=`<span>${fracify(text)}</span>`;   // only the words: no speaker name in any box
   const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(16,Math.min(26,9+len*.36))+"%";
   bb._set=0; bb.classList.remove("on","bigb"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
@@ -3321,7 +3323,7 @@ function sLine(who,text){ nooriTalk(who==="noori"?text:null);
   const [name,img,cls]=SPK[who], w=$("sWho");
   w.className="who "+cls; { const cur=w.querySelector("img"), want=img?`${A}${img}.webp`:null; if(want&&cur){ if(cur.getAttribute("src")!==want){ cur.src=want; cur.alt=name; } } else w.innerHTML=img?`<img src="${want}" alt="${name}">`:NARR_ICON; }   // keep the photo between lines
   const p=$("sLine"); p.className=""; void p.offsetWidth; p.className="in";
-  p.innerHTML=fracify(text);   // the panel shows only the words, never the speaker's name
+  p.innerHTML=fracify(noNames(text));   // the panel shows only the words, never the speaker's name
   sBubbleSay(STORY.cast[who],name,text);
   if(STORY.talkOff) STORY.talkOff();
   sTalk(STORY.cast[who],text,who); $("sNext").classList.remove("wait"); autoClick($("sNext"),text,2600);   // the story goes slowly: 2.6 s to look after each line
@@ -4463,21 +4465,22 @@ body .card .say,body .tut .talk p,body #ssub:not(.bub) p{white-space:normal!impo
 body .card.card:has(.say.tall),body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall){--dh:clamp(84px,calc(15*var(--vh)),112px);--dk:calc(var(--dh) / 226);height:var(--dh)!important;min-height:var(--dh)!important;max-height:var(--dh)!important}
 </style>
 <script>
-(()=>{ const over=p=>p.scrollHeight>p.clientHeight+2||p.scrollWidth>p.clientWidth+2, last={};
+(()=>{ const room=p=>{ const b=p.parentElement; return b?b.clientHeight+Math.round(b.offsetHeight*.03):p.clientHeight; }, last={};   // the room is the inside of the box (a fraction in a line makes the paragraph itself measure a few px "too tall", which used to shrink the letters for nothing)
+  const over=p=>p.scrollHeight>room(p)+1||p.scrollWidth>p.clientWidth+2;
   // a line that does not fit gets a taller box; if it still does not fit, its letters get a little smaller until it does (nothing is ever cut).
   // Measured only when a dialogue line or its box width changes: measuring forces a layout, so it must not run every frame
   const fit=p=>{ p.classList.remove("tall"); p.style.removeProperty("--dlgfs");
     if(!over(p)) return; p.classList.add("tall"); if(!over(p)) return;
     let fs=parseFloat(getComputedStyle(p).fontSize)||18;   // the words, the name and the fraction all follow --dlgfs
-    fs=Math.max(11,fs*Math.sqrt(Math.min(p.clientHeight/p.scrollHeight,p.clientWidth/p.scrollWidth))*.98);   // straight to about the right size...
+    fs=Math.max(13,fs*Math.sqrt(Math.min(room(p)/p.scrollHeight,p.clientWidth/p.scrollWidth))*.98);   // straight to about the right size...
     p.style.setProperty("--dlgfs",fs.toFixed(1)+"px");
-    for(let i=0;i<3&&over(p)&&fs>11;i++){ fs*=.93; p.style.setProperty("--dlgfs",fs.toFixed(1)+"px"); } };   // ...then at most a few small steps
+    for(let i=0;i<5&&over(p)&&fs>13;i++){ fs*=.93; p.style.setProperty("--dlgfs",fs.toFixed(1)+"px"); } };   // ...then at most a few small steps
   const IDS=["say","tutLine","sLine"];
   const chk=force=>IDS.forEach(id=>{ const p=document.getElementById(id); if(!p) return;
     const key=p.innerHTML.length+":"+p.textContent+"|"+innerWidth+"x"+innerHeight; if(!force&&last[id]===key) return;   // nothing new: no measuring at all
     if(!p.offsetParent) return; last[id]=key; fit(p); });
   let qc=0; const soon=()=>{ if(!qc) qc=requestAnimationFrame(()=>{ qc=0; chk(); }); };
-  IDS.forEach(id=>{ const p=document.getElementById(id); if(p) new MutationObserver(soon).observe(p,{childList:true,subtree:true,characterData:true}); });
+  IDS.forEach(id=>{ const p=document.getElementById(id); if(p) new MutationObserver(()=>{ chk(); soon(); }).observe(p,{childList:true,subtree:true,characterData:true}); });
   addEventListener("resize",()=>chk(true)); setInterval(()=>chk(),500); })();   // the slow tick catches a line set while its box was hidden   // the check runs once per frame at most
 </script>
 <style>
@@ -4779,3 +4782,29 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0, rush=fals
 (()=>{ const d=document.getElementById("done"); if(!d) return;
   d.addEventListener("click",e=>{ if(e.isTrusted&&window.confetti&&confetti.busy&&confetti.busy()&&confetti.hurry) confetti.hurry(); },true); })();
 </script>
+
+<style>
+/* ===== bigger words in every dialogue box (orders, lesson, matches, rounds, the story's narrator box) =====
+   one common size; a line that is too long for its box is made a little smaller by the fit check, never cut */
+:root{--dlgfs:clamp(20px,calc(2.2*var(--vw)),27px)}
+body .card .say,body .card .say *:not(.fr):not(.fr *),body .tut .talk p,body #ssub:not(.bub) p{line-height:1.2!important}
+/* the paragraph itself never clips its words (a fraction's bottom used to lose a few pixels): the fit check keeps them inside the box */
+body .card .say,body .tut .talk p,body #ssub:not(.bub) p{max-height:none!important;overflow:visible!important}
+/* a little air between the speaker's round photo and the first word, and before the right rim */
+body .card .say,body .tut .talk p,body #ssub:not(.bub) p{padding:0 calc(var(--dk) * 22) 0 calc(var(--dk) * 26)!important}
+/* the story's narrator box stays clear of the round keys in the two top corners, however long the line */
+body #ssub#ssub:not(.bub),body #ssub#ssub:not(.bub):has(p.tall){width:max-content!important;max-width:min(1100px,calc(100*var(--vw) - 350px))!important}
+/* every box is only as wide as its words (up to most of the screen), also the taller one: no more long empty boxes */
+body .card.card,body .card.card:has(.say.tall){width:max-content!important;max-width:min(1100px,calc(100*var(--vw) - 170px))!important}
+/* the lesson's box stays inside the board (its round photo included) */
+body .tut .talk.talk,body .tut .talk.talk:has(p.tall){width:max-content!important;max-width:min(1100px,calc(100*var(--vw) - 260px))!important}
+</style>
+<style>
+/* bigger labels: the topping names, the name and "of a pizza" on the order card, the lesson's word tags */
+.bowl-label{font-size:clamp(14px,calc(1.4*var(--vw)),19px)!important}
+.ocard .oc-ava{width:35cqw!important}
+.ocard .oc-fr{padding:2.6cqw 0!important}   /* room for the bigger name and "of a pizza": nothing on the card touches */
+.ocard .oc-name{font-size:9.8cqw!important;padding:1cqw 8cqw!important}
+.ocard .oc-of{font-size:9.6cqw!important}
+.tut .lword{font-size:clamp(22px,calc(3.7*var(--vh)),34px)!important}
+</style>
