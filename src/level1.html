@@ -4461,7 +4461,13 @@ body .card .say,body .tut .talk p,body #ssub:not(.bub) p{white-space:normal!impo
 body .card.card:has(.say.tall),body .tut .talk.talk:has(p.tall),body #ssub#ssub:not(.bub):has(p.tall){--dh:clamp(84px,calc(15*var(--vh)),112px);--dk:calc(var(--dh) / 226);height:var(--dh)!important;min-height:var(--dh)!important;max-height:var(--dh)!important}
 </style>
 <script>
-(()=>{ const chk=()=>["say","tutLine","sLine"].forEach(id=>{ const p=document.getElementById(id); if(!p) return; p.classList.remove("tall"); if(p.scrollHeight>p.clientHeight+12) p.classList.add("tall"); });
+(()=>{ const over=p=>p.scrollHeight>p.clientHeight+2||p.scrollWidth>p.clientWidth+2;
+  // a line that does not fit gets a taller box; if it still does not fit, its letters get a little smaller until it does (nothing is ever cut)
+  const chk=()=>["say","tutLine","sLine"].forEach(id=>{ const p=document.getElementById(id); if(!p||!p.offsetParent) return;
+    p.classList.remove("tall"); p.style.removeProperty("--dlgfs");
+    if(!over(p)) return; p.classList.add("tall"); if(!over(p)) return;
+    let fs=parseFloat(getComputedStyle(p).fontSize)||18;   // the words, the name and the fraction all follow --dlgfs
+    for(let i=0;i<14&&over(p)&&fs>11;i++){ fs*=.94; p.style.setProperty("--dlgfs",fs.toFixed(1)+"px"); } });
   let qc=0; new MutationObserver(()=>{ if(!qc) qc=requestAnimationFrame(()=>{ qc=0; chk(); }); }).observe(document.body,{childList:true,subtree:true,characterData:true}); addEventListener("resize",chk); })();   // the check runs once per frame at most
 </script>
 <style>
