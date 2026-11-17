@@ -2513,8 +2513,8 @@ async function plateScene(gen){
   // where a group's pizza really is (its area centre, traced along the piece outlines): a wedge's weight
   // sits by its crust, so centring its box left the slices looking pushed to one side of the plate
   const massOf=group=>{ let A=0,X=0,Y=0;
-    group.forEach(i=>{ const h=partEl(i).querySelector(".hit"), L=h.getTotalLength(), o=S.off[i]||{x:0,y:0}, P=[];
-      for(let t=0;t<96;t++){ const q=h.getPointAtLength(L*t/96); P.push([q.x,q.y]); }
+    group.forEach(i=>{ const h=partEl(i).querySelector(".hit"), o=S.off[i]||{x:0,y:0};
+      const P=h._pts||(h._pts=(()=>{ const L=h.getTotalLength(), Q=[]; for(let t=0;t<32;t++){ const q=h.getPointAtLength(L*t/32); Q.push([q.x,q.y]); } return Q; })());   // 32 points round each piece, measured once per piece (96 every time froze the screen as the plates came in)
       let a=0,x=0,y=0; for(let j=0;j<P.length;j++){ const [x0,y0]=P[j],[x1,y1]=P[(j+1)%P.length], c=x0*y1-x1*y0; a+=c; x+=(x0+x1)*c; y+=(y0+y1)*c; }
       if(Math.abs(a)<1e-6) return; A+=a/2; X+=(x/(3*a)+o.x*.5)*a/2; Y+=(y/(3*a)+o.y*.5)*a/2; });
     return A?{x:X/A,y:Y/A}:centreOf(group); };
@@ -3269,9 +3269,14 @@ function sSpot(face,rr){ let s=$("sspot");
 /* focus on a thing in the picture (the narrator has no bubble) */
 function sLook(el){ if(!el) return; const q=el.getBoundingClientRect(); sSpot({l:q.left,t:q.top,r:q.right,b:q.bottom-q.height*.1},Math.max(q.width,q.height)*.42); }   // a tight circle on the thing
 /* the bubble's text shrinks until all of it fits inside the bubble */
-function fitBubText(bb){ const t=bb&&bb.querySelector(".t"); if(!t) return; t.style.removeProperty("font-size");
+function fitBubText(bb){ const t=bb&&bb.querySelector(".t"); if(!t) return;   // every bubble keeps the one dialogue text size: a long line makes the bubble bigger, not the letters smaller
+  t.style.removeProperty("font-size"); bb.style.removeProperty("aspect-ratio");
+  const over=()=>t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1;
+  let w=parseFloat(bb.style.width)||16;
+  for(let i=0;i<40&&over()&&w<26;i++){ w+=.5; bb.style.width=w+"%"; }   // first a little wider (up to about a quarter of the scene)...
+  let ar=900/381; for(let i=0;i<16&&over()&&ar>1.3;i++){ ar*=.95; bb.style.aspectRatio=ar.toFixed(3); }   // ...then a little taller (the bubble picture stretches)
   let fs=parseFloat(getComputedStyle(t).fontSize)||16;
-  for(let i=0;i<30&&(t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1)&&fs>9;i++){ fs*=.93; t.style.setProperty("font-size",fs.toFixed(1)+"px","important"); } }
+  for(let i=0;i<20&&over()&&fs>12;i++){ fs*=.94; t.style.setProperty("font-size",fs.toFixed(1)+"px","important"); } }   // only if nothing else fits
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
@@ -3307,9 +3312,11 @@ function sBubbleSay(e,name,text){
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=Math.max(best.y,-w.top+((document.getElementById("pcNext")||{}).offsetHeight||60)+26)+"px";   // never up among the round keys
     if(STORY.bubAt){ const [l,t,ww,fl]=STORY.bubAt; bb.style.width=ww+"%"; bb.classList.toggle("flip",!!fl); bb.classList.add("bigb"); fitBubText(bb); let x=w.width*l/100, y=w.height*t/100;
+      { const nw=w.width*ww/100, nh=nw*381/900, aw=bb.offsetWidth, ah=bb.offsetHeight;   // a bubble that grew keeps its tail where it was: it grows away from the speaker
+        if(!fl) x=w.width*(l+ww)/100-aw; y+=.69*(nh-ah); }
       // keep it on the screen (the picture may be cropped on a wide screen) and clear of the round keys in the corners
       const k=(document.getElementById("pcNext")||{}).offsetHeight||60, bw2=bb.offsetWidth, bh2=bb.offsetHeight;
-      y=Math.max(y,-w.top+k+26); y=Math.min(y,-w.top+innerHeight-bh2-90); x=Math.min(x,-w.left+innerWidth-bw2-k-30);
+      y=Math.max(y,-w.top+k+26); y=Math.min(y,-w.top+innerHeight-bh2-90); x=Math.min(x,-w.left+innerWidth-bw2-k-30); x=Math.max(x,-w.left+16);   // and never off the left edge (on a narrow screen the picture's sides are cut off)
       bb.style.left=x+"px"; bb.style.top=y+"px"; }
     (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
     sSpot(me);
@@ -3586,7 +3593,7 @@ async function storyContext1(){
   Object.assign(STORY.cast,{chintu:c3,noori:n3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
   // the monkey's bubble sits up on the LEFT (its tail points at him); Noori's sits just above her head, the tail pointing down at it: both clear of Billu's face
-  STORY.bubAt=[2,20,16,0]; await sLine("chintu","I want the bigger half!"); STORY.bubAt=[60,23,16,0];
+  STORY.bubAt=[2,20,16,0]; await sLine("chintu","I want the bigger half!"); STORY.bubAt=[66,20,16,0];
   await sLine("noori","These pieces aren’t equal, so neither is a half. Let’s learn about fractions!"); STORY.bubAt=null;
   STORY.noSpot=false;
 }
@@ -4710,25 +4717,26 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0, rush=fals
         k:kind<.5?"sq":kind<.72?"strip":kind<.88?"dot":"curl",
         w:R(5,9)*(s/700+.4),h:R(3,6)*(s/700+.4),c:COLS[(Math.random()*COLS.length)|0],
         rot:R(0,6.28),vr:R(-14,14),flip:R(0,6.28),vf:R(8,20),sw:R(0,6.28),life:0,max:12}); } };
-  const step=t=>{ const all=Math.min(.25,(t-last)/1000||.016); last=t; size();   // real time: a slow frame moves the pieces further, so the fall always takes the same time
+  const step=t=>{ const all=Math.min(.25,(t-last)/1000||.016); last=t; size(); const D=Math.min(1.5,devicePixelRatio||1);   // real time: a slow frame moves the pieces further, so the fall always takes the same time
     ctx.clearRect(0,0,innerWidth,innerHeight);
     parts=parts.filter(p=>p.life<p.max&&p.y<innerHeight+30&&p.x>-60&&p.x<innerWidth+60);   // each piece stays until it has fallen off the bottom
-    const nsub=Math.max(1,Math.ceil(all/.02)), dt=all/nsub;
+    const nsub=Math.min(3,Math.max(1,Math.ceil(all/.03))), dt=all/nsub;   // at most 3 small steps a frame (more made a slow frame slower still)
     for(const p of parts){ for(let q=0;q<nsub;q++){ p.life+=dt;
       const drag=p.k==="dot"?1.7:2.2;   // paper slows down quickly in the air
       p.vx-=p.vx*drag*dt; p.vy-=p.vy*drag*dt; p.vy+=300*dt;   // gravity
       const top=rush?1100:(p.k==="dot"?310:p.k==="curl"?230:265); if(rush){ p.vy+=2200*dt; } if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
-      p.sw+=dt*R(2,4); p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
+      p.sw+=dt*3; p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
       p.rot+=p.vr*dt; p.flip+=p.vf*dt; }
       const fade=Math.min(1,(p.max-p.life)/.6, 1);
-      ctx.save(); ctx.globalAlpha=fade; ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.c;
-      const sy=Math.cos(p.flip);   // the paper turns over: it looks thin edge-on
-      if(p.k==="sq"){ ctx.scale(1,sy); ctx.fillRect(-p.w/2,-p.w/2,p.w,p.w); }
-      else if(p.k==="strip"){ ctx.scale(1,sy); ctx.fillRect(-p.w,-p.h/3,p.w*2,p.h*.66); }
-      else if(p.k==="dot"){ ctx.beginPath(); ctx.ellipse(0,0,p.h*.7,p.h*.7*Math.max(.25,Math.abs(sy)),0,0,6.28); ctx.fill(); }
-      else { ctx.strokeStyle=p.c; ctx.lineWidth=Math.max(1.6,p.h*.45); ctx.lineCap="round"; ctx.beginPath();
+      const sy=Math.cos(p.flip), cs=Math.cos(p.rot)*D, sn=Math.sin(p.rot)*D;   // one transform per piece (save / translate / rotate / restore for every piece made the shower lag)
+      ctx.globalAlpha=fade; ctx.fillStyle=p.c;   // the paper turns over: it looks thin edge-on
+      if(p.k==="sq"){ ctx.setTransform(cs,sn,-sn*sy,cs*sy,p.x*D,p.y*D); ctx.fillRect(-p.w/2,-p.w/2,p.w,p.w); }
+      else if(p.k==="strip"){ ctx.setTransform(cs,sn,-sn*sy,cs*sy,p.x*D,p.y*D); ctx.fillRect(-p.w,-p.h/3,p.w*2,p.h*.66); }
+      else if(p.k==="dot"){ ctx.setTransform(cs,sn,-sn,cs,p.x*D,p.y*D); ctx.beginPath(); ctx.ellipse(0,0,p.h*.7,p.h*.7*Math.max(.25,Math.abs(sy)),0,0,6.28); ctx.fill(); }
+      else { ctx.setTransform(cs,sn,-sn,cs,p.x*D,p.y*D); ctx.strokeStyle=p.c; ctx.lineWidth=Math.max(1.6,p.h*.45); ctx.lineCap="round"; ctx.beginPath();
         for(let u=0;u<=10;u++){ const xx=(u-5)*p.w*.32, yy=Math.sin(u*.9+p.flip)*p.h*.9; u?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); } ctx.stroke(); }
-      ctx.restore(); }
+      }
+    ctx.setTransform(D,0,0,D,0,0); ctx.globalAlpha=1;
     if(parts.length) raf=requestAnimationFrame(step); else { raf=0; ctx.clearRect(0,0,innerWidth,innerHeight); } };
   const fire=function(){
     rush=false; setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(240,Math.max(160,W*H/5200)));
@@ -4830,3 +4838,11 @@ body .tut .talk.talk,body .tut .talk.talk:has(p.tall){width:max-content!importan
   nb.addEventListener("click",goT); if(tn) tn.addEventListener("click",e=>{ if(e.isTrusted) goT(); });
 })();
 </script>
+
+<style>
+/* ===== one text size for every line of dialogue: the order / match box, the lesson box, the story's narrator box and the speech bubbles ===== */
+:root{--dlgfs:clamp(20px,calc(2*var(--vw)),25px)}
+html body .story .sbub .t,html body .story .sbub.bigb .t{font-size:var(--dlgfs)!important;line-height:1.2!important}
+/* a long line gets a box tall enough for three rows at that size (the letters stay the same) */
+html body .card.card:has(.say.tall),html body .tut .talk.talk:has(p.tall),html body #ssub#ssub:not(.bub):has(p.tall){--dh:clamp(98px,calc(17*var(--vh)),128px);--dk:calc(var(--dh) / 226)}
+</style>

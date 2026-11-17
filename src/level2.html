@@ -2598,9 +2598,14 @@ function sSpot(face,rr){ let s=$("sspot");
 /* focus on a thing in the picture (the narrator has no bubble) */
 function sLook(el){ if(!el) return; const q=el.getBoundingClientRect(); sSpot({l:q.left,t:q.top,r:q.right,b:q.bottom-q.height*.1},Math.max(q.width,q.height)*.42); }   // a tight circle on the thing
 /* the bubble's text shrinks until all of it fits inside the bubble */
-function fitBubText(bb){ const t=bb&&bb.querySelector(".t"); if(!t) return; t.style.removeProperty("font-size");
+function fitBubText(bb){ const t=bb&&bb.querySelector(".t"); if(!t) return;   // every bubble keeps the one dialogue text size: a long line makes the bubble bigger, not the letters smaller
+  t.style.removeProperty("font-size"); bb.style.removeProperty("aspect-ratio");
+  const over=()=>t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1;
+  let w=parseFloat(bb.style.width)||16;
+  for(let i=0;i<40&&over()&&w<26;i++){ w+=.5; bb.style.width=w+"%"; }   // first a little wider (up to about a quarter of the scene)...
+  let ar=900/381; for(let i=0;i<16&&over()&&ar>1.3;i++){ ar*=.95; bb.style.aspectRatio=ar.toFixed(3); }   // ...then a little taller (the bubble picture stretches)
   let fs=parseFloat(getComputedStyle(t).fontSize)||16;
-  for(let i=0;i<30&&(t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1)&&fs>9;i++){ fs*=.93; t.style.setProperty("font-size",fs.toFixed(1)+"px","important"); } }
+  for(let i=0;i<20&&over()&&fs>12;i++){ fs*=.94; t.style.setProperty("font-size",fs.toFixed(1)+"px","important"); } }   // only if nothing else fits
 function sBubbleSay(e,name,text){
   let bb=$("sbub"); cancelAnimationFrame(STORY.bubRaf||0);
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
@@ -2634,6 +2639,9 @@ function sBubbleSay(e,name,text){
     const hit=c=>obs.reduce((a,o)=>a+Math.max(0,Math.min(c.x+bw,o.r)-Math.max(c.x,o.l))*Math.max(0,Math.min(c.y+bh,o.b)-Math.max(c.y,o.t)),0);
     const gap=c=>Math.hypot((c.flip?c.x:c.x+bw)-c.tx,(c.y+bh*.69)-c.ty);
     const best=cands.reduce((a,c)=>(hit(c)*100+gap(c))<(hit(a)*100+gap(a))?c:a);
+    { const kb=[...document.querySelectorAll("#pctl button")].map(o=>o.getBoundingClientRect()).filter(o=>o.width>0&&o.top<innerHeight/2)   // every top key, even one still fading in
+        .map(o=>({l:o.left-w.left-10,r:o.right-w.left+10,b:o.bottom-w.top+10})).filter(o=>best.x<o.r&&best.x+bw>o.l);
+      if(kb.length) best.y=Math.max(best.y,Math.max(...kb.map(o=>o.b))+4); }   // never under a round key in the corners: it sits just below them
     bb.classList.toggle("flip",best.flip); bb.style.left=best.x+"px"; bb.style.top=best.y+"px";
     (STORY.bubLog=STORY.bubLog||[]).push({name,text,gap:Math.round(gap(best)),hit:Math.round(hit(best))});
     sSpot(me);
@@ -4320,25 +4328,26 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0, rush=fals
         k:kind<.5?"sq":kind<.72?"strip":kind<.88?"dot":"curl",
         w:R(5,9)*(s/700+.4),h:R(3,6)*(s/700+.4),c:COLS[(Math.random()*COLS.length)|0],
         rot:R(0,6.28),vr:R(-14,14),flip:R(0,6.28),vf:R(8,20),sw:R(0,6.28),life:0,max:12}); } };
-  const step=t=>{ const all=Math.min(.25,(t-last)/1000||.016); last=t; size();   // real time: a slow frame moves the pieces further, so the fall always takes the same time
+  const step=t=>{ const all=Math.min(.25,(t-last)/1000||.016); last=t; size(); const D=Math.min(1.5,devicePixelRatio||1);   // real time: a slow frame moves the pieces further, so the fall always takes the same time
     ctx.clearRect(0,0,innerWidth,innerHeight);
     parts=parts.filter(p=>p.life<p.max&&p.y<innerHeight+30&&p.x>-60&&p.x<innerWidth+60);   // each piece stays until it has fallen off the bottom
-    const nsub=Math.max(1,Math.ceil(all/.02)), dt=all/nsub;
+    const nsub=Math.min(3,Math.max(1,Math.ceil(all/.03))), dt=all/nsub;   // at most 3 small steps a frame (more made a slow frame slower still)
     for(const p of parts){ for(let q=0;q<nsub;q++){ p.life+=dt;
       const drag=p.k==="dot"?1.7:2.2;   // paper slows down quickly in the air
       p.vx-=p.vx*drag*dt; p.vy-=p.vy*drag*dt; p.vy+=300*dt;   // gravity
       const top=rush?1100:(p.k==="dot"?310:p.k==="curl"?230:265); if(rush){ p.vy+=2200*dt; } if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
-      p.sw+=dt*R(2,4); p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
+      p.sw+=dt*3; p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
       p.rot+=p.vr*dt; p.flip+=p.vf*dt; }
       const fade=Math.min(1,(p.max-p.life)/.6, 1);
-      ctx.save(); ctx.globalAlpha=fade; ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.c;
-      const sy=Math.cos(p.flip);   // the paper turns over: it looks thin edge-on
-      if(p.k==="sq"){ ctx.scale(1,sy); ctx.fillRect(-p.w/2,-p.w/2,p.w,p.w); }
-      else if(p.k==="strip"){ ctx.scale(1,sy); ctx.fillRect(-p.w,-p.h/3,p.w*2,p.h*.66); }
-      else if(p.k==="dot"){ ctx.beginPath(); ctx.ellipse(0,0,p.h*.7,p.h*.7*Math.max(.25,Math.abs(sy)),0,0,6.28); ctx.fill(); }
-      else { ctx.strokeStyle=p.c; ctx.lineWidth=Math.max(1.6,p.h*.45); ctx.lineCap="round"; ctx.beginPath();
+      const sy=Math.cos(p.flip), cs=Math.cos(p.rot)*D, sn=Math.sin(p.rot)*D;   // one transform per piece (save / translate / rotate / restore for every piece made the shower lag)
+      ctx.globalAlpha=fade; ctx.fillStyle=p.c;   // the paper turns over: it looks thin edge-on
+      if(p.k==="sq"){ ctx.setTransform(cs,sn,-sn*sy,cs*sy,p.x*D,p.y*D); ctx.fillRect(-p.w/2,-p.w/2,p.w,p.w); }
+      else if(p.k==="strip"){ ctx.setTransform(cs,sn,-sn*sy,cs*sy,p.x*D,p.y*D); ctx.fillRect(-p.w,-p.h/3,p.w*2,p.h*.66); }
+      else if(p.k==="dot"){ ctx.setTransform(cs,sn,-sn,cs,p.x*D,p.y*D); ctx.beginPath(); ctx.ellipse(0,0,p.h*.7,p.h*.7*Math.max(.25,Math.abs(sy)),0,0,6.28); ctx.fill(); }
+      else { ctx.setTransform(cs,sn,-sn,cs,p.x*D,p.y*D); ctx.strokeStyle=p.c; ctx.lineWidth=Math.max(1.6,p.h*.45); ctx.lineCap="round"; ctx.beginPath();
         for(let u=0;u<=10;u++){ const xx=(u-5)*p.w*.32, yy=Math.sin(u*.9+p.flip)*p.h*.9; u?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); } ctx.stroke(); }
-      ctx.restore(); }
+      }
+    ctx.setTransform(D,0,0,D,0,0); ctx.globalAlpha=1;
     if(parts.length) raf=requestAnimationFrame(step); else { raf=0; ctx.clearRect(0,0,innerWidth,innerHeight); } };
   const fire=function(){
     rush=false; setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(240,Math.max(160,W*H/5200)));
@@ -4434,7 +4443,6 @@ body .tut .talk.talk,body .tut .talk.talk:has(p.tall){width:max-content!importan
 </style>
 <style>
 /* bigger words in the story's speech bubbles (the name line is gone, so the words have the whole bubble) */
-.story .sbub .t{font-size:1.6cqw!important;line-height:1.2!important}
 /* the Final: bigger fraction tiles on the cards, bigger SMALLEST / GREATEST tags */
 .fl2 .fin .mini .fr{font-size:calc(var(--cw) * .16)!important}
 .fl2 .scale5 span{font-size:clamp(18px,calc(3.3*var(--vh)),27px)!important}
@@ -4461,3 +4469,11 @@ body:has(.view.fl2) .card.card,body:has(.view.podium) .card.card,body:has(.view.
   nb.addEventListener("click",goT); if(tn) tn.addEventListener("click",e=>{ if(e.isTrusted) goT(); });
 })();
 </script>
+
+<style>
+/* ===== one text size for every line of dialogue: the order / match box, the lesson box, the story's narrator box and the speech bubbles ===== */
+:root{--dlgfs:clamp(20px,calc(2*var(--vw)),25px)}
+html body .story .sbub .t,html body .story .sbub.bigb .t{font-size:var(--dlgfs)!important;line-height:1.2!important}
+/* a long line gets a box tall enough for three rows at that size (the letters stay the same) */
+html body .card.card:has(.say.tall),html body .tut .talk.talk:has(p.tall),html body #ssub#ssub:not(.bub):has(p.tall){--dh:clamp(98px,calc(17*var(--vh)),128px);--dk:calc(var(--dh) / 226)}
+</style>
