@@ -4849,3 +4849,9 @@ html body .story .sbub .t,html body .story .sbub.bigb .t{font-size:var(--dlgfs)!
 /* a long line gets a box tall enough for three rows at that size (the letters stay the same) */
 html body .card.card:has(.say.tall),html body .tut .talk.talk:has(p.tall),html body #ssub#ssub:not(.bub):has(p.tall){--dh:clamp(98px,calc(17*var(--vh)),128px);--dk:calc(var(--dh) / 226)}
 </style>
+
+<script>
+/* any NEXT tap (the round key, the lesson's NEXT, the story's NEXT) brings the confetti down at once, as the game's NEXT does */
+(()=>{ const drop=e=>{ if(e.isTrusted&&window.confetti&&confetti.busy&&confetti.busy()&&confetti.hurry) confetti.hurry(); };
+  ["pcNext","tutNext","sNext"].forEach(id=>{ const b=document.getElementById(id); if(b) b.addEventListener("click",drop,true); }); })();
+</script>
