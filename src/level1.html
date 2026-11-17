@@ -2373,7 +2373,7 @@ PZ.addEventListener("pointerdown",()=>{ if(S.phase==="cutting") S.skip=true; });
 
 /* ---------- serve or try again ---------- */
 $("done").addEventListener("click",()=>{
-  if(S.phase==="served"){ if(!S.busy) next(); return; }
+  if(S.phase==="served"){ if(!S.busy) next(); else S.nextQueued=true; return; }   // tapped while the plates are still moving: remembered
   if(S.busy) return;
   if(S.phase==="mould"){ say("First pick the mould that cuts the pizza for the order.","bad"); Sound.bad&&Sound.bad(); return; }
   if(S.phase!=="top") return;
@@ -2416,7 +2416,7 @@ function showSlices(n,quiet){
 }
 async function serve(){
   const o=cur(), gen=S.gen, first=S.tries===0;
-  S.phase="served"; S.busy=true; stopGuide(); if(!o.tut&&!o.guided){ S.done[S.i]=true; if(first) S.stars++; } renderTop(); clearTimeout(IDLE.t);
+  S.phase="served"; S.busy=true; S.nextQueued=false; stopGuide(); if(!o.tut&&!o.guided){ S.done[S.i]=true; if(first) S.stars++; } renderTop(); clearTimeout(IDLE.t);
   const t=TOPPINGS.find(x=>x.k===[...S.covered.values()][0]).name.toLowerCase();
   Sound.good(); guideMood("cheer"); setDone("next",false); $("count").hidden=true;
   say(`${custName(o)}: “${o.ok.replace("{t}",t)}”${first&&!o.tut&&!o.guided?" ⭐":""}`,"good");
@@ -2437,6 +2437,7 @@ async function serve(){
   await plateScene(gen); if(!live(gen)) return;
   confetti(); renderTop();
   S.busy=false; setDone("next",true,true);
+  if(S.nextQueued){ S.nextQueued=false; setTimeout(()=>{ if(!live(gen)) return; if(confetti.hurry) confetti.hurry(); next(); },700); }   // NEXT was tapped during the plates: a short burst, then on
 }
 /* After a correct serve: the receipt and toppings step away, two wooden plates slide in,
    the topped parts glide onto the Served plate and the rest onto the Left plate,
@@ -3035,6 +3036,7 @@ function autoClick(el,text,extra=1000){
 addEventListener("unhandledrejection",e=>{ if(e.reason===STOP) e.preventDefault(); });
 /* a wait that stands still while paused; Next during a scene change cuts it short */
 const sleep=ms=>new Promise(r=>{ let left=ms, last=performance.now(); PAUSE.hurry=false;
+  if(performance.now()-(PAUSE.tapAt||0)<700) left=Math.min(left,250);   // right after a NEXT tap the pause is short, so the next line comes at once
   (function t(){ const now=performance.now(); if(!PAUSE.on) left-=now-last; last=now; if(PAUSE.hurry) left=0;
     if(left<=0) r(); else setTimeout(t,Math.min(left,100)); })(); });
 let _suid=0;
@@ -3730,7 +3732,7 @@ body.paused #story::after,body.paused #tut::after{content:"";position:absolute;i
   pb.addEventListener("click",()=>setPause(!PAUSE.on));
   nb.addEventListener("click",()=>{ if(PAUSE.on) setPause(false);
     try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(e){} if(PAUSE.onSkip) PAUSE.onSkip();
-    if(!st.hidden){ const n=document.getElementById("sNext"); if(STORY.next) n.click(); else PAUSE.hurry=true; return; }
+    if(!st.hidden){ const n=document.getElementById("sNext"); PAUSE.tapAt=performance.now(); if(STORY.next) n.click(); else PAUSE.hurry=true; return; }
     const t=document.getElementById("tutNext"); if(t&&!t.hidden&&t.getClientRects().length) t.click(); });
   // placement: in a tutorial the signs sit centred on the bottom log of the scroll (and follow it as it rolls);
   // in a story they stand a little above the bottom edge; sized to the screen either way
@@ -4688,7 +4690,7 @@ html body #guide img.faceimg.faceimg,html body img#guideImg.faceimg.faceimg,html
 <script>
 /* confetti like a party popper: two poppers fire from the bottom corners, hundreds of tiny paper bits
    (squares, strips, dots and curly streamers) burst up and inward, slow down in the air, flutter, spin and drift down */
-window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
+window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0, rush=false;
   const COLS=["#FF4D6D","#FFB703","#FB8500","#3A86FF","#8338EC","#06D6A0","#FFD60A","#EF476F","#118AB2","#F15BB5","#FFFFFF","#9EF01A"];
   const R=(a,b)=>a+Math.random()*(b-a);
   const setup=()=>{ if(cv&&cv.isConnected) return; cv=document.createElement("canvas"); cv.id="popfx";
@@ -4709,7 +4711,7 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     for(const p of parts){ for(let q=0;q<nsub;q++){ p.life+=dt;
       const drag=p.k==="dot"?1.7:2.2;   // paper slows down quickly in the air
       p.vx-=p.vx*drag*dt; p.vy-=p.vy*drag*dt; p.vy+=300*dt;   // gravity
-      const top=p.k==="dot"?310:p.k==="curl"?230:265; if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
+      const top=rush?1100:(p.k==="dot"?310:p.k==="curl"?230:265); if(rush){ p.vy+=2200*dt; } if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
       p.sw+=dt*R(2,4); p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
       p.rot+=p.vr*dt; p.flip+=p.vf*dt; }
       const fade=Math.min(1,(p.max-p.life)/.6, 1);
@@ -4723,13 +4725,14 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
       ctx.restore(); }
     if(parts.length) raf=requestAnimationFrame(step); else { raf=0; ctx.clearRect(0,0,innerWidth,innerHeight); } };
   const fire=function(){
-    setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(240,Math.max(160,W*H/5200)));
+    rush=false; setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(240,Math.max(160,W*H/5200)));
     // one popper in each bottom corner fires diagonally across the screen, so the paper fills the whole screen from both sides
     burst(0,H,-Math.PI/2+.78,n);       // from the bottom-left corner, up and to the right
     burst(W,H,-Math.PI/2-.78,n);       // from the bottom-right corner, up and to the left
     setTimeout(()=>{ burst(0,H,-Math.PI/2+.7,Math.round(n*.55)); burst(W,H,-Math.PI/2-.7,Math.round(n*.55)); if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } },220);   // a second pop from each corner
     if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } };
   fire.busy=()=>parts.length>0;   // true while any piece is still in the air
+  fire.hurry=()=>{ rush=true; };   // NEXT tapped: every piece drops to the floor in about a second
   return fire;
 })();
 /* the next question's sauce pour waits until the confetti has fallen all the way down, then a short breath */
@@ -4769,3 +4772,10 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
 /* the cut lines are only drawn, never tapped: once hidden after the cut they used to catch taps meant for a slice (a topping could not be tapped off) */
 #cuts,#cuts *,.cut,line.cut{pointer-events:none!important}
 </style>
+
+<script>
+/* a real tap on NEXT while the confetti is still falling: the paper drops to the floor quickly, then the sauce and the next question
+   (NEXT pressing itself still lets the full shower fall slowly) */
+(()=>{ const d=document.getElementById("done"); if(!d) return;
+  d.addEventListener("click",e=>{ if(e.isTrusted&&window.confetti&&confetti.busy&&confetti.busy()&&confetti.hurry) confetti.hurry(); },true); })();
+</script>
