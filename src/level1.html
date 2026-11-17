@@ -4682,8 +4682,8 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     document.body.appendChild(cv); ctx=cv.getContext("2d"); };
   const size=()=>{ const d=Math.min(1.5,devicePixelRatio||1), w=Math.round(innerWidth*d), h=Math.round(innerHeight*d);
     if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; } ctx.setTransform(d,0,0,d,0,0); };   // only when the window size changes (resizing every frame made the game lag)
-  const burst=(x,y,dir,n)=>{ const s=Math.min(innerWidth,innerHeight);
-    for(let i=0;i<n;i++){ const a=dir+R(-.38,.38), v=R(.8,1.45)*s*1.75, kind=Math.random();
+  const burst=(x,y,dir,n)=>{ const s=Math.min(innerWidth,innerHeight), D=Math.hypot(innerWidth,innerHeight);
+    for(let i=0;i<n;i++){ const a=dir+R(-.5,.5), v=R(.5,1.0)*D*1.7, kind=Math.random();   // a wide fan, fast enough to cross the screen
       parts.push({x:x+R(-6,6),y:y+R(-6,6),vx:Math.cos(a)*v,vy:Math.sin(a)*v,
         k:kind<.5?"sq":kind<.72?"strip":kind<.88?"dot":"curl",
         w:R(5,9)*(s/700+.4),h:R(3,6)*(s/700+.4),c:COLS[(Math.random()*COLS.length)|0],
@@ -4695,7 +4695,7 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     for(const p of parts){ for(let q=0;q<nsub;q++){ p.life+=dt;
       const drag=p.k==="dot"?1.7:2.2;   // paper slows down quickly in the air
       p.vx-=p.vx*drag*dt; p.vy-=p.vy*drag*dt; p.vy+=300*dt;   // gravity
-      const top=p.k==="dot"?280:p.k==="curl"?200:235; if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
+      const top=p.k==="dot"?310:p.k==="curl"?230:265; if(p.vy>top) p.vy=top;   // paper floats down, all of it reaching the floor in about 5 s
       p.sw+=dt*R(2,4); p.x+=(p.vx+Math.sin(p.sw)*28)*dt; p.y+=p.vy*dt;   // flutter side to side as it falls
       p.rot+=p.vr*dt; p.flip+=p.vf*dt; }
       const fade=Math.min(1,(p.max-p.life)/.6, 1);
@@ -4710,9 +4710,10 @@ window.confetti=(()=>{ let cv=null, ctx=null, parts=[], raf=0, last=0;
     if(parts.length) raf=requestAnimationFrame(step); else { raf=0; ctx.clearRect(0,0,innerWidth,innerHeight); } };
   const fire=function(){
     setup(); size(); const W=innerWidth, H=innerHeight, n=Math.round(Math.min(240,Math.max(160,W*H/5200)));
-    burst(W*.04,H*1.0,-Math.PI/2+.55,n);     // the left popper fires up and to the right
-    burst(W*.96,H*1.0,-Math.PI/2-.55,n);     // the right popper up and to the left
-    setTimeout(()=>{ burst(W*.5,H*.98,-Math.PI/2,Math.round(n*.45)); if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } },180);   // a small third pop in the middle
+    // one popper in each bottom corner fires diagonally across the screen, so the paper fills the whole screen from both sides
+    burst(0,H,-Math.PI/2+.78,n);       // from the bottom-left corner, up and to the right
+    burst(W,H,-Math.PI/2-.78,n);       // from the bottom-right corner, up and to the left
+    setTimeout(()=>{ burst(0,H,-Math.PI/2+.7,Math.round(n*.55)); burst(W,H,-Math.PI/2-.7,Math.round(n*.55)); if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } },220);   // a second pop from each corner
     if(!raf){ last=performance.now(); raf=requestAnimationFrame(step); } };
   fire.busy=()=>parts.length>0;   // true while any piece is still in the air
   return fire;
