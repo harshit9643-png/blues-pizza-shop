@@ -2602,7 +2602,7 @@ function fitBubText(bb){ const t=bb&&bb.querySelector(".t"); if(!t) return;   //
   t.style.removeProperty("font-size"); bb.style.removeProperty("aspect-ratio");
   const over=()=>t.scrollHeight>t.clientHeight+1||t.scrollWidth>t.clientWidth+1;
   let w=parseFloat(bb.style.width)||16;
-  for(let i=0;i<40&&over()&&w<26;i++){ w+=.5; bb.style.width=w+"%"; }   // first a little wider (up to about a quarter of the scene)...
+  for(let i=0;i<40&&over()&&w<21;i++){ w+=.5; bb.style.width=w+"%"; }   // first a little wider (up to about a fifth of the scene)...
   let ar=900/381; for(let i=0;i<16&&over()&&ar>1.3;i++){ ar*=.95; bb.style.aspectRatio=ar.toFixed(3); }   // ...then a little taller (the bubble picture stretches)
   let fs=parseFloat(getComputedStyle(t).fontSize)||16;
   for(let i=0;i<20&&over()&&fs>12;i++){ fs*=.94; t.style.setProperty("font-size",fs.toFixed(1)+"px","important"); } }   // only if nothing else fits
@@ -2611,7 +2611,7 @@ function sBubbleSay(e,name,text){
   if(!e||!e.isConnected||(document.querySelector("#sworld>.sshot")&&!e.classList.contains("anch"))){ if(bb) bb.classList.remove("on"); $("ssub").classList.remove("bub"); sSpot(null); return; }   // full-screen shots keep the box
   if(!bb){ bb=document.createElement("div"); bb.id="sbub"; bb.className="sbub"; bb.innerHTML=`<img src="assets/story/bubble.webp" alt=""><div class="t"></div>`; $("sworld").appendChild(bb); }
   bb.querySelector(".t").innerHTML=`<span>${fracify(text)}</span>`;   // only the words: no speaker name in any box
-  const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(13,Math.min(27,3.15*Math.sqrt(len)+.5))+"%";   // the bubble grows with the line (its area with the number of letters), so the words keep one big size
+  const len=String(text).replace(/\s+/g," ").length; bb.style.width=Math.max(11,Math.min(18,2.3*Math.sqrt(len)))+"%";   // the bubble grows with the line (its area with the number of letters), so the words keep one big size
   bb._set=0; bb.classList.remove("on"); $("ssub").classList.add("bub");
   const place=()=>{ if(!bb.isConnected||!e.isConnected) return;
     fitBubText(bb);
@@ -4483,3 +4483,9 @@ html body .card.card:has(.say.tall),html body .tut .talk.talk:has(p.tall),html b
 (()=>{ const drop=e=>{ if(e.isTrusted&&window.confetti&&confetti.busy&&confetti.busy()&&confetti.hurry) confetti.hurry(); };
   ["pcNext","tutNext","sNext"].forEach(id=>{ const b=document.getElementById(id); if(b) b.addEventListener("click",drop,true); }); })();
 </script>
+
+<style>
+/* the story's speech bubbles are a little smaller: slightly smaller words (the same in every bubble) and less empty rim inside */
+html body .story .sbub .t,html body .story .sbub.bigb .t{font-size:calc(var(--dlgfs) * .86)!important;line-height:1.18!important;left:6%!important;right:13%!important;top:10%!important;bottom:12%!important}
+html body .story .sbub.flip .t{left:13%!important;right:6%!important}   /* the tail's side keeps a wider margin */
+</style>
