@@ -3321,7 +3321,9 @@ function sBubbleSay(e,name,text){
         if(down){ x-=.256*aw; y-=ah; } else { if(!fl) x=w.width*(l+ww)/100-aw; y+=.69*(nh-ah); } }   // (for "down", l,t is where the tail's tip points)
       // keep it on the screen (the picture may be cropped on a wide screen) and clear of the round keys in the corners
       const k=(document.getElementById("pcNext")||{}).offsetHeight||60, bw2=bb.offsetWidth, bh2=bb.offsetHeight;
-      const underKey=x< -w.left+k*2.8+40||x+bw2> -w.left+innerWidth-k-40; y=Math.max(y,-w.top+(underKey?k+26:10)); y=Math.min(y,-w.top+innerHeight-bh2-90); x=Math.min(x,-w.left+innerWidth-bw2-16); x=Math.max(x,-w.left+16);   // on screen, and below the corner keys only where it is under them
+      const KR=[...document.querySelectorAll("#pctl button")].map(o=>o.getBoundingClientRect()).filter(o=>o.width>0&&o.top<innerHeight/2).map(o=>({l:o.left-w.left,r:o.right-w.left,b:o.bottom-w.top})), under=KR.filter(o=>x<o.r+8&&x+bw2>o.l-8);
+      { const rk=under.find(o=>o.l>x+bw2/2); if(under.length===1&&rk&&x+bw2-(rk.l-8)<40){ x=rk.l-8-bw2; under.length=0; } }   // only just under a key on the right: a little to the left instead of lower
+      y=Math.max(y,under.length?Math.max(...under.map(o=>o.b))+12:-w.top+10); y=Math.min(y,-w.top+innerHeight-bh2-90); x=Math.min(x,-w.left+innerWidth-bw2-16); x=Math.max(x,-w.left+16);   // on screen, and below the corner keys only where it is under them
       if(fl&&!down){ const want=w.width*l/100; if(want-x>bw2*.15){ bb.classList.remove("flip"); const A=STORY.bubAt[4];   // no room on the right (a narrow screen): it sits on the speaker's left instead, the tail still pointing at them
         if(A){ const [l2,t2,ww2]=A, nh2=w.width*ww2/100*381/900; x=w.width*(l2+ww2)/100-bw2; y=Math.max(w.height*t2/100+.69*(nh2-bh2),-w.top+k+26); }   // (a line can give its own spot for that)
         else x=want-bw2; x=Math.max(x,-w.left+16); } }   // and never off the left edge (on a narrow screen the picture's sides are cut off)
@@ -3601,7 +3603,7 @@ async function storyContext1(){
   Object.assign(STORY.cast,{chintu:c3,noori:n3});
   STORY.noSpot=true;   // no dark focus in this scene: the cut pizza stays in view
   // the monkey's bubble sits up on the LEFT (its tail points at him); Noori's sits right over her head, its tail pointing down at it: both clear of Billu's face
-  STORY.bubAt=[2,20,16,0]; await sLine("chintu","I want the bigger half!"); STORY.bubAt=[76,31.5,15,"down"];
+  STORY.bubAt=[2,20,16,0]; await sLine("chintu","I want the bigger half!"); STORY.bubAt=[78.5,31.5,15,"down"];
   await sLine("noori","These pieces aren’t equal, so neither is a half. Let’s learn about fractions!"); STORY.bubAt=null;
   STORY.noSpot=false;
 }
